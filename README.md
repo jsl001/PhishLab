@@ -1,4 +1,4 @@
-# Romance-Scam
+# Scam
 
 ## Persistent database storage
 
