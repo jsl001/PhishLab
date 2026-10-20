@@ -33,10 +33,29 @@ The page opens on **Why it matters**. The sidebar separates that overview from
 that sends the same fictional message to all three personas through the local
 model; comparison replies are not added to chat history or analytics.
 Model-generated stages and pressure levels are illustrative assessments, not
-verified findings.
+verified findings. The conversation lab also shows a rule-based score from the
+latest five messages. Its 50-point review threshold and pattern flags are
+heuristics for research exploration, not a validated scam verdict; review the
+messages and context before drawing conclusions.
 In the guided simulation, next-turn choices reflect whether the persona asked a
 question or set a boundary. They are predefined, abstract awareness cues rather
 than generated scam scripts; operational details are intentionally omitted.
+
+## Singapore scam-advisory keywords
+
+At startup and every six hours, the backend reads the ScamShield homepage and
+any configured official ScamShield/SPF RSS feeds for scam-related phrases. It
+uses those phrases as literal-match classifier cues; feed text is never treated
+as a regular expression. The classifier also checks fixed patterns for CDC
+voucher phishing, government impersonation, and local payment traps. Feed
+availability is logged, and the existing fixed rules remain active if an
+advisory source is unavailable.
+
+Set `SCAM_ADVISORY_RSS_URLS` in the repository-root `.env` to a comma-separated
+list of official HTTPS RSS feed URLs. Only `scamshield.gov.sg` and
+`police.gov.sg` hosts (including their subdomains) are accepted. The provided
+ScamShield homepage URL is an HTML page, not an RSS feed; use this setting for
+the actual RSS feed endpoint(s) when available.
 
 ## Optional URL reputation checks
 

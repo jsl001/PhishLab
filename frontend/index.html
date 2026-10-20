@@ -109,6 +109,33 @@
     .solution-card span { display: block; margin-bottom: 7px; color: #278071; font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
     .solution-card strong { color: #283e54; font-size: 11px; }
     .solution-card p { margin: 6px 0 0; color: #68798c; font-size: 10px; line-height: 1.55; }
+    .classifier-feature { margin-top: 16px; padding: 20px; border: 1px solid #c9d9e8; border-radius: 14px; background: linear-gradient(120deg,#edf5fb,#f6f8fc 64%,#f2f1fa); box-shadow: 0 9px 26px #23364a12; }
+    .classifier-feature-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .classifier-feature-kicker { margin: 0 0 6px; color: #3c6f8e; font-size: 9px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .classifier-feature h3 { margin: 0; color: #1d3650; font-size: 17px; letter-spacing: -.02em; }
+    .classifier-feature-intro { max-width: 730px; margin: 7px 0 0; color: #63758a; font-size: 10px; line-height: 1.55; }
+    .classifier-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
+    .classifier-method { min-width: 0; padding: 12px; border: 1px solid #dbe5ed; border-radius: 9px; background: #ffffffd9; }
+    .classifier-method strong { display: block; color: #28465f; font-size: 10px; }
+    .classifier-method p { margin: 6px 0 0; color: #68798c; font-size: 9px; line-height: 1.55; }
+    .classifier-localization { margin-top: 15px; padding-top: 13px; border-top: 1px solid #cfdae4; }
+    .classifier-localization h4 { margin: 0; color: #263f57; font-size: 11px; }
+    .classifier-localization-intro { margin: 5px 0 0; color: #68798c; font-size: 9px; line-height: 1.5; }
+    .classifier-localization-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+    .classifier-localization-item { padding: 10px; border: 1px solid #d8e2ea; border-radius: 8px; background: #ffffffcf; }
+    .classifier-localization-item strong { display: block; color: #31506a; font-size: 9px; }
+    .classifier-localization-item p { margin: 5px 0 0; color: #708094; font-size: 8px; line-height: 1.45; }
+    .classifier-feature-caveat { margin: 10px 0 0; color: #78879a; font-size: 9px; line-height: 1.5; }
+    .topbar-statuses { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+    .export-iocs-button { padding: 8px 11px; border: 1px solid #bfd5ca; border-radius: 8px; background: #eef7f1; color: #35674e; font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .export-iocs-button:hover { background: #e2f1e8; }
+    .export-iocs-button:disabled { cursor: wait; opacity: .6; }
+    .threat-feed-status { display: inline-flex; align-items: center; gap: 7px; max-width: 330px; padding: 8px 11px; border: 1px solid #d9e3e8; border-radius: 999px; background: #fff; color: #596b7e; font-size: 9px; font-weight: 650; line-height: 1.4; }
+    .threat-feed-status::before { width: 7px; height: 7px; flex: none; border-radius: 50%; background: #a2afba; content: ""; }
+    .threat-feed-status[data-state="active"] { border-color: #c8e2d2; background: #f1f8f4; color: #38684f; }
+    .threat-feed-status[data-state="active"]::before { background: #3d9a6a; box-shadow: 0 0 0 3px #3d9a6a20; }
+    .threat-feed-status[data-state="unavailable"] { border-color: #ead5ce; background: #fcf5f3; color: #825143; }
+    .threat-feed-status[data-state="unavailable"]::before { background: #b66b57; }
     .journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
     .journey-step { position: relative; min-height: 104px; padding: 14px; border: 1px solid #dfe8ec; border-radius: 10px; background: linear-gradient(150deg,#fff,#f6faf9); }
     .journey-step span { display: block; color: #278071; font-size: 9px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
@@ -132,6 +159,15 @@
     .next-step p { max-width: 760px; margin: 6px 0 0; color: #64758a; font-size: 10px; line-height: 1.6; }
     .evidence-panel { padding: 12px 0; border-top: 1px solid var(--line); }
     .evidence-panel h3 { margin: 0 0 8px; color: #263c53; font-size: 10px; }
+    .classifier-score { margin: 0 0 5px; color: #293b52; font-size: 11px; font-weight: 700; }
+    .classifier-score-badge { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-bottom: 6px; }
+    .classifier-score-value { color: #253a52; font-size: 11px; font-weight: 750; }
+    .classifier-score-status { padding: 4px 7px; border-radius: 10px; background: #e8f3ed; color: #47715e; font-size: 8px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+    .classifier-score-status[data-flagged="true"] { background: #fff0dd; color: #875a22; }
+    .classifier-note { margin: 0 0 6px; color: #8793a2; font-size: 9px; line-height: 1.45; }
+    .classifier-flags { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+    .classifier-flags li { padding: 4px 6px; border-radius: 10px; background: #f2edf7; color: #65517a; font-size: 8px; font-weight: 650; }
+    .classifier-flags li:only-child { background: #edf5f1; color: #4f7564; }
     .evidence-message { margin: 0; padding: 8px 9px; border-radius: 7px; background: #f5f7fa; color: #56677d; font-size: 9px; line-height: 1.5; overflow-wrap: anywhere; }
     .evidence-explanation { margin: 7px 0 0; color: #718096; font-size: 9px; line-height: 1.5; }
     .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 282px; gap: 20px; max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
@@ -182,7 +218,13 @@
     .send-button:disabled { cursor: wait; opacity: .55; }
     .composer-hint { margin: 9px 2px 0; color: #9aa4a1; font-size: 10px; }
     .insights { align-self: start; padding: 18px; }
+    .insights-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .insights h2 { margin: 0; font-size: 13px; font-weight: 700; }
+    .manual-takeover-button { flex: none; padding: 7px 9px; border: 1px solid #bfd5ca; border-radius: 8px; background: #eef7f1; color: #35674e; font-size: 9px; font-weight: 750; cursor: pointer; }
+    .manual-takeover-button[data-active="true"] { border-color: #dfb7a5; background: #fff1e9; color: #8c4d34; box-shadow: 0 0 0 2px #c966351c; }
+    .manual-takeover-button:disabled { cursor: wait; opacity: .6; }
+    .manual-takeover-status { min-height: 13px; margin: 6px 0 0; color: #738196; font-size: 9px; line-height: 1.45; }
+    .manual-takeover-status[data-active="true"] { color: #8c4d34; font-weight: 650; }
     .insights-intro { margin: 5px 0 18px; color: var(--muted); font-size: 11px; line-height: 1.5; }
     .insight-section { padding: 14px 0; border-top: 1px solid var(--line); }
     .section-title { margin-bottom: 9px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; }
@@ -404,6 +446,8 @@
       .workspace { grid-template-columns: minmax(0, 1fr); }
       .overview-intro { grid-template-columns: minmax(0, 1fr); }
       .solution-grid, .comparison-results { grid-template-columns: minmax(0, 1fr); }
+      .classifier-method-grid { grid-template-columns: minmax(0, 1fr); }
+      .classifier-localization-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .overview-section-head { align-items: flex-start; flex-direction: column; }
       .overview-view { padding: 16px 18px 26px; }
@@ -504,7 +548,11 @@
       <p class="orientation-hint" role="note">For the intended landscape presentation, rotate your device. The page remains usable in portrait.</p>
       <header class="topbar">
         <div><div class="eyebrow">PhishLens</div><h1 id="page-heading">Why it matters</h1></div>
-        <div class="local-status"><span class="status-dot" aria-hidden="true"></span> Simulation only</div>
+        <div class="topbar-statuses">
+          <button class="export-iocs-button" id="export-iocs-button" type="button">Export IoCs</button>
+          <div class="threat-feed-status" id="threat-feed-status" data-state="checking" role="status" aria-live="polite">Threat Feed: Checking ScamShield SG…</div>
+          <div class="local-status"><span class="status-dot" aria-hidden="true"></span> Simulation only</div>
+        </div>
       </header>
 
       <section class="page-view overview-view" id="why-view" aria-labelledby="overview-title">
@@ -570,6 +618,52 @@
               <p>Store demo conversations and observations locally for review. URL checks are a separate, explicit action.</p>
             </article>
           </div>
+        </section>
+        <section class="classifier-feature" aria-labelledby="classifier-feature-title">
+          <div class="classifier-feature-header">
+            <div>
+              <p class="classifier-feature-kicker">Conversation-level signal</p>
+              <h3 id="classifier-feature-title">Multi-Turn Behavioral Scam Classification</h3>
+              <p class="classifier-feature-intro">A lightweight rule-based review cue that looks across recent conversation context, rather than relying only on isolated keywords.</p>
+            </div>
+          </div>
+          <div class="classifier-method-grid">
+            <article class="classifier-method">
+              <strong>Rolling Multi-Turn Window</strong>
+              <p>Tracks the latest 5 messages as a conversation window. It uses simple pattern matching, not a trained state machine or single-line verdict.</p>
+            </article>
+            <article class="classifier-method">
+              <strong>Playbook Heuristics</strong>
+              <p>Surfaces cues associated with Sha Zhu Pan (pig-butchering): wrong-number pivots, wealth/crypto claims, off-platform or link/app cues, and high-pressure urgency.</p>
+            </article>
+            <article class="classifier-method">
+              <strong>Weighted Risk Scoring</strong>
+              <p>Combines fixed cue weights into a 0–100 heuristic score. Scores at or above 50 are flagged for human review—not treated as proof or used to automatically deploy a persona.</p>
+            </article>
+          </div>
+          <section class="classifier-localization" aria-labelledby="classifier-localization-title">
+            <h4 id="classifier-localization-title">Singapore Threat Localization</h4>
+            <p class="classifier-localization-intro">Localized cues are heuristic patterns for review, not confirmation that an account or message is fraudulent.</p>
+            <div class="classifier-localization-grid">
+              <article class="classifier-localization-item">
+                <strong>CDC &amp; GST voucher lures</strong>
+                <p>Voucher mentions paired with Telegram or other off-platform requests.</p>
+              </article>
+              <article class="classifier-localization-item">
+                <strong>Singpass OTP phishing</strong>
+                <p>Requests or claims involving Singpass one-time passwords.</p>
+              </article>
+              <article class="classifier-localization-item">
+                <strong>IRAS &amp; bank impersonation</strong>
+                <p>Tax-refund claims and DBS/OCBC fraud-team impersonation cues.</p>
+              </article>
+              <article class="classifier-localization-item">
+                <strong>PayNow &amp; PayLah traps</strong>
+                <p>Local payment references and bank OTP or phishing-link language.</p>
+              </article>
+            </div>
+          </section>
+          <p class="classifier-feature-caveat">The score is not a calibrated confidence percentage. These cues can appear in legitimate conversations; check the message context before drawing conclusions.</p>
         </section>
         <section class="comparison-panel" aria-labelledby="comparison-title">
           <div class="overview-section-head">
@@ -792,9 +886,13 @@
           </form>
         </section>
 
-        <aside class="insights" aria-label="Latest conversation telemetry">
-          <h2>Conversation signals</h2>
-          <p class="insights-intro">Structured observations from the latest model response.</p>
+        <aside class="insights" aria-label="Chat Inspector">
+          <div class="insights-header">
+            <h2>Chat Inspector</h2>
+            <button class="manual-takeover-button" id="manual-takeover-toggle" type="button" data-active="false" aria-pressed="false" disabled>Manual Takeover [OFF]</button>
+          </div>
+          <p class="manual-takeover-status" id="manual-takeover-status" data-active="false" role="status" aria-live="polite">Automated replies are available for this thread.</p>
+          <p class="insights-intro">Structured observations and heuristic cues from the current conversation.</p>
           <div class="insight-section">
             <div class="section-title">Scam stage</div>
             <div class="insight-value" id="scam-stage">No data yet</div>
@@ -803,6 +901,15 @@
             <div class="section-title">Pressure level</div>
             <div class="insight-value" id="pressure-level">No data yet</div>
           </div>
+          <section class="evidence-panel" aria-label="Heuristic scam behavior classification">
+            <h3>Scam risk score</h3>
+            <div class="classifier-score-badge">
+              <span class="classifier-score-value" id="classifier-score">No classifier result yet</span>
+              <span class="classifier-score-status" id="classifier-score-status" data-flagged="false">Awaiting message</span>
+            </div>
+            <p class="classifier-note">Rule-based cue score across the latest 5 messages · 50+ is flagged for review, not proof of a scam.</p>
+            <ul class="classifier-flags" id="classifier-flags"><li>No detected cues</li></ul>
+          </section>
           <section class="evidence-panel" aria-label="Evidence for latest model signal">
             <h3>Evidence in this turn</h3>
             <p class="evidence-message" id="evidence-message">No incoming message recorded yet.</p>
@@ -852,11 +959,14 @@
     const personaSelect = document.getElementById("persona-select");
     const personaStatus = document.getElementById("persona-status");
     const autoReplyToggle = document.getElementById("auto-reply-toggle");
+    const manualTakeoverToggle = document.getElementById("manual-takeover-toggle");
+    const manualTakeoverStatus = document.getElementById("manual-takeover-status");
     const replyModeStatus = document.getElementById("reply-mode-status");
     const pendingReview = document.getElementById("pending-review");
     const pendingReplies = document.getElementById("pending-replies");
     const errorBanner = document.getElementById("error-banner");
     const dashboardError = document.getElementById("dashboard-error");
+    const exportIocsButton = document.getElementById("export-iocs-button");
     const linkCheckForm = document.getElementById("link-check-form");
     const linkCheckInput = document.getElementById("link-check-input");
     const linkCheckButton = document.getElementById("link-check-button");
@@ -874,6 +984,7 @@
     const evidenceExplanation = document.getElementById("evidence-explanation");
     let activePersonaId = personaSelect.value;
     let activeAutoReply = autoReplyToggle.checked;
+    let activeManualMode = false;
     let assistantTurnCount = 0;
     let guidedDemoRunning = false;
     let guidedDemoStep = 0;
@@ -1020,6 +1131,62 @@
       }
     }
 
+    async function refreshThreatFeedStatus() {
+      const statusElement = document.getElementById("threat-feed-status");
+      try {
+        const response = await fetch("/api/scam-feed/status", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Threat feed status request failed (${response.status}).`);
+        }
+        const status = await response.json();
+        if (status.scamshield_synced === true) {
+          statusElement.textContent =
+            "Threat Feed: Active (Synced with ScamShield SG)";
+          statusElement.dataset.state = "active";
+          statusElement.title = status.last_synced_at
+            ? `Last successful ScamShield sync: ${new Date(status.last_synced_at).toLocaleString()}`
+            : "ScamShield homepage synced successfully.";
+        } else {
+          statusElement.textContent = "Threat Feed: ScamShield sync unavailable";
+          statusElement.dataset.state = "unavailable";
+          statusElement.title =
+            "The ScamShield source has not completed a successful sync in this server session.";
+        }
+      } catch (error) {
+        statusElement.textContent = "Threat Feed: Status unavailable";
+        statusElement.dataset.state = "unavailable";
+        statusElement.title =
+          error.message || "Could not retrieve the ScamShield feed status.";
+      }
+    }
+
+    exportIocsButton.addEventListener("click", async () => {
+      exportIocsButton.disabled = true;
+      dashboardError.classList.remove("visible");
+      try {
+        const response = await fetch("/api/export/artifacts?format=json");
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.detail || "Could not export threat indicators.");
+        }
+        const exportBlob = await response.blob();
+        const downloadUrl = URL.createObjectURL(exportBlob);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = downloadUrl;
+        downloadLink.download = "scam_indicators_export.json";
+        document.body.append(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      } catch (error) {
+        dashboardError.textContent =
+          error.message || "Could not export threat indicators.";
+        dashboardError.classList.add("visible");
+      } finally {
+        exportIocsButton.disabled = false;
+      }
+    });
+
     for (const tab of document.querySelectorAll(".page-tab")) {
       tab.addEventListener("click", () => setActivePage(tab.dataset.page));
     }
@@ -1120,6 +1287,40 @@
       messageInput.value = sampleButton.dataset.sample || "";
       messageInput.focus();
     });
+
+    function setScamClassification(message) {
+      const scoreElement = document.getElementById("classifier-score");
+      const statusElement = document.getElementById("classifier-score-status");
+      const flagsElement = document.getElementById("classifier-flags");
+      flagsElement.replaceChildren();
+      if (!message || message.scam_score == null) {
+        scoreElement.textContent = "No classifier result yet";
+        statusElement.textContent = "Awaiting message";
+        statusElement.dataset.flagged = "false";
+        const emptyFlag = document.createElement("li");
+        emptyFlag.textContent = "No detected cues";
+        flagsElement.append(emptyFlag);
+        return;
+      }
+
+      scoreElement.textContent = `${message.scam_score}/100`;
+      statusElement.textContent = message.is_scam
+        ? "Flagged for review"
+        : "Below review threshold";
+      statusElement.dataset.flagged = String(Boolean(message.is_scam));
+      const flags = message.detected_flags || [];
+      if (!flags.length) {
+        const emptyFlag = document.createElement("li");
+        emptyFlag.textContent = "No detected cues";
+        flagsElement.append(emptyFlag);
+        return;
+      }
+      for (const flag of flags) {
+        const item = document.createElement("li");
+        item.textContent = formatSignalLabel(flag);
+        flagsElement.append(item);
+      }
+    }
 
     function setTelemetry(telemetry) {
       document.getElementById("scam-stage").textContent =
@@ -1347,6 +1548,17 @@
       }
     }
 
+    function updateManualTakeoverUi() {
+      manualTakeoverToggle.textContent =
+        `Manual Takeover [${activeManualMode ? "ON" : "OFF"}]`;
+      manualTakeoverToggle.dataset.active = String(activeManualMode);
+      manualTakeoverToggle.setAttribute("aria-pressed", String(activeManualMode));
+      manualTakeoverStatus.dataset.active = String(activeManualMode);
+      manualTakeoverStatus.textContent = activeManualMode
+        ? "Manual takeover active · incoming messages are saved without calling the LLM."
+        : "Automated replies are available for this thread.";
+    }
+
     async function loadConversation({ animateLatestReply = false } = {}) {
       const senderId = senderInput.value.trim();
       if (!senderId) return;
@@ -1356,10 +1568,12 @@
       document.getElementById("delay-strategy").textContent = "No data yet";
       document.getElementById("telemetry-notes").textContent = "Telemetry will appear after a reply.";
       document.getElementById("artifacts").innerHTML = "<li>None observed</li>";
+      setScamClassification(null);
       evidenceMessage.textContent = "No incoming message recorded yet.";
       evidenceExplanation.textContent =
         "The model’s notes will appear here with the latest assessed signal.";
       autoReplyToggle.disabled = true;
+      manualTakeoverToggle.disabled = true;
       personaSelect.disabled = true;
       try {
         const response = await fetch(`/conversation/${encodeURIComponent(senderId)}`);
@@ -1371,19 +1585,28 @@
         activePersonaId = data.persona_id || "lynn";
         personaSelect.value = activePersonaId;
         updatePersonaProfile(activePersonaId);
+        activeManualMode = data.manual_mode === true;
+        updateManualTakeoverUi();
+        manualTakeoverToggle.disabled = false;
         activeAutoReply = data.is_auto_reply;
         autoReplyToggle.checked = activeAutoReply;
-        autoReplyToggle.disabled = false;
+        autoReplyToggle.disabled = activeManualMode;
         personaSelect.disabled = false;
-        replyModeStatus.textContent = activeAutoReply
-          ? "Generated replies appear in this local demo."
-          : "Generated replies wait for local review.";
+        replyModeStatus.textContent = activeManualMode
+          ? "Manual takeover active · no automated replies are generated."
+          : activeAutoReply
+            ? "Generated replies appear in this local demo."
+            : "Generated replies wait for local review.";
         personaStatus.textContent = `Current thread: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId}`;
         document.querySelector(".contact-subtitle").textContent =
           `Persona: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId} · Messages are saved locally`;
         const lastAssistantIndex = data.messages.findLastIndex(
           (message) => message.role === "assistant",
         );
+        const latestIncomingMessage = data.messages.findLast(
+          (message) => message.role === "user",
+        );
+        setScamClassification(latestIncomingMessage);
         if (lastAssistantIndex >= 0) {
           const incoming = data.messages
             .slice(0, lastAssistantIndex)
@@ -1448,10 +1671,52 @@
         }
       } catch (error) {
         autoReplyToggle.disabled = false;
+        manualTakeoverToggle.disabled = false;
         personaSelect.disabled = false;
         showError(error.message || "Could not load this conversation.");
       }
     }
+
+    manualTakeoverToggle.addEventListener("click", async () => {
+      const chatId = senderInput.value.trim();
+      if (!chatId) {
+        manualTakeoverStatus.textContent =
+          "Enter a thread ID before enabling manual takeover.";
+        return;
+      }
+
+      const requestedMode = !activeManualMode;
+      manualTakeoverToggle.disabled = true;
+      manualTakeoverStatus.textContent = "Updating takeover mode…";
+      try {
+        const response = await fetch("/api/conversation/toggle-takeover", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, manual_mode: requestedMode }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || "Could not update manual takeover.");
+        }
+        if (senderInput.value.trim() === chatId) {
+          activeManualMode = data.manual_mode;
+          updateManualTakeoverUi();
+          autoReplyToggle.disabled = activeManualMode;
+          replyModeStatus.textContent = activeManualMode
+            ? "Manual takeover active · no automated replies are generated."
+            : activeAutoReply
+              ? "Generated replies appear in this local demo."
+              : "Generated replies wait for local review.";
+        }
+      } catch (error) {
+        if (senderInput.value.trim() === chatId) {
+          manualTakeoverStatus.textContent =
+            error.message || "Could not update manual takeover.";
+        }
+      } finally {
+        manualTakeoverToggle.disabled = false;
+      }
+    });
 
     autoReplyToggle.addEventListener("change", async () => {
       const chatId = senderInput.value.trim();
@@ -1555,7 +1820,10 @@
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || "The API could not send a reply.");
-        if (data.status === "pending_review") {
+        if (data.status === "manual_takeover") {
+          replyModeStatus.textContent =
+            "Manual takeover active · message saved with no automated reply.";
+        } else if (data.status === "pending_review") {
           replyModeStatus.textContent = "Generated draft added to Pending Review.";
         } else if (data.reply) {
           replyModeStatus.textContent = "Simulation complete · no message sent externally.";
@@ -1579,6 +1847,7 @@
       document.getElementById("delay-strategy").textContent = "No data yet";
       document.getElementById("telemetry-notes").textContent = "Telemetry will appear after a reply.";
       document.getElementById("artifacts").innerHTML = "<li>None observed</li>";
+      setScamClassification(null);
       pendingReview.classList.remove("visible");
       pendingReplies.replaceChildren();
       loadConversation();
@@ -1672,6 +1941,14 @@
             if (!response.ok) {
               throw new Error(result.detail || "Could not simulate the selected message.");
             }
+            if (result.status === "manual_takeover") {
+              guidedDemoRunning = false;
+              guidedDemoButton.disabled = false;
+              guidedDemoStatus.textContent =
+                "Manual takeover active · incoming message saved without an AI reply.";
+              await loadConversation();
+              return;
+            }
             if (result.status !== "simulated") {
               throw new Error("Enable automatic replies to continue the interactive demo.");
             }
@@ -1721,6 +1998,13 @@
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.detail || "The opening message failed.");
+      }
+      if (result.status === "manual_takeover") {
+        guidedDemoRunning = false;
+        await loadConversation();
+        guidedDemoStatus.textContent =
+          "Manual takeover active · opening message saved without an AI reply.";
+        return;
       }
       if (result.status !== "simulated") {
         throw new Error("The interactive demo requires local automatic replies.");
@@ -1776,6 +2060,8 @@
     loadPersonaProfiles();
     loadConversation();
     loadAnalytics();
+    refreshThreatFeedStatus();
+    window.setInterval(refreshThreatFeedStatus, 60_000);
     setActivePage("why-view");
   </script>
 </body>

@@ -6,20 +6,20 @@ from contextlib import closing
 from pathlib import Path
 from typing import Any
 
+from backend.classifier import SCAM_REVIEW_THRESHOLD
 from backend.personas import DEFAULT_PERSONA_ID, get_persona
 
 
-DATABASE_PATH = Path(
-    os.getenv("DATABASE_PATH", str(Path(__file__).with_name("chat_history.db")))
-)
+DB_PATH = os.getenv("DATABASE_PATH", "./data/honeypot.db")
+DATABASE_PATH = Path(DB_PATH)
 
 
 def _connect() -> sqlite3.Connection:
+    os.makedirs(os.path.dirname(os.fspath(DATABASE_PATH)) or ".", exist_ok=True)
     return sqlite3.connect(DATABASE_PATH)
 
 
 def init_db() -> None:
-    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with closing(_connect()) as connection:
         with connection:
             connection.execute(
@@ -34,7 +34,9 @@ def init_db() -> None:
                     pressure_level INTEGER,
                     delay_strategy TEXT,
                     notes TEXT,
-                    extracted_artifacts TEXT NOT NULL DEFAULT '[]'
+                    extracted_artifacts TEXT NOT NULL DEFAULT '[]',
+                    scam_score INTEGER,
+                    detected_flags TEXT NOT NULL DEFAULT '[]'
                 )
                 """
             )
@@ -45,6 +47,8 @@ def init_db() -> None:
                 ("delay_strategy", "TEXT"),
                 ("notes", "TEXT"),
                 ("extracted_artifacts", "TEXT NOT NULL DEFAULT '[]'"),
+                ("scam_score", "INTEGER"),
+                ("detected_flags", "TEXT NOT NULL DEFAULT '[]'"),
             ):
                 if column not in conversation_columns:
                     connection.execute(
@@ -80,10 +84,23 @@ def init_db() -> None:
                 CREATE TABLE IF NOT EXISTS chat_settings (
                     chat_id TEXT PRIMARY KEY,
                     is_auto_reply INTEGER NOT NULL DEFAULT 1
-                        CHECK (is_auto_reply IN (0, 1))
+                        CHECK (is_auto_reply IN (0, 1)),
+                    manual_mode INTEGER NOT NULL DEFAULT 0
+                        CHECK (manual_mode IN (0, 1))
                 )
                 """
             )
+            chat_settings_columns = {
+                row[1] for row in connection.execute("PRAGMA table_info(chat_settings)")
+            }
+            if "manual_mode" not in chat_settings_columns:
+                connection.execute(
+                    """
+                    ALTER TABLE chat_settings
+                    ADD COLUMN manual_mode INTEGER NOT NULL DEFAULT 0
+                        CHECK (manual_mode IN (0, 1))
+                    """
+                )
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS pending_replies (
@@ -159,6 +176,31 @@ def set_auto_reply(chat_id: str, is_auto_reply: bool) -> None:
                 SET is_auto_reply = excluded.is_auto_reply
                 """,
                 (chat_id, int(is_auto_reply)),
+            )
+
+
+def get_manual_mode(chat_id: str) -> bool:
+    with closing(_connect()) as connection:
+        row = connection.execute(
+            "SELECT manual_mode FROM chat_settings WHERE chat_id = ?",
+            (chat_id,),
+        ).fetchone()
+    return False if row is None else bool(row[0])
+
+
+def set_manual_mode(chat_id: str, manual_mode: bool) -> None:
+    if not isinstance(manual_mode, bool):
+        raise TypeError("manual_mode must be a boolean")
+    with closing(_connect()) as connection:
+        with connection:
+            connection.execute(
+                """
+                INSERT INTO chat_settings (chat_id, manual_mode)
+                VALUES (?, ?)
+                ON CONFLICT(chat_id) DO UPDATE
+                SET manual_mode = excluded.manual_mode
+                """,
+                (chat_id, int(manual_mode)),
             )
 
 
@@ -289,6 +331,8 @@ def save_message(
     delay_strategy: str | None = None,
     notes: str | None = None,
     extracted_artifacts: list[str] | None = None,
+    scam_score: int | None = None,
+    detected_flags: list[str] | None = None,
 ) -> int:
     legacy_role = {"user": "user", "assistant": "assistant"}.get(sender)
     normalized_sender = {"user": "scammer", "assistant": "bot"}.get(sender, sender)
@@ -296,6 +340,15 @@ def save_message(
         raise ValueError("sender must be 'scammer' or 'bot'")
     if pressure is not None and not isinstance(pressure, int):
         raise TypeError("pressure must be an integer or None")
+    if scam_score is not None:
+        if isinstance(scam_score, bool) or not isinstance(scam_score, int):
+            raise TypeError("scam_score must be an integer or None")
+        if not 0 <= scam_score <= 100:
+            raise ValueError("scam_score must be between 0 and 100")
+    if detected_flags is not None and not all(
+        isinstance(flag, str) for flag in detected_flags
+    ):
+        raise TypeError("detected_flags must contain only strings")
 
     with closing(_connect()) as connection:
         with connection:
@@ -303,9 +356,10 @@ def save_message(
                 """
                 INSERT INTO conversations (
                     chat_id, sender, message_text, scam_stage, pressure_level,
-                    delay_strategy, notes, extracted_artifacts
+                    delay_strategy, notes, extracted_artifacts, scam_score,
+                    detected_flags
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     chat_id,
@@ -316,6 +370,8 @@ def save_message(
                     delay_strategy,
                     notes,
                     json.dumps(extracted_artifacts or []),
+                    scam_score,
+                    json.dumps(detected_flags or []),
                 ),
             )
             message_id = cursor.lastrowid
@@ -372,7 +428,8 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
             """
             SELECT
                 sender, message_text, timestamp, scam_stage, pressure_level,
-                delay_strategy, notes, extracted_artifacts
+                delay_strategy, notes, extracted_artifacts, scam_score,
+                detected_flags
             FROM conversations
             WHERE chat_id = ?
             ORDER BY id
@@ -393,7 +450,11 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
             (chat_id,),
         ).fetchall()
         settings_row = connection.execute(
-            "SELECT is_auto_reply FROM chat_settings WHERE chat_id = ?",
+            """
+            SELECT is_auto_reply, manual_mode
+            FROM chat_settings
+            WHERE chat_id = ?
+            """,
             (chat_id,),
         ).fetchone()
         pending_rows = connection.execute(
@@ -416,6 +477,8 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
         delay_strategy,
         notes,
         extracted_artifacts,
+        scam_score,
+        detected_flags,
     ) in message_rows:
         telemetry = None
         if sender == "bot" and (stage is not None or pressure is not None):
@@ -433,6 +496,12 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
                 "content": text,
                 "created_at": timestamp,
                 "telemetry": telemetry,
+                "scam_score": scam_score,
+                "is_scam": (
+                    scam_score is not None
+                    and scam_score >= SCAM_REVIEW_THRESHOLD
+                ),
+                "detected_flags": json.loads(detected_flags or "[]"),
             }
         )
 
@@ -440,6 +509,7 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
         "sender_id": chat_id,
         "persona_id": persona_row[0] if persona_row else None,
         "is_auto_reply": True if settings_row is None else bool(settings_row[0]),
+        "manual_mode": False if settings_row is None else bool(settings_row[1]),
         "messages": messages,
         "pending_replies": [
             {
@@ -716,6 +786,42 @@ def get_artifacts_for_export() -> list[dict[str, Any]]:
         ).fetchall()
 
     keys = ("id", "chat_id", "artifact_type", "artifact_value", "extracted_at")
+    return [dict(zip(keys, row)) for row in rows]
+
+
+def get_threat_artifacts_for_export() -> list[dict[str, Any]]:
+    """Return artifacts with the latest non-empty scam stage for each thread."""
+    with closing(_connect()) as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                artifact.id,
+                artifact.artifact_type,
+                artifact.artifact_value,
+                artifact.extracted_at,
+                conversation.scam_stage
+            FROM scam_artifacts AS artifact
+            LEFT JOIN conversations AS conversation
+                ON conversation.id = (
+                    SELECT latest.id
+                    FROM conversations AS latest
+                    WHERE latest.chat_id = artifact.chat_id
+                        AND latest.scam_stage IS NOT NULL
+                        AND TRIM(latest.scam_stage) != ''
+                    ORDER BY latest.id DESC
+                    LIMIT 1
+                )
+            ORDER BY artifact.extracted_at, artifact.id
+            """
+        ).fetchall()
+
+    keys = (
+        "id",
+        "artifact_type",
+        "artifact_value",
+        "extracted_at",
+        "scam_stage",
+    )
     return [dict(zip(keys, row)) for row in rows]
 
 
