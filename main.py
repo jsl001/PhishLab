@@ -1,0 +1,505 @@
+import asyncio
+import csv
+import json
+import os
+import secrets
+from io import StringIO
+from dotenv import load_dotenv
+from typing import Literal
+
+load_dotenv()
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import FileResponse, PlainTextResponse, Response
+from pydantic import BaseModel, Field, model_validator
+
+from backend import ai_handler as backend_ai_handler
+from backend import database as backend_database
+from backend import link_checker
+from backend.personas import PERSONAS
+from backend.whatsapp_client import WhatsAppClientError, send_whatsapp_message
+import database
+
+
+class LinkCheckRequest(BaseModel):
+    url: str = Field(min_length=1, max_length=2048)
+
+
+class LinkCheckResponse(BaseModel):
+    verdict: Literal["known_threat", "no_known_threat", "not_configured"]
+    message: str
+    source: str | None
+    checked_at: str | None
+    threat_types: list[str]
+
+
+class WhatsAppWebhookRequest(BaseModel):
+    chat_id: str | None = Field(default=None, min_length=1, max_length=256)
+    incoming_text: str | None = Field(default=None, min_length=1, max_length=10_000)
+    sender_id: str | None = Field(default=None, min_length=1, max_length=256)
+    message_text: str | None = Field(default=None, min_length=1, max_length=10_000)
+
+    @model_validator(mode="after")
+    def validate_message_fields(self) -> "WhatsAppWebhookRequest":
+        if not (self.chat_id or self.sender_id):
+            raise ValueError("chat_id is required")
+        if not (self.incoming_text or self.message_text):
+            raise ValueError("incoming_text is required")
+        return self
+
+    @property
+    def resolved_chat_id(self) -> str:
+        return self.chat_id or self.sender_id or ""
+
+    @property
+    def resolved_incoming_text(self) -> str:
+        return self.incoming_text or self.message_text or ""
+
+
+class WhatsAppTextPayload(BaseModel):
+    body: str
+
+
+class WhatsAppChatMessagePayload(BaseModel):
+    messaging_product: str = "whatsapp"
+    to: str
+    type: str = "text"
+    text: WhatsAppTextPayload
+    reply: str
+    status: Literal["auto_reply", "pending_review"]
+    pending_reply_id: int | None = None
+
+
+class DemoChatResponse(BaseModel):
+    reply: str
+    status: Literal["simulated", "pending_review"]
+    pending_reply_id: int | None = None
+
+
+class PersonaCompareRequest(BaseModel):
+    message_text: str = Field(min_length=1, max_length=3000)
+
+
+class PersonaCompareResult(BaseModel):
+    persona_id: str
+    name: str
+    location: str
+    occupation: str
+    reply: str
+    scam_stage: str
+    pressure_level: int | None
+
+
+class PersonaCompareResponse(BaseModel):
+    message_text: str
+    results: list[PersonaCompareResult]
+    saved_to_history: bool = False
+
+
+class TelemetryResponse(BaseModel):
+    scam_stage: str | None
+    pressure_level: int | None
+    delay_strategy: str | None = None
+    notes: str | None = None
+    extracted_artifacts: list[str] = Field(default_factory=list)
+
+
+class ConversationMessageResponse(BaseModel):
+    role: str
+    content: str
+    created_at: str
+    telemetry: TelemetryResponse | None
+
+
+class ConversationArtifactResponse(BaseModel):
+    id: int
+    artifact_type: str
+    artifact_value: str
+    extracted_at: str
+
+
+class PendingReplyResponse(BaseModel):
+    id: int
+    response_text: str
+    scam_stage: str | None
+    pressure_level: int | None
+    created_at: str
+
+
+class ConversationResponse(BaseModel):
+    sender_id: str
+    persona_id: str | None
+    is_auto_reply: bool
+    messages: list[ConversationMessageResponse]
+    pending_replies: list[PendingReplyResponse]
+    artifacts: list[ConversationArtifactResponse]
+
+
+class PersonaAssignmentRequest(BaseModel):
+    chat_id: str = Field(min_length=1, max_length=256)
+    persona_id: str = Field(min_length=1)
+
+
+class PersonaAssignmentResponse(BaseModel):
+    chat_id: str
+    persona_id: str
+
+
+class AutoReplySettingRequest(BaseModel):
+    chat_id: str = Field(min_length=1, max_length=256)
+    is_auto_reply: bool
+
+
+class AutoReplySettingResponse(BaseModel):
+    chat_id: str
+    is_auto_reply: bool
+
+
+class ApprovePendingReplyRequest(BaseModel):
+    edited_text: str = Field(min_length=1, max_length=10_000)
+
+
+class PendingReplyApprovalResponse(BaseModel):
+    id: int
+    status: Literal["approved"]
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
+    await asyncio.to_thread(database.initialize_database)
+    await asyncio.to_thread(backend_database.init_db)
+    yield
+
+
+app = FastAPI(title="Honeypot Research API", lifespan=lifespan)
+
+
+@app.get("/", include_in_schema=False)
+async def frontend() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "frontend" / "index.html")
+
+
+@app.get("/api/analytics")
+async def get_analytics() -> dict[str, object]:
+    return await asyncio.to_thread(backend_database.get_research_analytics)
+
+
+@app.get("/api/personas")
+async def get_personas() -> list[dict[str, str]]:
+    return [
+        {
+            "persona_id": persona.persona_id,
+            "name": persona.name,
+            "location": persona.location,
+            "occupation": persona.occupation,
+            "profile_description": persona.profile_description,
+            "response_style": persona.response_style,
+            "scammer_adjustment_cues": persona.scammer_adjustment_cues,
+        }
+        for persona in PERSONAS.values()
+    ]
+
+
+@app.post("/api/personas/compare", response_model=PersonaCompareResponse)
+async def compare_persona_responses(
+    request: PersonaCompareRequest,
+) -> PersonaCompareResponse:
+    history = [{"role": "user", "content": request.message_text}]
+    personas = list(PERSONAS.values())
+    try:
+        responses = await asyncio.gather(
+            *(
+                backend_ai_handler.generate_persona_response(
+                    persona.persona_id, history
+                )
+                for persona in personas
+            )
+        )
+    except backend_ai_handler.AIHandlerError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Could not compare persona responses: {exc}",
+        ) from exc
+
+    results = []
+    for persona, (reply, telemetry) in zip(personas, responses):
+        pressure = telemetry.get("scammer_pressure_level")
+        results.append(
+            PersonaCompareResult(
+                persona_id=persona.persona_id,
+                name=persona.name,
+                location=persona.location,
+                occupation=persona.occupation,
+                reply=reply,
+                scam_stage=str(telemetry.get("current_scam_stage") or "unknown"),
+                pressure_level=pressure if isinstance(pressure, int) else None,
+            )
+        )
+    return PersonaCompareResponse(
+        message_text=request.message_text,
+        results=results,
+    )
+
+
+@app.post("/api/link-check", response_model=LinkCheckResponse)
+async def check_link(request: LinkCheckRequest) -> LinkCheckResponse:
+    try:
+        result = await link_checker.check_url(request.url)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except link_checker.LinkCheckError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return LinkCheckResponse(**result)
+
+
+@app.post("/api/persona/assign", response_model=PersonaAssignmentResponse)
+async def assign_chat_persona(
+    request: PersonaAssignmentRequest,
+) -> PersonaAssignmentResponse:
+    try:
+        await asyncio.to_thread(
+            backend_database.assign_persona, request.chat_id, request.persona_id
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return PersonaAssignmentResponse(
+        chat_id=request.chat_id,
+        persona_id=request.persona_id,
+    )
+
+
+@app.get("/api/artifacts/export")
+async def export_artifacts(
+    format: Literal["json", "csv"] = "json",
+) -> Response:
+    artifacts = await asyncio.to_thread(backend_database.get_artifacts_for_export)
+    if format == "json":
+        return Response(
+            content=json.dumps(artifacts),
+            media_type="application/json",
+            headers={"Content-Disposition": 'attachment; filename="scam-artifacts.json"'},
+        )
+
+    output = StringIO(newline="")
+    fieldnames = ["id", "chat_id", "artifact_type", "artifact_value", "extracted_at"]
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+    for artifact in artifacts:
+        safe_artifact = artifact.copy()
+        for field in fieldnames:
+            value = str(safe_artifact[field])
+            if value.lstrip().startswith(("=", "+", "-", "@", "\t", "\r")):
+                value = f"'{value}"
+            safe_artifact[field] = value
+        writer.writerow(safe_artifact)
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="scam-artifacts.csv"'},
+    )
+
+
+@app.get("/conversation/{sender_id}", response_model=ConversationResponse)
+@app.get("/api/conversations/{sender_id}", response_model=ConversationResponse)
+async def get_conversation(sender_id: str) -> ConversationResponse:
+    data = await asyncio.to_thread(
+        backend_database.get_research_conversation, sender_id
+    )
+    return ConversationResponse(**data)
+
+
+@app.put("/api/conversations/auto-reply", response_model=AutoReplySettingResponse)
+async def set_conversation_auto_reply(
+    request: AutoReplySettingRequest,
+) -> AutoReplySettingResponse:
+    await asyncio.to_thread(
+        backend_database.set_auto_reply, request.chat_id, request.is_auto_reply
+    )
+    return AutoReplySettingResponse(
+        chat_id=request.chat_id,
+        is_auto_reply=request.is_auto_reply,
+    )
+
+
+@app.post(
+    "/api/pending-replies/{reply_id}/approve",
+    response_model=PendingReplyApprovalResponse,
+)
+async def approve_pending_reply(
+    reply_id: int,
+    request: ApprovePendingReplyRequest,
+) -> PendingReplyApprovalResponse:
+    approved = await asyncio.to_thread(
+        backend_database.approve_pending_reply, reply_id, request.edited_text
+    )
+    if not approved:
+        raise HTTPException(
+            status_code=404,
+            detail="Pending reply not found or already reviewed",
+        )
+    return PendingReplyApprovalResponse(id=reply_id, status="approved")
+
+
+@app.get("/webhook/whatsapp", response_class=PlainTextResponse)
+async def verify_whatsapp_webhook(
+    mode: str | None = Query(default=None, alias="hub.mode"),
+    verify_token: str | None = Query(default=None, alias="hub.verify_token"),
+    challenge: str | None = Query(default=None, alias="hub.challenge"),
+) -> PlainTextResponse:
+    expected_token = os.getenv("WHATSAPP_VERIFY_TOKEN")
+    if expected_token is None:
+        raise HTTPException(
+            status_code=503,
+            detail="WhatsApp webhook verification is not configured",
+        )
+    if (
+        mode != "subscribe"
+        or verify_token is None
+        or challenge is None
+        or not secrets.compare_digest(verify_token, expected_token)
+    ):
+        raise HTTPException(status_code=403, detail="Webhook verification failed")
+    return PlainTextResponse(challenge)
+
+
+async def process_chat_message(
+    chat_id: str,
+    incoming_text: str,
+    *,
+    deliver_via_whatsapp: bool,
+) -> tuple[str, bool, int | None]:
+    await asyncio.to_thread(
+        backend_database.save_message, chat_id, "scammer", incoming_text
+    )
+    incoming_message_id = await asyncio.to_thread(
+        database.save_message, chat_id, "incoming", incoming_text
+    )
+    stored_history = await asyncio.to_thread(
+        backend_database.get_chat_history, chat_id
+    )
+    history = [
+        {
+            "role": "user" if message["sender"] == "scammer" else "assistant",
+            "content": message["message_text"],
+        }
+        for message in stored_history
+    ]
+
+    try:
+        response_text, log_data = await backend_ai_handler.generate_honeypot_response(
+            chat_id,
+            history
+        )
+    except backend_ai_handler.AIHandlerError as exc:
+        await asyncio.to_thread(
+            database.save_telemetry,
+            message_id=incoming_message_id,
+            sender_id=chat_id,
+            scam_stage="unknown",
+            pressure_level="unknown",
+            extracted_artifacts=[],
+            delay_strategy="none",
+            notes=f"AI response unavailable: {exc}",
+        )
+        raise HTTPException(
+            status_code=502,
+            detail=str(exc),
+        ) from exc
+
+    stage = log_data.get("current_scam_stage")
+    pressure = log_data.get("scammer_pressure_level")
+    artifacts = log_data.get("scam_artifacts_extracted", [])
+
+    is_auto_reply = await asyncio.to_thread(backend_database.get_auto_reply, chat_id)
+    pending_reply_id = None
+    if is_auto_reply:
+        if deliver_via_whatsapp:
+            try:
+                await send_whatsapp_message(chat_id, response_text)
+            except WhatsAppClientError as exc:
+                raise HTTPException(
+                    status_code=502,
+                    detail=str(exc),
+                ) from exc
+        await asyncio.to_thread(
+            backend_database.save_message,
+            chat_id,
+            "bot",
+            response_text,
+            stage=stage if isinstance(stage, str) else None,
+            pressure=pressure if isinstance(pressure, int) else None,
+            delay_strategy=str(log_data.get("delay_strategy", "none")),
+            notes=str(log_data.get("notes", "")),
+            extracted_artifacts=[
+                item for item in artifacts if isinstance(item, str)
+            ] if isinstance(artifacts, list) else [],
+        )
+    else:
+        pending_reply_id = await asyncio.to_thread(
+            backend_database.save_pending_reply,
+            chat_id,
+            response_text,
+            stage=stage if isinstance(stage, str) else None,
+            pressure=pressure if isinstance(pressure, int) else None,
+        )
+    if isinstance(artifacts, list) and artifacts:
+        await asyncio.to_thread(backend_database.save_artifacts, chat_id, artifacts)
+
+    reply_message_id = incoming_message_id
+    if is_auto_reply:
+        reply_message_id = await asyncio.to_thread(
+            database.save_message, chat_id, "reply", response_text
+        )
+    await asyncio.to_thread(
+        database.save_telemetry,
+        message_id=reply_message_id,
+        sender_id=chat_id,
+        scam_stage=str(stage or "unknown"),
+        pressure_level=str(pressure if pressure is not None else "unknown"),
+        extracted_artifacts=artifacts if isinstance(artifacts, list) else [],
+        delay_strategy=str(log_data.get("delay_strategy", "none")),
+        notes=str(log_data.get("notes", "")),
+    )
+
+    return response_text, is_auto_reply, pending_reply_id
+
+
+@app.post("/api/demo/chat", response_model=DemoChatResponse)
+async def demo_chat(request: WhatsAppWebhookRequest) -> DemoChatResponse:
+    response_text, is_auto_reply, pending_reply_id = await process_chat_message(
+        request.resolved_chat_id,
+        request.resolved_incoming_text,
+        deliver_via_whatsapp=False,
+    )
+    return DemoChatResponse(
+        reply=response_text if is_auto_reply else "",
+        status="simulated" if is_auto_reply else "pending_review",
+        pending_reply_id=pending_reply_id,
+    )
+
+
+
+
+@app.post(
+    "/webhook/whatsapp",
+    response_model=WhatsAppChatMessagePayload,
+)
+async def whatsapp_webhook(
+    request: WhatsAppWebhookRequest,
+) -> WhatsAppChatMessagePayload:
+    chat_id = request.resolved_chat_id
+    response_text, is_auto_reply, pending_reply_id = await process_chat_message(
+        chat_id,
+        request.resolved_incoming_text,
+        deliver_via_whatsapp=True,
+    )
+    return WhatsAppChatMessagePayload(
+        to=chat_id,
+        text=WhatsAppTextPayload(body=response_text if is_auto_reply else ""),
+        reply=response_text if is_auto_reply else "",
+        status="auto_reply" if is_auto_reply else "pending_review",
+        pending_reply_id=pending_reply_id,
+    )
