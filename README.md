@@ -1,44 +1,34 @@
-# Scam
+# PhishLab
 
-## Deploy on Render
+## Deploy on Vercel with Neon
 
-The repository includes a Render Blueprint in `render.yaml`. To deploy:
+Vercel runs the FastAPI application as a serverless function. Neon PostgreSQL
+stores application data persistently; the app uses SQLite locally when
+`DATABASE_URL` is not set.
 
-1. Push this repository to GitHub.
-2. In Render, choose **New > Blueprint** and connect the repository.
-3. Provide your `OPENAI_API_KEY` when Render prompts for the secret. Do not
-   commit the key to the repository.
-4. Deploy the Blueprint. Render builds the app and runs it as a web service;
-   open the service URL when deployment finishes.
+1. Create a Neon project and database in Singapore (`aws-ap-southeast-1`) to
+   keep it near the Vercel function region. Copy the **pooled** PostgreSQL
+   connection string from the Neon dashboard.
+2. In Vercel, open the project connected to this repository and go to
+   **Settings > Environment Variables**.
+3. Add `DATABASE_URL` with the Neon pooled connection string, and add
+   `OPENAI_API_KEY` with your OpenAI API key. Keep both values private.
+4. Optionally add `OPENAI_MODEL`; it defaults to `gpt-4o-mini`.
+5. Apply the variables to **Production** (and use a separate Neon database for
+   Preview deployments if you enable them). Redeploy the latest commit.
+6. Open the deployment URL. The `vercel.json` file configures the FastAPI
+   function, while the frontend is served from the `frontend` directory.
 
-The Blueprint uses a paid Starter web service and a 1 GB persistent disk.
-Both SQLite databases are stored on that disk at separate paths so their
-schemas do not collide. To change the instance size or disk size, edit
-`render.yaml` before deploying.
+The PostgreSQL tables are created automatically when the application starts.
+The Vercel deployment intentionally fails at startup if `DATABASE_URL` is
+missing, rather than silently storing data in a temporary local filesystem.
+Existing local SQLite records are not migrated automatically; the hosted
+database starts empty.
+The Neon Free plan scales compute to zero after inactivity, so the first
+database request after an idle period can take longer even though stored data
+remains persistent.
 
-The app sends conversation messages to OpenAI for generated replies and
-structured observations. Use fictional data and review OpenAI's data-handling
-terms before deployment. The `OPENAI_MODEL` setting defaults to `gpt-4o-mini`.
-For local setup, see [OPENAI_SETUP.md](./OPENAI_SETUP.md).
-
-## Persistent database storage
-
-The conversation database uses `DATABASE_PATH` (default
-`./data/honeypot.db`). The auxiliary messages database uses
-`MESSAGE_DATABASE_PATH` (default `honeypot.db` in the repository root).
-Parent directories are created automatically during startup.
-
-SQLite files must live on persistent storage in cloud deployments; otherwise,
-the database can be lost when an instance is replaced or redeployed.
-
-- **Render:** The supplied Blueprint mounts a Persistent Disk at `/var/data`
-  and sets both database paths there.
-- **Railway:** Add a Volume, mount it at `/data`, and set
-  `DATABASE_PATH=/data/honeypot.db` and
-  `MESSAGE_DATABASE_PATH=/data/messages.db`.
-- **Docker:** Mount a host directory or named volume to the app's `./data`
-  directory (for example, `-v ./data:/app/data` when the app runs from `/app`).
-  Alternatively set both database path variables to separate files inside the
-  mounted directory.
-
-Ensure the application has write permission to the mounted directory.
+The app sends conversation messages and system instructions to OpenAI for
+generated replies and structured observations. Use fictional data and review
+OpenAI's data-handling terms before deployment. For local AI setup, see
+[OPENAI_SETUP.md](./OPENAI_SETUP.md).

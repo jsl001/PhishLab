@@ -1,12 +1,18 @@
 import json
 import os
-import sqlite3
 from collections.abc import Mapping, Sequence
 from contextlib import closing
 from pathlib import Path
 from typing import Any
 
 from backend.classifier import SCAM_REVIEW_THRESHOLD
+from backend.db import (
+    DatabaseConnection,
+    connect,
+    display_timestamp,
+    identity_primary_key,
+    is_postgres,
+)
 from backend.personas import DEFAULT_PERSONA_ID, get_persona
 
 
@@ -14,22 +20,21 @@ DB_PATH = os.getenv("DATABASE_PATH", "./data/honeypot.db")
 DATABASE_PATH = Path(DB_PATH)
 
 
-def _connect() -> sqlite3.Connection:
-    os.makedirs(os.path.dirname(os.fspath(DATABASE_PATH)) or ".", exist_ok=True)
-    return sqlite3.connect(DATABASE_PATH)
+def _connect() -> DatabaseConnection:
+    return connect(DATABASE_PATH)
 
 
 def init_db() -> None:
     with closing(_connect()) as connection:
         with connection:
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS conversations (
-                    id INTEGER PRIMARY KEY,
+                    id {identity_primary_key(connection)},
                     chat_id TEXT NOT NULL,
                     sender TEXT NOT NULL CHECK (sender IN ('scammer', 'bot')),
                     message_text TEXT NOT NULL,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     scam_stage TEXT,
                     pressure_level INTEGER,
                     delay_strategy TEXT,
@@ -40,20 +45,6 @@ def init_db() -> None:
                 )
                 """
             )
-            conversation_columns = {
-                row[1] for row in connection.execute("PRAGMA table_info(conversations)")
-            }
-            for column, definition in (
-                ("delay_strategy", "TEXT"),
-                ("notes", "TEXT"),
-                ("extracted_artifacts", "TEXT NOT NULL DEFAULT '[]'"),
-                ("scam_score", "INTEGER"),
-                ("detected_flags", "TEXT NOT NULL DEFAULT '[]'"),
-            ):
-                if column not in conversation_columns:
-                    connection.execute(
-                        f"ALTER TABLE conversations ADD COLUMN {column} {definition}"
-                    )
             connection.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_conversations_chat_id
@@ -61,13 +52,13 @@ def init_db() -> None:
                 """
             )
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS scam_artifacts (
-                    id INTEGER PRIMARY KEY,
+                    id {identity_primary_key(connection)},
                     chat_id TEXT NOT NULL,
                     artifact_type TEXT NOT NULL,
                     artifact_value TEXT NOT NULL,
-                    extracted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    extracted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
@@ -90,26 +81,15 @@ def init_db() -> None:
                 )
                 """
             )
-            chat_settings_columns = {
-                row[1] for row in connection.execute("PRAGMA table_info(chat_settings)")
-            }
-            if "manual_mode" not in chat_settings_columns:
-                connection.execute(
-                    """
-                    ALTER TABLE chat_settings
-                    ADD COLUMN manual_mode INTEGER NOT NULL DEFAULT 0
-                        CHECK (manual_mode IN (0, 1))
-                    """
-                )
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS pending_replies (
-                    id INTEGER PRIMARY KEY,
+                    id {identity_primary_key(connection)},
                     chat_id TEXT NOT NULL,
                     response_text TEXT NOT NULL,
                     scam_stage TEXT,
                     pressure_level INTEGER,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     status TEXT NOT NULL DEFAULT 'pending'
                         CHECK (status IN ('pending', 'approved'))
                 )
@@ -125,13 +105,13 @@ def init_db() -> None:
             # Keep the original backend API working while it is migrated to
             # the conversations and scam_artifacts tables.
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS chat_history (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id {identity_primary_key(connection)},
                     conversation_id TEXT NOT NULL,
                     role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
                     content TEXT NOT NULL,
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
@@ -142,13 +122,13 @@ def init_db() -> None:
                 """
             )
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS application_logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id {identity_primary_key(connection)},
                     level TEXT NOT NULL,
                     message TEXT NOT NULL,
                     conversation_id TEXT,
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
@@ -218,12 +198,14 @@ def save_pending_reply(
                     chat_id, response_text, scam_stage, pressure_level
                 )
                 VALUES (?, ?, ?, ?)
+                RETURNING id
                 """,
                 (chat_id, response_text, stage, pressure),
             )
-            pending_reply_id = cursor.lastrowid
+            row = cursor.fetchone()
+            pending_reply_id = None if row is None else int(row[0])
     if pending_reply_id is None:
-        raise RuntimeError("SQLite did not return an id for the pending reply")
+        raise RuntimeError("Database did not return an id for the pending reply")
     return pending_reply_id
 
 
@@ -239,7 +221,10 @@ def get_pending_replies(chat_id: str) -> list[dict[str, Any]]:
             (chat_id,),
         ).fetchall()
     keys = ("id", "response_text", "scam_stage", "pressure_level", "created_at")
-    return [dict(zip(keys, row)) for row in rows]
+    results = [dict(zip(keys, row)) for row in rows]
+    for result in results:
+        result["created_at"] = display_timestamp(result["created_at"])
+    return results
 
 
 def approve_pending_reply(reply_id: int, edited_text: str) -> bool:
@@ -308,8 +293,9 @@ def get_or_assign_persona(
         with connection:
             connection.execute(
                 """
-                INSERT OR IGNORE INTO chat_personas (chat_id, persona_id)
+                INSERT INTO chat_personas (chat_id, persona_id)
                 VALUES (?, ?)
+                ON CONFLICT (chat_id) DO NOTHING
                 """,
                 (chat_id, default_persona_id),
             )
@@ -360,6 +346,7 @@ def save_message(
                     detected_flags
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING id
                 """,
                 (
                     chat_id,
@@ -374,7 +361,8 @@ def save_message(
                     json.dumps(detected_flags or []),
                 ),
             )
-            message_id = cursor.lastrowid
+            row = cursor.fetchone()
+            message_id = None if row is None else int(row[0])
             if legacy_role is not None:
                 connection.execute(
                     """
@@ -384,7 +372,7 @@ def save_message(
                     (chat_id, legacy_role, text),
                 )
     if message_id is None:
-        raise RuntimeError("SQLite did not return an id for the saved message")
+        raise RuntimeError("Database did not return an id for the saved message")
     return message_id
 
 
@@ -419,7 +407,10 @@ def get_chat_history(chat_id: str, limit: int = 15) -> list[dict[str, Any]]:
         "scam_stage",
         "pressure_level",
     )
-    return [dict(zip(keys, row)) for row in rows]
+    results = [dict(zip(keys, row)) for row in rows]
+    for result in results:
+        result["timestamp"] = display_timestamp(result["timestamp"])
+    return results
 
 
 def get_research_conversation(chat_id: str) -> dict[str, Any]:
@@ -494,7 +485,7 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
             {
                 "role": "user" if sender == "scammer" else "assistant",
                 "content": text,
-                "created_at": timestamp,
+                "created_at": display_timestamp(timestamp),
                 "telemetry": telemetry,
                 "scam_score": scam_score,
                 "is_scam": (
@@ -517,7 +508,7 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
                 "response_text": response_text,
                 "scam_stage": stage,
                 "pressure_level": pressure,
-                "created_at": created_at,
+                "created_at": display_timestamp(created_at),
             }
             for reply_id, response_text, stage, pressure, created_at in pending_rows
         ],
@@ -526,7 +517,7 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
                 "id": artifact_id,
                 "artifact_type": artifact_type,
                 "artifact_value": artifact_value,
-                "extracted_at": extracted_at,
+                "extracted_at": display_timestamp(extracted_at),
             }
             for artifact_id, artifact_type, artifact_value, extracted_at in artifact_rows
         ],
@@ -593,8 +584,20 @@ def _scam_category(scam_stage: str | None) -> str:
 
 def get_research_analytics() -> dict[str, Any]:
     with closing(_connect()) as connection:
+        activity_cutoff = (
+            "CURRENT_TIMESTAMP - INTERVAL '30 days'"
+            if is_postgres(connection)
+            else "datetime('now', '-30 days')"
+        )
+        engagement_duration = (
+            "GREATEST(0, EXTRACT(EPOCH FROM "
+            "(active_chats.last_activity - active_chats.first_activity)))"
+            if is_postgres(connection)
+            else "MAX(0, (julianday(active_chats.last_activity) "
+            "- julianday(active_chats.first_activity)) * 86400)"
+        )
         stage_rows = connection.execute(
-            """
+            f"""
             WITH latest_stage AS (
                 SELECT chat_id, scam_stage
                 FROM (
@@ -614,7 +617,7 @@ def get_research_analytics() -> dict[str, Any]:
                 SELECT chat_id, MAX(timestamp) AS last_activity
                 FROM conversations
                 GROUP BY chat_id
-                HAVING last_activity >= datetime('now', '-30 days')
+                HAVING MAX(timestamp) >= {activity_cutoff}
             )
             SELECT COALESCE(latest_stage.scam_stage, 'unknown'), COUNT(*)
             FROM active_chats
@@ -624,7 +627,7 @@ def get_research_analytics() -> dict[str, Any]:
             """
         ).fetchall()
         aggregate_row = connection.execute(
-            """
+            f"""
             WITH active_chats AS (
                 SELECT
                     chat_id,
@@ -632,7 +635,7 @@ def get_research_analytics() -> dict[str, Any]:
                     MAX(timestamp) AS last_activity
                 FROM conversations
                 GROUP BY chat_id
-                HAVING last_activity >= datetime('now', '-30 days')
+                HAVING MAX(timestamp) >= {activity_cutoff}
             )
             SELECT
                 COUNT(DISTINCT active_chats.chat_id),
@@ -644,7 +647,7 @@ def get_research_analytics() -> dict[str, Any]:
             """
         ).fetchone()
         engagement_rows = connection.execute(
-            """
+            f"""
             WITH active_chats AS (
                 SELECT
                     chat_id,
@@ -652,17 +655,13 @@ def get_research_analytics() -> dict[str, Any]:
                     MAX(timestamp) AS last_activity
                 FROM conversations
                 GROUP BY chat_id
-                HAVING last_activity >= datetime('now', '-30 days')
+                HAVING MAX(timestamp) >= {activity_cutoff}
             ),
             engagement AS (
                 SELECT
                     COALESCE(chat_personas.persona_id, 'unassigned') AS persona_id,
                     active_chats.chat_id,
-                    MAX(
-                        0,
-                        (julianday(active_chats.last_activity)
-                         - julianday(active_chats.first_activity)) * 86400
-                    ) AS duration_seconds
+                    {engagement_duration} AS duration_seconds
                 FROM active_chats
                 LEFT JOIN chat_personas USING (chat_id)
             )
@@ -677,12 +676,12 @@ def get_research_analytics() -> dict[str, Any]:
             """
         ).fetchall()
         category_rows = connection.execute(
-            """
+            f"""
             WITH active_chats AS (
                 SELECT chat_id
                 FROM conversations
                 GROUP BY chat_id
-                HAVING MAX(timestamp) >= datetime('now', '-30 days')
+                HAVING MAX(timestamp) >= {activity_cutoff}
             ),
             latest_stage AS (
                 SELECT chat_id, scam_stage
@@ -786,7 +785,10 @@ def get_artifacts_for_export() -> list[dict[str, Any]]:
         ).fetchall()
 
     keys = ("id", "chat_id", "artifact_type", "artifact_value", "extracted_at")
-    return [dict(zip(keys, row)) for row in rows]
+    results = [dict(zip(keys, row)) for row in rows]
+    for result in results:
+        result["extracted_at"] = display_timestamp(result["extracted_at"])
+    return results
 
 
 def get_threat_artifacts_for_export() -> list[dict[str, Any]]:
@@ -822,7 +824,10 @@ def get_threat_artifacts_for_export() -> list[dict[str, Any]]:
         "extracted_at",
         "scam_stage",
     )
-    return [dict(zip(keys, row)) for row in rows]
+    results = [dict(zip(keys, row)) for row in rows]
+    for result in results:
+        result["extracted_at"] = display_timestamp(result["extracted_at"])
+    return results
 
 
 def initialize_database() -> None:

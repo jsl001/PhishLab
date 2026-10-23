@@ -539,8 +539,8 @@
         <p class="reply-mode-status" id="reply-mode-status" role="status" aria-live="polite">For the current thread</p>
       </div>
       <div class="side-note">
-        <strong>Local demo session</strong>
-        Messages and observations are stored in your local SQLite database.
+        <strong>Demo session</strong>
+        Messages and observations are stored in the configured database.
       </div>
     </aside>
 
@@ -615,7 +615,7 @@
             <article class="solution-card">
               <span>03 · Review</span>
               <strong>Keep a local research record</strong>
-              <p>Store demo conversations and observations locally for review. URL checks are a separate, explicit action.</p>
+              <p>Store demo conversations and observations in the app database for review. URL checks are a separate, explicit action.</p>
             </article>
           </div>
         </section>
@@ -698,9 +698,9 @@
               <summary>What data does PhishLab collect?</summary>
               <div class="methodology-answer">
               <ol>
-                <li><strong>Conversation input:</strong> the message text, thread ID, sender role, and timestamp are saved to local SQLite databases.</li>
+                <li><strong>Conversation input:</strong> the message text, thread ID, sender role, and timestamp are saved to the configured database. Local development uses SQLite; the hosted deployment uses PostgreSQL.</li>
                 <li><strong>Model analysis:</strong> up to the latest 15 messages are sent to OpenAI to generate the selected persona’s reply and structured observations: scam stage, pressure, extracted artifacts, delay strategy, and notes.</li>
-                <li><strong>Research record:</strong> the reply, persona/settings, model observations, and extracted artifacts are stored locally for this conversation view, analytics, and export.</li>
+                <li><strong>Research record:</strong> the reply, persona/settings, model observations, and extracted artifacts are stored in the app database for this conversation view, analytics, and export.</li>
               </ol>
                 <p>The guided scenario uses fictional, researcher-selected messages. It does not connect to WhatsApp or send messages externally.</p>
               </div>
@@ -788,7 +788,7 @@
         <div class="dashboard-head">
           <div>
             <div class="dashboard-title">Research overview</div>
-            <div class="dashboard-subtitle">Live research signals from locally simulated conversations.</div>
+            <div class="dashboard-subtitle">Live research signals from simulated conversations.</div>
           </div>
           <div class="export-actions">
             <a class="export-button" href="/api/artifacts/export?format=json">Export JSON</a>
@@ -836,7 +836,7 @@
             <li>Scam categories are grouped from each chat’s latest model-assessed stage. They are indicative labels, not independently verified scam classifications. Mean pressure is averaged across bot replies for chats in that category; the row shows both chat and assessment counts.</li>
             <li>Message counts include each active chat's full stored history. Conversation span is the time from its first to last stored message, grouped by assigned persona.</li>
           </ul>
-          <p>These are locally stored demo/test conversations, not estimates of real-world scam prevalence or model accuracy.</p>
+          <p>These are stored demo/test conversations, not estimates of real-world scam prevalence or model accuracy.</p>
         </details>
         <div class="dashboard-error" id="dashboard-error" role="status"></div>
         <section class="pending-review" id="pending-review" aria-label="Pending replies">
@@ -1599,7 +1599,7 @@
             : "Generated replies wait for local review.";
         personaStatus.textContent = `Current thread: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId}`;
         document.querySelector(".contact-subtitle").textContent =
-          `Persona: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId} · Messages are saved locally`;
+          `Persona: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId} · Messages are saved to the app database`;
         const lastAssistantIndex = data.messages.findLastIndex(
           (message) => message.role === "assistant",
         );
@@ -1779,7 +1779,7 @@
           personaStatus.textContent =
             `Current thread: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId}`;
           document.querySelector(".contact-subtitle").textContent =
-            `Persona: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId} · Messages are saved locally`;
+            `Persona: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId} · Messages are saved to the app database`;
         }
       } catch (error) {
         if (senderInput.value.trim() === chatId) {

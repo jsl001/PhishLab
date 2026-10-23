@@ -1,8 +1,14 @@
 import json
 import os
-import sqlite3
 from contextlib import closing
 from pathlib import Path
+
+from backend.db import (
+    connect,
+    display_timestamp,
+    identity_primary_key,
+    integer_type,
+)
 
 
 _DEFAULT_DATABASE_PATH = Path(__file__).with_name("honeypot.db")
@@ -12,19 +18,17 @@ DATABASE_PATH = Path(
 
 
 def initialize_database() -> None:
-    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with closing(sqlite3.connect(DATABASE_PATH)) as connection:
-        connection.execute("PRAGMA foreign_keys = ON")
+    with closing(connect(DATABASE_PATH)) as connection:
         with connection:
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS messages (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id {identity_primary_key(connection)},
                     sender_id TEXT NOT NULL,
                     direction TEXT NOT NULL
                         CHECK (direction IN ('incoming', 'reply')),
                     message_text TEXT NOT NULL,
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
@@ -35,10 +39,10 @@ def initialize_database() -> None:
                 """
             )
             connection.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS telemetry_logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    message_id INTEGER NOT NULL
+                    id {identity_primary_key(connection)},
+                    message_id {integer_type(connection)} NOT NULL
                         REFERENCES messages (id) ON DELETE CASCADE,
                     sender_id TEXT NOT NULL,
                     scam_stage TEXT NOT NULL,
@@ -46,7 +50,7 @@ def initialize_database() -> None:
                     extracted_artifacts TEXT NOT NULL,
                     delay_strategy TEXT NOT NULL,
                     notes TEXT NOT NULL,
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
@@ -56,21 +60,24 @@ def save_message(sender_id: str, direction: str, message_text: str) -> int:
     if direction not in {"incoming", "reply"}:
         raise ValueError("direction must be 'incoming' or 'reply'")
 
-    with closing(sqlite3.connect(DATABASE_PATH)) as connection:
-        connection.execute("PRAGMA foreign_keys = ON")
+    with closing(connect(DATABASE_PATH)) as connection:
         with connection:
             cursor = connection.execute(
                 """
                 INSERT INTO messages (sender_id, direction, message_text)
                 VALUES (?, ?, ?)
+                RETURNING id
                 """,
                 (sender_id, direction, message_text),
             )
-    return cursor.lastrowid
+            row = cursor.fetchone()
+    if row is None:
+        raise RuntimeError("Database did not return an id for the saved message")
+    return int(row[0])
 
 
 def get_conversation_history(sender_id: str) -> list[dict[str, str]]:
-    with closing(sqlite3.connect(DATABASE_PATH)) as connection:
+    with closing(connect(DATABASE_PATH)) as connection:
         rows = connection.execute(
             """
             SELECT direction, message_text
@@ -91,7 +98,7 @@ def get_conversation_history(sender_id: str) -> list[dict[str, str]]:
 
 
 def get_conversation(sender_id: str) -> list[dict[str, object]]:
-    with closing(sqlite3.connect(DATABASE_PATH)) as connection:
+    with closing(connect(DATABASE_PATH)) as connection:
         rows = connection.execute(
             """
             SELECT
@@ -126,7 +133,7 @@ def get_conversation(sender_id: str) -> list[dict[str, object]]:
             {
                 "role": "user" if direction == "incoming" else "assistant",
                 "content": message_text,
-                "created_at": created_at,
+                "created_at": display_timestamp(created_at),
                 "telemetry": telemetry,
             }
         )
@@ -142,8 +149,7 @@ def save_telemetry(
     delay_strategy: str,
     notes: str,
 ) -> None:
-    with closing(sqlite3.connect(DATABASE_PATH)) as connection:
-        connection.execute("PRAGMA foreign_keys = ON")
+    with closing(connect(DATABASE_PATH)) as connection:
         with connection:
             connection.execute(
                 """

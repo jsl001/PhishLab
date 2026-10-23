@@ -15,10 +15,9 @@ from urllib.parse import urlsplit, urlunsplit
 load_dotenv()
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, PlainTextResponse, Response
+from fastapi.responses import PlainTextResponse, Response
 from pydantic import BaseModel, Field, model_validator
 
 from backend import ai_handler as backend_ai_handler
@@ -254,11 +253,7 @@ async def _refresh_scam_keywords_periodically() -> None:
 
 
 app = FastAPI(title="Honeypot Research API", lifespan=lifespan)
-
-
-@app.get("/", include_in_schema=False)
-async def frontend() -> FileResponse:
-    return FileResponse(Path(__file__).parent / "frontend" / "index.html")
+app.frontend("/", directory="frontend")
 
 
 @app.get("/api/analytics")

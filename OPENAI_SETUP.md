@@ -7,8 +7,8 @@ data-handling terms before using the app.
 
 1. Create an OpenAI API key in your OpenAI account.
 2. Set `OPENAI_API_KEY` in the environment where the app runs. For local
-   development, put it in the repository-root `.env` file. For Render, set it
-   as a secret environment variable in the service settings.
+   development, put it in the repository-root `.env` file. For Vercel, add it
+   as an environment variable in the project settings.
 3. Optionally set `OPENAI_MODEL` to a model available to your account. The
    default is `gpt-4o-mini`.
 4. From the repository root, install the Python dependencies and start the
@@ -24,8 +24,8 @@ data-handling terms before using the app.
 The page opens on **Why it matters**. The sidebar separates that overview from
 **What PhishLab does**, the **Questions you may ask** FAQ, and the
 **Conversation lab**. The What PhishLab does page includes a persona comparison
-that sends the same fictional message to all three personas through the local
-model; comparison replies are not added to chat history or analytics.
+that sends the same fictional message to all three personas through OpenAI;
+comparison replies are not added to chat history or analytics.
 Model-generated stages and pressure levels are illustrative assessments, not
 verified findings. The conversation lab also shows a rule-based score from the
 latest five messages. Its 50-point review threshold and pattern flags are
