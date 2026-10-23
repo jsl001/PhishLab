@@ -16,8 +16,9 @@ stores application data persistently; the app uses SQLite locally when
 4. Optionally add `OPENAI_MODEL`; it defaults to `gpt-4o-mini`.
 5. Apply the variables to **Production** (and use a separate Neon database for
    Preview deployments if you enable them). Redeploy the latest commit.
-6. Open the deployment URL. The `vercel.json` file configures the FastAPI
-   function, while the frontend is served from the `frontend` directory.
+6. Open the deployment URL. Vercel discovers the FastAPI function in
+   `api/main.py`; `vercel.json` rewrites app routes to that function, while the
+   frontend is served from the `frontend` directory.
 
 The PostgreSQL tables are created automatically when the application starts.
 The Vercel deployment intentionally fails at startup if `DATABASE_URL` is

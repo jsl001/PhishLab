@@ -15,6 +15,7 @@ from urllib.parse import urlsplit, urlunsplit
 load_dotenv()
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import PlainTextResponse, Response
@@ -253,7 +254,7 @@ async def _refresh_scam_keywords_periodically() -> None:
 
 
 app = FastAPI(title="Honeypot Research API", lifespan=lifespan)
-app.frontend("/", directory="frontend")
+app.frontend("/", directory=Path(__file__).resolve().parent.parent / "frontend")
 
 
 @app.get("/api/analytics")

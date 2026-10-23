@@ -16,7 +16,7 @@ data-handling terms before using the app.
 
    ```powershell
    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-   .\.venv\Scripts\python.exe -m uvicorn main:app --reload
+   .\.venv\Scripts\python.exe -m uvicorn api.main:app --reload
    ```
 5. Open [http://127.0.0.1:8000](http://127.0.0.1:8000). AI features require a
    valid API key and network access to OpenAI.
