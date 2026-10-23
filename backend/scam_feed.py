@@ -143,7 +143,7 @@ def _fetch_source(url: str) -> bytes:
         with client.stream(
             "GET",
             url,
-            headers={"User-Agent": "PhishLensResearchPrototype/1.0"},
+            headers={"User-Agent": "PhishLabResearchPrototype/1.0"},
         ) as response:
             response.raise_for_status()
             chunks: list[bytes] = []

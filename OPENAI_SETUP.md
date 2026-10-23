@@ -1,19 +1,16 @@
-# Run the local assistant with Ollama
+# Configure the OpenAI assistant
 
-The backend uses Ollama's local HTTP API. It does not require an OpenAI API key
-or send chat requests to OpenAI.
+The app uses the OpenAI API to generate persona replies and structured
+observations. Conversation messages and the app's system instructions are sent
+to OpenAI as part of those requests. Use fictional data and review OpenAI's
+data-handling terms before using the app.
 
-1. Install Ollama for Windows from [ollama.com/download](https://ollama.com/download).
-2. In PowerShell, download the default model:
-
-   ```powershell
-   ollama pull qwen2.5:3b
-   ```
-
-   The application defaults to this model. To use a different model, set
-   `OLLAMA_MODEL` in `.env`.
-3. Make sure Ollama is running. Its local API should be available at
-   `http://127.0.0.1:11434`.
+1. Create an OpenAI API key in your OpenAI account.
+2. Set `OPENAI_API_KEY` in the environment where the app runs. For local
+   development, put it in the repository-root `.env` file. For Render, set it
+   as a secret environment variable in the service settings.
+3. Optionally set `OPENAI_MODEL` to a model available to your account. The
+   default is `gpt-4o-mini`.
 4. From the repository root, install the Python dependencies and start the
    FastAPI app:
 
@@ -21,15 +18,12 @@ or send chat requests to OpenAI.
    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
    .\.venv\Scripts\python.exe -m uvicorn main:app --reload
    ```
-5. Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
-
-Set `OLLAMA_HOST` in `.env` if Ollama is listening somewhere other than the
-default local address. The backend requests a JSON-schema-constrained response
-so the chat reply and telemetry are parsed as separate fields.
+5. Open [http://127.0.0.1:8000](http://127.0.0.1:8000). AI features require a
+   valid API key and network access to OpenAI.
 
 The page opens on **Why it matters**. The sidebar separates that overview from
-**What PhishLens does**, the **Questions you may ask** FAQ, and the
-**Conversation lab**. The What PhishLens does page includes a persona comparison
+**What PhishLab does**, the **Questions you may ask** FAQ, and the
+**Conversation lab**. The What PhishLab does page includes a persona comparison
 that sends the same fictional message to all three personas through the local
 model; comparison replies are not added to chat history or analytics.
 Model-generated stages and pressure levels are illustrative assessments, not

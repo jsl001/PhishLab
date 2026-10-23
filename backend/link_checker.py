@@ -81,7 +81,7 @@ async def check_url(url: str) -> dict[str, object]:
         }
 
     payload = {
-        "client": {"clientId": "PhishLens", "clientVersion": "1.0"},
+        "client": {"clientId": "PhishLab", "clientVersion": "1.0"},
         "threatInfo": {
             "threatTypes": THREAT_TYPES,
             "platformTypes": ["ANY_PLATFORM"],

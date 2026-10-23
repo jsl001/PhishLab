@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f6f8">
-  <title>PhishLens — Interactive demo</title>
+  <title>PhishLab — Interactive demo</title>
   <style>
     :root {
       color-scheme: light;
@@ -504,7 +504,7 @@
             <path d="M15.2 15.2 20 20M7.5 10.5h1.8l1.2-2.2 1.7 4.4 1.1-2.2h1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div class="brand-name">PhishLens<span class="brand-caption">Scam awareness insights</span></div>
+        <div class="brand-name">PhishLab<span class="brand-caption">Scam awareness insights</span></div>
       </div>
       <div>
         <p class="nav-label">Workspace</p>
@@ -512,7 +512,7 @@
           <span class="nav-icon" aria-hidden="true">◎</span> Why it matters
         </button>
         <button class="nav-item page-tab" id="what-tab" type="button" aria-current="false" data-page="what-view">
-          <span class="nav-icon" aria-hidden="true">◈</span> What PhishLens does
+          <span class="nav-icon" aria-hidden="true">◈</span> What PhishLab does
         </button>
         <button class="nav-item page-tab" id="questions-tab" type="button" aria-current="false" data-page="questions-view">
           <span class="nav-icon" aria-hidden="true">?</span> Questions you may ask
@@ -547,7 +547,7 @@
     <main>
       <p class="orientation-hint" role="note">For the intended landscape presentation, rotate your device. The page remains usable in portrait.</p>
       <header class="topbar">
-        <div><div class="eyebrow">PhishLens</div><h1 id="page-heading">Why it matters</h1></div>
+        <div><div class="eyebrow">PhishLab</div><h1 id="page-heading">Why it matters</h1></div>
         <div class="topbar-statuses">
           <button class="export-iocs-button" id="export-iocs-button" type="button">Export IoCs</button>
           <div class="threat-feed-status" id="threat-feed-status" data-state="checking" role="status" aria-live="polite">Threat Feed: Checking ScamShield SG…</div>
@@ -560,7 +560,7 @@
           <article class="overview-lead">
             <p class="overview-kicker">Why it matters</p>
             <h2 class="overview-title" id="overview-title">Scams often look like ordinary conversations—until the ask changes.</h2>
-            <p class="overview-copy">A friendly introduction can gradually shift toward secrecy, a private channel, money, or sensitive information. Those changes are easy to miss when reviewed one message at a time. PhishLens is a research prototype for exploring how conversation context and persona can affect the way those signals appear.</p>
+            <p class="overview-copy">A friendly introduction can gradually shift toward secrecy, a private channel, money, or sensitive information. Those changes are easy to miss when reviewed one message at a time. PhishLab is a research prototype for exploring how conversation context and persona can affect the way those signals appear.</p>
           </article>
           <aside class="overview-proof">
             <strong>Prototype, not a proven detector</strong>
@@ -586,9 +586,9 @@
       <section class="page-view overview-view" id="what-view" aria-labelledby="what-we-do-title" hidden>
         <div class="overview-intro">
           <article class="overview-lead">
-            <p class="overview-kicker">What PhishLens does</p>
+            <p class="overview-kicker">What PhishLab does</p>
             <h2 class="overview-title" id="what-we-do-title">A research tool for exploring how scam signals appear in conversation.</h2>
-            <p class="overview-copy">PhishLens lets a researcher simulate fictional exchanges, inspect model-assessed signals in context, and keep a local record for review. It does not determine guilt, contact people, or prove that a message is a scam.</p>
+            <p class="overview-copy">PhishLab lets a researcher simulate fictional exchanges, inspect model-assessed signals in context, and keep a local record for review. It does not determine guilt, contact people, or prove that a message is a scam.</p>
           </article>
           <aside class="overview-proof">
             <strong>Research prototype</strong>
@@ -674,7 +674,7 @@
             <textarea id="comparison-message" maxlength="3000" aria-label="Same incoming message for persona comparison">I’ve enjoyed chatting with you. Someone mentioned a private investment group with unusually high returns—have you heard of it?</textarea>
             <button class="comparison-button" id="compare-personas-button" type="button">Compare personas</button>
           </div>
-          <p class="comparison-status" id="comparison-status" role="status" aria-live="polite">Replies and stage labels are generated live by the local model and may vary.</p>
+          <p class="comparison-status" id="comparison-status" role="status" aria-live="polite">Replies and stage labels are generated live by OpenAI and may vary.</p>
           <div class="comparison-results" id="comparison-results" aria-live="polite">
             <p class="comparison-empty">Select “Compare personas” to generate three replies to the same message.</p>
           </div>
@@ -692,23 +692,23 @@
       <section class="page-view overview-view" id="questions-view" aria-labelledby="questions-title" hidden>
         <section class="methodology" aria-labelledby="questions-title">
           <h2 id="questions-title">Questions you may ask</h2>
-          <p class="methodology-intro">Open a question to see how PhishLens collects data and interprets signals.</p>
+          <p class="methodology-intro">Open a question to see how PhishLab collects data and interprets signals.</p>
           <div class="methodology-faq">
             <details>
-              <summary>What data does PhishLens collect?</summary>
+              <summary>What data does PhishLab collect?</summary>
               <div class="methodology-answer">
               <ol>
                 <li><strong>Conversation input:</strong> the message text, thread ID, sender role, and timestamp are saved to local SQLite databases.</li>
-                <li><strong>Model analysis:</strong> up to the latest 15 messages are sent to the configured Ollama endpoint (localhost by default) to generate the selected persona’s reply and structured observations: scam stage, pressure, extracted artifacts, delay strategy, and notes.</li>
+                <li><strong>Model analysis:</strong> up to the latest 15 messages are sent to OpenAI to generate the selected persona’s reply and structured observations: scam stage, pressure, extracted artifacts, delay strategy, and notes.</li>
                 <li><strong>Research record:</strong> the reply, persona/settings, model observations, and extracted artifacts are stored locally for this conversation view, analytics, and export.</li>
               </ol>
                 <p>The guided scenario uses fictional, researcher-selected messages. It does not connect to WhatsApp or send messages externally.</p>
               </div>
             </details>
             <details>
-              <summary>How does PhishLens check links?</summary>
+              <summary>How does PhishLab check links?</summary>
               <div class="methodology-answer">
-                <p>Use the Link safety check in the conversation panel to submit a URL to Google Safe Browsing. The full URL, including its path and query, is sent to Google. PhishLens does not open the link, follow redirects, or save the checked URL.</p>
+                <p>Use the Link safety check in the conversation panel to submit a URL to Google Safe Browsing. The full URL, including its path and query, is sent to Google. PhishLab does not open the link, follow redirects, or save the checked URL.</p>
                 <ul>
                   <li><strong>Known threat:</strong> Google returned a threat-list match; treat it as potentially dangerous.</li>
                   <li><strong>No known threat:</strong> no match was returned at check time. This does not guarantee safety.</li>
@@ -741,7 +741,7 @@
       </section>
 
       <section class="page-view lab-view" id="lab-view" aria-label="Conversation lab" hidden>
-      <section class="pitch-hero" aria-label="PhishLens introduction">
+      <section class="pitch-hero" aria-label="PhishLab introduction">
         <div class="hero-copy">
           <div class="hero-badge"><span class="hero-badge-dot" aria-hidden="true"></span> Local demo · no WhatsApp connection</div>
           <h2 class="hero-title">See the moment a friendly chat starts to feel like a scam.</h2>
@@ -1109,7 +1109,7 @@
     function setActivePage(pageId) {
       const pageHeadings = {
         "why-view": "Why it matters",
-        "what-view": "What PhishLens does",
+        "what-view": "What PhishLab does",
         "questions-view": "Questions you may ask",
         "lab-view": "Conversation lab",
       };
@@ -1227,7 +1227,7 @@
       comparePersonasButton.disabled = true;
       comparisonResults.replaceChildren();
       comparisonStatus.textContent =
-        "Generating three replies with the local model. This may take a moment…";
+        "Generating three replies with OpenAI. This may take a moment…";
       try {
         const response = await fetch("/api/personas/compare", {
           method: "POST",
@@ -1248,7 +1248,7 @@
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "comparison-empty";
         emptyMessage.textContent =
-          "No comparison generated. Check that the local model is running, then try again.";
+          "No comparison generated. Check the OpenAI API key and try again.";
         comparisonResults.replaceChildren(emptyMessage);
       } finally {
         comparePersonasButton.disabled = false;

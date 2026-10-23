@@ -1,4 +1,4 @@
-"""Generate a chat reply and telemetry using the shared local Ollama handler."""
+"""Generate a chat reply and telemetry using the OpenAI API."""
 
 from collections.abc import Mapping
 import asyncio

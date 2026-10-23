@@ -1,22 +1,17 @@
 import asyncio
 from collections.abc import Mapping
-import json
 import os
-from pathlib import Path
 from typing import Literal
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 from dotenv import load_dotenv
+from openai import OpenAI, OpenAIError
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 
 load_dotenv()
-load_dotenv(Path(__file__).parent / ".venv" / ".env")
 
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
-OLLAMA_TIMEOUT_SECONDS = 180
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_TIMEOUT_SECONDS = 180
 
 SYSTEM_PROMPT = """
 You are Lynn, a fictional Singaporean administrative officer participating in
@@ -64,57 +59,40 @@ class AssistantOutput(BaseModel):
 
 
 class AIHandlerError(Exception):
-    """Raised when the local Ollama service cannot return usable structured output."""
+    """Raised when the OpenAI service cannot return usable structured output."""
 
 
-def _request_ollama(messages: list[dict[str, str]]) -> AssistantOutput:
-    request = Request(
-        f"{OLLAMA_HOST}/api/chat",
-        data=json.dumps(
-            {
-                "model": OLLAMA_MODEL,
-                "messages": messages,
-                "stream": False,
-                "format": AssistantOutput.model_json_schema(),
-                "options": {
-                    "num_ctx": 2048,
-                    "num_predict": 128,
-                },
-            }
-        ).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-
+def _request_openai(messages: list[dict[str, str]]) -> AssistantOutput:
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise AIHandlerError("OPENAI_API_KEY is not configured.")
     try:
-        with urlopen(request, timeout=OLLAMA_TIMEOUT_SECONDS) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except HTTPError as exc:
-        detail = exc.read(500).decode("utf-8", errors="replace").strip()
+        with OpenAI(api_key=api_key, timeout=OPENAI_TIMEOUT_SECONDS) as client:
+            response = client.chat.completions.parse(
+                model=OPENAI_MODEL,
+                messages=messages,
+                response_format=AssistantOutput,
+                max_completion_tokens=256,
+            )
+    except OpenAIError as exc:
+        raise AIHandlerError(f"OpenAI request failed: {exc}") from exc
+    except ValidationError as exc:
         raise AIHandlerError(
-            f"Ollama returned HTTP {exc.code}: {detail or exc.reason}"
+            "OpenAI response did not match the required reply and telemetry schema."
         ) from exc
-    except (URLError, TimeoutError, OSError) as exc:
+
+    if not response.choices:
+        raise AIHandlerError("OpenAI returned no response choices.")
+
+    message = response.choices[0].message
+    if message.refusal:
+        raise AIHandlerError("OpenAI refused to generate a reply.")
+    if message.parsed is None:
         raise AIHandlerError(
-            f"Could not reach Ollama at {OLLAMA_HOST}. "
-            "Check that Ollama is running and the configured host is correct."
-        ) from exc
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise AIHandlerError("Ollama returned an invalid JSON response.") from exc
+            "OpenAI response did not contain the required structured output."
+        )
 
-    if not isinstance(payload, dict):
-        raise AIHandlerError("Ollama returned an unexpected response format.")
-
-    message = payload.get("message")
-    if not isinstance(message, dict) or not isinstance(message.get("content"), str):
-        raise AIHandlerError("Ollama response did not contain message content.")
-
-    try:
-        return AssistantOutput.model_validate_json(message["content"])
-    except (ValidationError, json.JSONDecodeError) as exc:
-        raise AIHandlerError(
-            "Ollama response did not match the required reply and telemetry schema."
-        ) from exc
+    return message.parsed
 
 
 async def get_response(
@@ -128,4 +106,4 @@ async def get_response(
             for item in history[-15:]
         ],
     ]
-    return await asyncio.to_thread(_request_ollama, messages)
+    return await asyncio.to_thread(_request_openai, messages)

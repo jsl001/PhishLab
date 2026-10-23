@@ -1,13 +1,18 @@
 import json
+import os
 import sqlite3
 from contextlib import closing
 from pathlib import Path
 
 
-DATABASE_PATH = Path(__file__).with_name("honeypot.db")
+_DEFAULT_DATABASE_PATH = Path(__file__).with_name("honeypot.db")
+DATABASE_PATH = Path(
+    os.getenv("MESSAGE_DATABASE_PATH", str(_DEFAULT_DATABASE_PATH))
+)
 
 
 def initialize_database() -> None:
+    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with closing(sqlite3.connect(DATABASE_PATH)) as connection:
         connection.execute("PRAGMA foreign_keys = ON")
         with connection:

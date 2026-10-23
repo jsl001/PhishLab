@@ -505,7 +505,7 @@ def _build_stix_bundle(
                 "id": f"indicator--{uuid.uuid4()}",
                 "created": timestamp,
                 "modified": timestamp,
-                "name": f"PhishLens {indicator_type} indicator",
+                "name": f"PhishLab {indicator_type} indicator",
                 "description": (
                     "An extracted research artifact. Associated scam stage tags "
                     "are unverified model assessments."
