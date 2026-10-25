@@ -90,6 +90,40 @@
     .persona-spotlight-detail span { display: block; margin-top: 4px; color: #66758a; font-size: 9px; line-height: 1.5; }
     .page-view[hidden] { display: none !important; }
     .lab-view { display: flex; flex-direction: column; min-width: 0; }
+    .lab-view > .workspace { order: 1; width: min(1440px, 100%); margin: 0 auto; padding-top: 22px; }
+    .lab-view > .pitch-hero { display: none; }
+    .lab-view > .dashboard { display: none; }
+    .dashboard-view { min-width: 0; padding: 24px 32px; }
+    .dashboard-landing { max-width: 1440px; margin: 0 auto; }
+    .dashboard-disclaimer { margin: 16px 0 0; color: #8793a2; font-size: 10px; }
+    .overview-chart-card { margin-top: 14px; padding: 18px 20px; border: 1px solid #e1e7ef; border-radius: 14px; background: #fff; box-shadow: 0 7px 24px #1e314608; }
+    .overview-chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .overview-chart-head h3 { margin: 0; color: #1e344b; font-size: 14px; }
+    .overview-chart-head p { margin: 5px 0 0; color: #738196; font-size: 10px; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 10px; color: #738196; font-size: 9px; }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .chart-legend i { width: 7px; height: 7px; border-radius: 50%; }
+    .legend-incoming { background: #b7c8d8; }
+    .legend-detected { background: #267b73; }
+    .overview-chart { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: end; gap: 12px; min-height: 145px; margin-top: 15px; padding: 14px 4px 0; border-bottom: 1px solid #e5ebef; }
+    .chart-day { display: grid; grid-template-rows: 1fr auto; gap: 8px; min-width: 0; height: 125px; text-align: center; }
+    .chart-bars { display: flex; align-items: end; justify-content: center; gap: 4px; height: 100%; }
+    .chart-bar { width: min(18px, 35%); min-height: 3px; border-radius: 4px 4px 0 0; }
+    .chart-bar.incoming { background: #b7c8d8; }
+    .chart-bar.detected { background: #267b73; }
+    .chart-date { color: #8290a0; font-size: 9px; }
+    .faq-hero { padding: 28px 30px; border: 1px solid #dfe9e3; border-radius: 14px; background: linear-gradient(115deg,#fff,#f3faf6); }
+    .faq-search { display: flex; align-items: center; gap: 9px; max-width: 580px; margin-top: 19px; padding: 0 13px; border: 1px solid #d6e4dc; border-radius: 9px; background: #fff; color: #5d7b6f; }
+    .faq-search input { width: 100%; padding: 12px 0; border: 0; outline: 0; color: var(--ink); font-size: 12px; }
+    .faq-topics { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 4px; }
+    .faq-topics a { padding: 8px 11px; border: 1px solid #dce7e2; border-radius: 999px; background: #fff; color: #367362; font-size: 10px; font-weight: 650; text-decoration: none; }
+    .faq-topics a:hover { border-color: #8bb6a5; background: #f1f8f4; }
+    .faq-section-heading { margin: 8px 0 12px; }
+    .faq-section-heading span { color: #27776c; font-size: 9px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .faq-section-heading h3 { margin: 4px 0 0; color: #1e344b; font-size: 18px; }
+    .faq-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 16px; padding: 15px 17px; border: 1px solid #dce8e1; border-radius: 11px; background: #f5faf7; color: #65766e; font-size: 10px; }
+    .faq-footer strong { color: #28483d; font-size: 11px; }
+    .faq-footer button { margin-left: auto; padding: 8px 11px; border: 0; border-radius: 7px; background: var(--green); color: #fff; font-size: 10px; font-weight: 700; }
     .orientation-hint { display: none; }
     .overview-view { width: min(1440px, 100%); margin: 0 auto; padding: 22px 32px 34px; }
     .overview-intro { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 22px; align-items: stretch; }
@@ -104,8 +138,10 @@
     .overview-section-head { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 9px; }
     .overview-section-head h3, .next-step h3 { margin: 0; color: #1e344b; font-size: 14px; }
     .overview-section-head p { max-width: 540px; margin: 0; color: #738196; font-size: 10px; line-height: 1.5; }
-    .solution-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .solution-card { padding: 14px; border: 1px solid #e2e9ef; border-radius: 10px; background: #fff; }
+    .solution-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; overflow: hidden; border: 1px solid #e2e9ef; border-radius: 10px; background: #fff; }
+    .solution-card { position: relative; padding: 14px 22px 14px 14px; background: #fff; }
+    .solution-card:not(:last-child)::after { position: absolute; z-index: 2; top: 50%; right: -7px; width: 14px; height: 14px; border-top: 1px solid #bfd5ca; border-right: 1px solid #bfd5ca; background: #fff; content: ""; transform: translateY(-50%) rotate(45deg); }
+    .solution-card + .solution-card { border-left: 1px solid #e2e9ef; }
     .solution-card span { display: block; margin-bottom: 7px; color: #278071; font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
     .solution-card strong { color: #283e54; font-size: 11px; }
     .solution-card p { margin: 6px 0 0; color: #68798c; font-size: 10px; line-height: 1.55; }
@@ -136,8 +172,10 @@
     .threat-feed-status[data-state="active"]::before { background: #3d9a6a; box-shadow: 0 0 0 3px #3d9a6a20; }
     .threat-feed-status[data-state="unavailable"] { border-color: #ead5ce; background: #fcf5f3; color: #825143; }
     .threat-feed-status[data-state="unavailable"]::before { background: #b66b57; }
-    .journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
-    .journey-step { position: relative; min-height: 104px; padding: 14px; border: 1px solid #dfe8ec; border-radius: 10px; background: linear-gradient(150deg,#fff,#f6faf9); }
+    .journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; overflow: hidden; border: 1px solid #dfe8ec; border-radius: 12px; background: #fff; }
+    .journey-step { position: relative; min-height: 92px; padding: 14px 22px 14px 16px; background: linear-gradient(150deg,#fff,#f6faf9); }
+    .journey-step:not(:last-child)::after { position: absolute; z-index: 2; top: 50%; right: -8px; width: 16px; height: 16px; border-top: 1px solid #b8d1c5; border-right: 1px solid #b8d1c5; background: #fff; content: ""; transform: translateY(-50%) rotate(45deg); }
+    .journey-step + .journey-step { border-left: 1px solid #dfe8ec; }
     .journey-step span { display: block; color: #278071; font-size: 9px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
     .journey-step strong { display: block; margin-top: 7px; color: #263b51; font-size: 11px; }
     .journey-step p { margin: 5px 0 0; color: #6c7b8d; font-size: 9px; line-height: 1.5; }
@@ -172,7 +210,22 @@
     .evidence-explanation { margin: 7px 0 0; color: #718096; font-size: 9px; line-height: 1.5; }
     .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 282px; gap: 20px; max-width: 1440px; margin: 0 auto; padding: 24px 30px; }
     .conversation, .insights { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 4px 18px #20312a08; }
-    .conversation { min-height: calc(100vh - 124px); display: flex; flex-direction: column; overflow: hidden; }
+    .conversation { min-height: 0; height: min(760px, calc(100vh - 145px)); display: flex; flex-direction: column; overflow: hidden; }
+    .workspace { align-items: stretch; }
+    .workspace .insights { height: min(760px, calc(100vh - 145px)); overflow-y: auto; }
+    .conversation > .pitch-hero { display: none; }
+    .conversation-head { flex: 0 0 auto; min-height: 68px; }
+    .conversation-head .hero-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .conversation-head .guided-demo-button { padding: 8px 10px; font-size: 10px; }
+    .conversation-head .guided-demo-status { max-width: 190px; font-size: 9px; }
+    .lab-context-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex: 0 0 auto; padding: 11px 18px; border-bottom: 1px solid var(--line); background: #f7faf8; }
+    .lab-context-copy { min-width: 0; }
+    .lab-context-copy strong { display: block; color: #28483d; font-size: 11px; }
+    .lab-context-copy span { display: block; margin-top: 3px; color: #718079; font-size: 9px; line-height: 1.4; }
+    .lab-context-bar .persona-control { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 0; }
+    .lab-context-bar .persona-control label { margin: 0; color: #718079; font-size: 9px; letter-spacing: .08em; }
+    .lab-context-bar .persona-control select { width: 132px; padding: 7px 8px; border-color: #cbded4; background: #fff; color: #28483d; font-size: 10px; }
+    .lab-context-bar .persona-status { display: none; }
     .conversation-head { min-height: 73px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); }
     .contact { display: flex; align-items: center; gap: 11px; min-width: 0; }
     .contact-copy { min-width: 0; }
@@ -508,17 +561,14 @@
       </div>
       <div>
         <p class="nav-label">Workspace</p>
-        <button class="nav-item page-tab active" id="why-tab" type="button" aria-current="page" data-page="why-view">
-          <span class="nav-icon" aria-hidden="true">◎</span> Why it matters
-        </button>
-        <button class="nav-item page-tab" id="what-tab" type="button" aria-current="false" data-page="what-view">
-          <span class="nav-icon" aria-hidden="true">◈</span> What PhishLab does
-        </button>
-        <button class="nav-item page-tab" id="questions-tab" type="button" aria-current="false" data-page="questions-view">
-          <span class="nav-icon" aria-hidden="true">?</span> Questions you may ask
+        <button class="nav-item page-tab active" id="dashboard-tab" type="button" aria-current="page" data-page="dashboard-view">
+          <span class="nav-icon" aria-hidden="true">▦</span> Intelligence Overview
         </button>
         <button class="nav-item page-tab" id="lab-tab" type="button" aria-current="false" data-page="lab-view">
-          <span class="nav-icon" aria-hidden="true">◉</span> Conversation lab
+          <span class="nav-icon" aria-hidden="true">◉</span> Conversation Lab
+        </button>
+        <button class="nav-item page-tab" id="about-tab" type="button" aria-current="false" data-page="faq-view">
+          <span class="nav-icon" aria-hidden="true">?</span> FAQ &amp; Safeguards
         </button>
       </div>
       <div class="persona-control">
@@ -555,7 +605,22 @@
         </div>
       </header>
 
-      <section class="page-view overview-view" id="why-view" aria-labelledby="overview-title">
+      <section class="page-view dashboard-view" id="dashboard-view" aria-label="Intelligence Overview">
+        <div class="dashboard dashboard-landing">
+          <div class="dashboard-head"><div><div class="dashboard-title">Intelligence Overview</div><div class="dashboard-subtitle">A concise view of what PhishLab has observed so far.</div></div><div class="export-actions"><a class="export-button" href="/api/artifacts/export?format=json">Export JSON</a><a class="export-button" href="/api/artifacts/export?format=csv">Export CSV</a></div></div>
+          <div class="metric-grid">
+            <article class="metric-card"><div class="metric-label">Active investigations</div><div class="metric-number" id="landing-active-chats">—</div><div class="metric-footnote">Recent conversations</div></article>
+            <article class="metric-card"><div class="metric-label">Messages analysed</div><div class="metric-number" id="landing-messages">—</div><div class="metric-footnote">Across active investigations</div></article>
+            <article class="metric-card"><div class="metric-label">Scam categories</div><div class="metric-number" id="landing-categories">—</div><div class="metric-footnote">Observed in the research record</div></article>
+            <article class="metric-card"><div class="metric-label">Average pressure</div><div class="metric-number" id="landing-pressure">—</div><div class="metric-footnote">Model assessment · 1–3</div></article>
+          </div>
+          <div class="dashboard-details"><article class="dashboard-detail"><h3>Recent scam intelligence</h3><div class="category-list" id="landing-categories-list"><span class="analytics-empty">Loading…</span></div></article><article class="dashboard-detail"><h3>Next step</h3><p class="dashboard-subtitle">Open the Conversation Lab to review messages, approve replies, and inspect extracted artifacts.</p><button class="guided-demo-button" type="button" data-open-page="lab-view">Open conversation lab</button></article></div>
+          <article class="overview-chart-card"><div class="overview-chart-head"><div><h3>Incoming activity</h3><p>Messages received compared with messages flagged for review.</p></div><div class="chart-legend"><span><i class="legend-incoming"></i>Incoming</span><span><i class="legend-detected"></i>Flagged</span></div></div><div class="overview-chart" id="landing-activity-chart"><span class="analytics-empty">Loading activity…</span></div></article>
+          <p class="dashboard-disclaimer">Research signals are model-generated and require human review. They are not verified scam verdicts.</p>
+        </div>
+      </section>
+
+      <section class="page-view overview-view" id="why-view" aria-labelledby="overview-title" hidden>
         <div class="overview-intro">
           <article class="overview-lead">
             <p class="overview-kicker">Why it matters</p>
@@ -583,7 +648,7 @@
         </section>
       </section>
 
-      <section class="page-view overview-view" id="what-view" aria-labelledby="what-we-do-title" hidden>
+      <section class="page-view overview-view" id="about-view" aria-labelledby="what-we-do-title" hidden>
         <div class="overview-intro">
           <article class="overview-lead">
             <p class="overview-kicker">What PhishLab does</p>
@@ -689,14 +754,25 @@
         </section>
       </section>
 
-      <section class="page-view overview-view" id="questions-view" aria-labelledby="questions-title" hidden>
+      <section class="page-view overview-view faq-view" id="faq-view" aria-labelledby="questions-title" hidden>
+        <div class="faq-hero">
+          <p class="overview-kicker">PhishLab help centre</p>
+          <h2 class="overview-title" id="questions-title">What PhishLab does</h2>
+          <p class="overview-copy">Find quick answers about the investigation workflow, data handling, and research safeguards.</p>
+          <label class="faq-search"><span aria-hidden="true">⌕</span><input id="faq-search-input" type="search" placeholder="Search questions" aria-label="Search frequently asked questions"></label>
+        </div>
         <section class="methodology" aria-labelledby="questions-title">
-          <h2 id="questions-title">Questions you may ask</h2>
-          <p class="methodology-intro">Open a question to see how PhishLab collects data and interprets signals.</p>
+          <div class="faq-section-heading" id="faq-product"><span>Product</span><h3>How the investigation works</h3></div>
           <div class="methodology-faq">
             <details>
-              <summary>What data does PhishLab collect?</summary>
+              <summary>What does PhishLab do?</summary>
               <div class="methodology-answer">
+                <p>PhishLab helps researchers review suspicious conversations, generate controlled replies, and organise possible scam indicators for human investigation.</p>
+              </div>
+            </details>
+            <details>
+              <summary>What data does PhishLab collect?</summary>
+              <div class="methodology-answer" id="faq-data">
               <ol>
                 <li><strong>Conversation input:</strong> the message text, thread ID, sender role, and timestamp are saved to the configured database. Local development uses SQLite; the hosted deployment uses PostgreSQL.</li>
                 <li><strong>Model analysis:</strong> up to the latest 15 messages are sent to OpenAI to generate the selected persona’s reply and structured observations: scam stage, pressure, extracted artifacts, delay strategy, and notes.</li>
@@ -731,13 +807,14 @@
               </div>
             </details>
             <details>
-              <summary>Are the model’s scam labels verified?</summary>
+              <summary id="faq-safety">Are the model’s scam labels verified?</summary>
               <div class="methodology-answer">
                 <p>No. Stages, pressure scores, notes, and extracted artifacts are model-generated research signals, not independently verified facts. A link scan match is a warning; a “no known threat” result is not a safety guarantee. Review context before drawing conclusions.</p>
               </div>
             </details>
           </div>
         </section>
+        <div class="faq-footer"><strong>Still need help?</strong><span>Review the Conversation Lab for the complete investigation workflow.</span><button type="button" data-open-page="lab-view">Open Conversation Lab</button></div>
       </section>
 
       <section class="page-view lab-view" id="lab-view" aria-label="Conversation lab" hidden>
@@ -859,6 +936,9 @@
               <button class="new-chat-button" id="new-chat-button" type="button">New conversation</button>
             </div>
           </header>
+          <div class="lab-context-bar">
+            <div class="lab-context-copy"><strong>Research simulation</strong><span>Explore how a fictional Singaporean persona responds while PhishLab records scam-stage and indicator signals.</span></div>
+          </div>
           <div class="thread" id="thread" aria-live="polite">
             <div class="empty-state">
               <div class="empty-icon" aria-hidden="true">✳</div>
@@ -1108,10 +1188,11 @@
 
     function setActivePage(pageId) {
       const pageHeadings = {
+        "dashboard-view": "Intelligence Overview",
         "why-view": "Why it matters",
-        "what-view": "What PhishLab does",
-        "questions-view": "Questions you may ask",
-        "lab-view": "Conversation lab",
+        "about-view": "About & safeguards",
+        "faq-view": "FAQ & Safeguards",
+        "lab-view": "Conversation Lab",
       };
       if (!Object.hasOwn(pageHeadings, pageId)) {
         throw new Error(`Unknown page: ${pageId}`);
@@ -1125,10 +1206,25 @@
         tab.classList.toggle("active", selected);
         tab.setAttribute("aria-current", selected ? "page" : "false");
       }
-      if (pageId === "lab-view") {
+      if (pageId === "dashboard-view" || pageId === "lab-view") {
         loadConversation();
         loadAnalytics();
       }
+    }
+
+    // Keep the guided simulation action in the conversation toolbar without
+    // letting the promotional hero compete with the message thread.
+    const conversationPanel = document.querySelector(".conversation");
+    const simulationContext = document.querySelector(".lab-view > .pitch-hero");
+    const conversationHeader = conversationPanel?.querySelector(".conversation-head");
+    const labContextBar = conversationPanel?.querySelector(".lab-context-bar");
+    const personaControl = document.querySelector(".sidebar .persona-control");
+    const simulationActions = simulationContext?.querySelector(".hero-actions");
+    if (conversationHeader && simulationActions) {
+      conversationHeader.append(simulationActions);
+    }
+    if (labContextBar && personaControl) {
+      labContextBar.append(personaControl);
     }
 
     async function refreshThreatFeedStatus() {
@@ -1193,6 +1289,16 @@
     document.querySelectorAll("[data-open-page]").forEach((button) => {
       button.addEventListener("click", () => setActivePage(button.dataset.openPage));
     });
+
+    const faqSearchInput = document.getElementById("faq-search-input");
+    if (faqSearchInput) {
+      faqSearchInput.addEventListener("input", () => {
+        const query = faqSearchInput.value.trim().toLocaleLowerCase();
+        document.querySelectorAll("#faq-view .methodology-faq details").forEach((item) => {
+          item.hidden = Boolean(query) && !item.textContent.toLocaleLowerCase().includes(query);
+        });
+      });
+    }
 
     function renderComparisonResults(results) {
       comparisonResults.replaceChildren();
@@ -1500,6 +1606,10 @@
           data.average_pressure_level == null ? "—" : Number(data.average_pressure_level).toFixed(1);
         document.getElementById("metric-messages").textContent = data.total_messages_exchanged;
         document.getElementById("metric-categories").textContent = data.scam_categories.length;
+        document.getElementById("landing-active-chats").textContent = data.active_chats;
+        document.getElementById("landing-pressure").textContent = data.average_pressure_level == null ? "—" : Number(data.average_pressure_level).toFixed(1);
+        document.getElementById("landing-messages").textContent = data.total_messages_exchanged;
+        document.getElementById("landing-categories").textContent = data.scam_categories.length;
         document.getElementById("metric-active-window").textContent =
           `Latest message within ${data.active_window_days} days`;
 
@@ -1526,6 +1636,50 @@
           }
         } else {
           categories.innerHTML = '<span class="analytics-empty">No active chats yet.</span>';
+        }
+        const landingCategories = document.getElementById("landing-categories-list");
+        landingCategories.replaceChildren();
+        if (data.scam_categories.length) {
+          for (const item of data.scam_categories.slice(0, 5)) {
+            const row = document.createElement("div");
+            row.className = "category-row";
+            const name = document.createElement("span");
+            name.className = "category-name";
+            name.textContent = item.category;
+            const count = document.createElement("span");
+            count.className = "category-pressure";
+            count.textContent = `${item.chat_count} chats`;
+            row.append(name, count);
+            landingCategories.append(row);
+          }
+        } else {
+          landingCategories.innerHTML = '<span class="analytics-empty">No intelligence collected yet.</span>';
+        }
+        const activityChart = document.getElementById("landing-activity-chart");
+        activityChart.replaceChildren();
+        const activitySeries = Array.isArray(data.activity_series) ? data.activity_series.slice(-7) : [];
+        if (activitySeries.length) {
+          const maxActivity = Math.max(1, ...activitySeries.map((item) => Number(item.incoming_messages) || 0));
+          for (const item of activitySeries) {
+            const day = document.createElement("div");
+            day.className = "chart-day";
+            const bars = document.createElement("div");
+            bars.className = "chart-bars";
+            for (const [value, type] of [[item.incoming_messages, "incoming"], [item.detected_scams, "detected"]]) {
+              const bar = document.createElement("span");
+              bar.className = `chart-bar ${type}`;
+              bar.style.height = `${Math.max(3, ((Number(value) || 0) / maxActivity) * 100)}%`;
+              bar.title = `${value || 0} ${type === "incoming" ? "incoming messages" : "flagged messages"}`;
+              bars.append(bar);
+            }
+            const date = document.createElement("span");
+            date.className = "chart-date";
+            date.textContent = String(item.date).slice(5);
+            day.append(bars, date);
+            activityChart.append(day);
+          }
+        } else {
+          activityChart.innerHTML = '<span class="analytics-empty">No activity recorded yet.</span>';
         }
 
         const personas = document.getElementById("analytics-personas");
@@ -2062,7 +2216,7 @@
     loadAnalytics();
     refreshThreatFeedStatus();
     window.setInterval(refreshThreatFeedStatus, 60_000);
-    setActivePage("why-view");
+    setActivePage("dashboard-view");
   </script>
 </body>
 </html>

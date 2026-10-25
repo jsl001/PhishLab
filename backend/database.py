@@ -709,6 +709,18 @@ def get_research_analytics() -> dict[str, Any]:
                 AND conversations.sender = 'bot'
             """
         ).fetchall()
+        activity_rows = connection.execute(
+            f"""
+            SELECT DATE(timestamp) AS activity_date,
+                   COUNT(*) AS incoming_messages,
+                   SUM(CASE WHEN sender = 'scammer' AND scam_score >= ? THEN 1 ELSE 0 END)
+            FROM conversations
+            WHERE timestamp >= {activity_cutoff}
+            GROUP BY DATE(timestamp)
+            ORDER BY DATE(timestamp)
+            """,
+            (SCAM_REVIEW_THRESHOLD,),
+        ).fetchall()
 
     active_count, average_pressure, total_messages = aggregate_row or (0, None, 0)
     category_metrics: dict[str, dict[str, Any]] = {}
@@ -770,6 +782,14 @@ def get_research_analytics() -> dict[str, Any]:
             for persona_id, chat_count, total_seconds, average_seconds in engagement_rows
         ],
         "scam_categories": category_summary,
+        "activity_series": [
+            {
+                "date": str(activity_date),
+                "incoming_messages": int(incoming_messages or 0),
+                "detected_scams": int(detected_scams or 0),
+            }
+            for activity_date, incoming_messages, detected_scams in activity_rows
+        ],
         "active_window_days": 30,
     }
 
