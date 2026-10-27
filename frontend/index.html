@@ -120,10 +120,48 @@
     .intake-form label { display: grid; gap: 5px; color: #65766e; font-size: 9px; font-weight: 700; }
     .intake-form input, .intake-form textarea { width: 100%; padding: 9px; border: 1px solid #d7e3df; border-radius: 7px; background: #fff; color: #263c53; font-size: 11px; }
     .intake-form textarea { grid-column: 1 / -1; min-height: 70px; resize: vertical; }
+    .intake-file-label { grid-column: 1 / -1; }
+    .intake-file-label input { padding: 7px; }
+    .intake-format { display: grid; align-content: center; gap: 3px; padding: 9px; border: 1px dashed #cbded4; border-radius: 7px; background: #f8fbf9; color: #65766e; font-size: 9px; }
+    .intake-format strong { color: #28483d; font-size: 9px; }
+    .intake-format small { color: #87938e; font-size: 8px; }
     .intake-form input:focus, .intake-form textarea:focus { outline: none; border-color: #70a896; box-shadow: 0 0 0 3px #23776216; }
     .intake-submit { grid-column: 1 / -1; justify-self: start; padding: 9px 12px; border: 0; border-radius: 7px; background: var(--green); color: #fff; font-size: 10px; font-weight: 700; }
     .intake-submit:disabled { cursor: wait; opacity: .6; }
     .intake-status { min-height: 14px; margin: 9px 0 0; color: #718079; font-size: 9px; }
+    .intake-template { display: inline-block; margin-top: 7px; color: #267b73; font-size: 9px; font-weight: 650; text-decoration: none; }
+    .intake-template:hover { text-decoration: underline; }
+    .intake-view { min-width: 0; padding: 30px 32px; }
+    .intake-page { max-width: 1440px; margin: 0 auto; }
+    .intake-page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 16px; padding: 22px 24px; border: 1px solid #dfe9e3; border-radius: 14px; background: linear-gradient(115deg,#fff,#f3faf6); }
+    .intake-page-head h2 { margin: 0; color: #17372e; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.04em; }
+    .intake-page-head p:not(.overview-kicker) { max-width: 680px; margin: 8px 0 0; color: #667771; font-size: 11px; line-height: 1.55; }
+    .intake-page-slot .intake-console { margin-top: 0; grid-template-columns: minmax(0, 1fr); }
+    .intake-page-slot .intake-card { padding: 22px 24px; }
+    .intake-page-slot .intake-results { min-height: 210px; padding: 22px 24px; }
+    .intake-file-label { min-height: 110px; justify-content: center; padding: 18px; border: 1px dashed #9fc5b3; border-radius: 10px; background: #f8fbf9; text-align: center; }
+    .intake-file-label input { margin-top: 8px; border: 0; background: transparent; }
+    .intake-page-slot .intake-format { min-height: 110px; }
+    .intake-page-slot .intake-indicators { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+    .intake-page-slot .intake-indicator { min-width: 0; }
+    .case-queue { margin-top: 16px; padding: 20px 24px; border: 1px solid #e1e7ef; border-radius: 14px; background: #fff; }
+    .case-queue-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .case-queue-head h3 { margin: 0; color: #1e344b; font-size: 14px; }
+    .case-queue-head p { margin: 5px 0 0; color: #738196; font-size: 10px; }
+    .case-list { display: grid; gap: 8px; }
+    .case-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid #e5ebef; border-radius: 9px; background: #fbfcfe; }
+    .case-row-main { min-width: 0; }
+    .case-row-title { color: #283e54; font-size: 11px; font-weight: 700; }
+    .case-row-message { margin-top: 4px; color: #68798c; font-size: 10px; line-height: 1.45; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .case-row-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; color: #8793a2; font-size: 9px; }
+    .case-row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .case-status { padding: 4px 7px; border-radius: 999px; background: #fff0dd; color: #875a22; font-size: 8px; font-weight: 750; text-transform: uppercase; }
+    .case-status.engaging { background: #e7f3ed; color: #39715e; }
+    .case-status.dismissed, .case-status.closed { background: #f0f3f5; color: #718096; }
+    .case-action { padding: 7px 9px; border: 1px solid #cbded4; border-radius: 7px; background: #fff; color: #367362; font-size: 9px; font-weight: 700; }
+    .case-action.primary { border-color: var(--green); background: var(--green); color: #fff; }
+    @media (max-width: 700px) { .case-row { grid-template-columns: 1fr; } .case-row-actions { justify-content: flex-start; } }
+    @media (max-width: 800px) { .intake-view { padding: 18px 12px 24px; } .intake-page-head { align-items: flex-start; flex-direction: column; } .intake-page-slot .intake-indicators { grid-template-columns: 1fr; } }
     .intake-results { padding: 18px 20px; border: 1px solid #e1e7ef; border-radius: 14px; background: #fff; }
     .intake-results h3 { margin: 0 0 12px; color: #1e344b; font-size: 14px; }
     .intake-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
@@ -858,15 +896,12 @@
             <article class="metric-card"><div class="metric-label">Scam categories</div><div class="metric-number" id="landing-categories">—</div><div class="metric-footnote">Observed in the research record</div></article>
             <article class="metric-card"><div class="metric-label">Average pressure</div><div class="metric-number" id="landing-pressure">—</div><div class="metric-footnote">Model assessment · 1–3</div></article>
           </div>
-          <div class="dashboard-details"><article class="dashboard-detail"><h3>Recent scam intelligence</h3><div class="category-list" id="landing-categories-list"><span class="analytics-empty">Loading…</span></div></article><article class="dashboard-detail"><h3>Next step</h3><p class="dashboard-subtitle">Open the Conversation Lab to review messages, approve replies, and inspect extracted artifacts.</p><button class="guided-demo-button" type="button" data-open-page="lab-view">Open conversation lab</button></article></div>
+          <div class="dashboard-details"><article class="dashboard-detail"><h3>Recent scam intelligence</h3><div class="category-list" id="landing-categories-list"><span class="analytics-empty">Loading…</span></div></article><article class="dashboard-detail"><h3>Next step</h3><p class="dashboard-subtitle">Open the Conversation Lab to review messages, approve replies, and inspect extracted artifacts.</p><button class="guided-demo-button" type="button" data-open-page="lab-view">Open Conversation Lab</button></article></div>
           <article class="overview-chart-card"><div class="overview-chart-head"><div><h3>Incoming activity</h3><p>Messages received compared with messages flagged for review.</p></div><div class="chart-legend"><span><i class="legend-incoming"></i>Incoming</span><span><i class="legend-detected"></i>Flagged</span></div></div><div class="overview-chart" id="landing-activity-chart" role="img" aria-label="Seven-day incoming and flagged message activity chart"><span class="analytics-empty">Loading activity…</span></div></article>
-          <section class="intake-console" aria-label="Telco intelligence intake">
-            <article class="intake-card"><h3>Telco Intake Console</h3><p>Send a synthetic inbound message into the same pipeline a telco integration would use.</p><form class="intake-form" id="intake-form"><label>Sender number<input id="intake-sender" value="+6591234567" maxlength="30" required></label><label>Source<input value="Telco simulator" disabled></label><textarea id="intake-message" required>DEMO ONLY: Your parcel is held. Pay the $2.99 release fee at https://delivery-demo.example/pay</textarea><button class="intake-submit" id="intake-submit" type="submit">Analyse inbound message</button></form><p class="intake-status" id="intake-status" role="status" aria-live="polite">Synthetic data only · no external message will be sent.</p></article>
-            <article class="intake-results"><h3>Latest intake result</h3><div id="intake-summary"><span class="analytics-empty">No message analysed yet.</span></div><div class="intake-indicators" id="intake-indicators"></div></article>
-          </section>
           <p class="dashboard-disclaimer">Research signals are model-generated and require human review. They are not verified scam verdicts.</p>
         </div>
       </section>
+
 
       <section class="page-view overview-view" id="why-view" aria-labelledby="overview-title" hidden>
         <div class="overview-intro">
@@ -1356,13 +1391,16 @@
     const comparePersonasButton = document.getElementById("compare-personas-button");
     const comparisonStatus = document.getElementById("comparison-status");
     const comparisonResults = document.getElementById("comparison-results");
-    const intakeForm = document.getElementById("intake-form");
-    const intakeSender = document.getElementById("intake-sender");
-    const intakeMessage = document.getElementById("intake-message");
-    const intakeSubmit = document.getElementById("intake-submit");
-    const intakeStatus = document.getElementById("intake-status");
-    const intakeSummary = document.getElementById("intake-summary");
-    const intakeIndicators = document.getElementById("intake-indicators");
+    // Legacy intake hooks are intentionally disabled; telco ingestion is no
+    // longer part of the product surface.
+    const intakeForm = null;
+    const intakeFile = null;
+    const intakeSubmit = null;
+    const intakeStatus = null;
+    const intakeSummary = null;
+    const intakeIndicators = null;
+    const caseList = null;
+    const refreshCasesButton = null;
     const evidenceMessage = document.getElementById("evidence-message");
     const evidenceExplanation = document.getElementById("evidence-explanation");
     const modelStatusElement = document.getElementById("model-status");
@@ -1383,6 +1421,7 @@
     let personaProfiles = new Map();
     let activeModelName = "configured model";
     let appInitialized = false;
+    let conversationLoadToken = 0;
 
     function openTerms() {
       termsCheckbox.checked = false;
@@ -1432,25 +1471,24 @@
 
     intakeForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
+      const file = intakeFile.files[0];
+      if (!file) return;
       intakeSubmit.disabled = true;
-      intakeStatus.textContent = "Analysing and storing synthetic intake…";
+      intakeStatus.textContent = "Uploading and analysing CSV…";
       try {
-        const response = await fetch("/api/intake/messages", {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch("/api/intake/csv", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            source: "telco_simulator",
-            sender: intakeSender.value.trim(),
-            message_text: intakeMessage.value.trim(),
-          }),
+          body: formData,
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || "Intake request failed.");
+        if (!response.ok) throw new Error(data.detail || "CSV intake failed.");
         intakeSummary.replaceChildren();
         for (const [label, value, alert] of [
-          ["Case", data.case_id, false],
-          ["Score", `${data.scam_score}/100`, data.review_required],
-          ["Review", data.review_required ? "Required" : "Not flagged", data.review_required],
+          ["Processed", `${data.processed_rows}/${data.total_rows}`, false],
+          ["Flagged", data.flagged_rows, data.flagged_rows > 0],
+          ["Rejected", data.rejected_rows, data.rejected_rows > 0],
         ]) {
           const badge = document.createElement("span");
           badge.className = `intake-badge${alert ? " alert" : ""}`;
@@ -1458,12 +1496,13 @@
           intakeSummary.append(badge);
         }
         intakeIndicators.replaceChildren();
-        if (data.indicators.length) {
-          for (const indicator of data.indicators) {
+        const indicators = data.results.flatMap((result) => result.indicators.map((indicator) => ({ ...indicator, case_id: result.case_id })));
+        if (indicators.length) {
+          for (const indicator of indicators.slice(0, 12)) {
             const row = document.createElement("div");
             row.className = "intake-indicator";
             const type = document.createElement("strong");
-            type.textContent = indicator.artifact_type;
+            type.textContent = `${indicator.artifact_type} · ${indicator.case_id}`;
             const value = document.createElement("span");
             value.textContent = indicator.artifact_value;
             row.append(type, value);
@@ -1472,7 +1511,9 @@
         } else {
           intakeIndicators.innerHTML = '<span class="analytics-empty">No candidate indicators found.</span>';
         }
-        intakeStatus.textContent = "Intake stored · indicators require human review.";
+        intakeStatus.textContent = data.errors.length
+          ? `Batch stored with ${data.errors.length} row warning(s). Indicators require human review.`
+          : "Batch stored · indicators require human review.";
         loadAnalytics();
       } catch (error) {
         intakeStatus.textContent = error.message || "Could not reach the intake API.";
@@ -1480,6 +1521,83 @@
         intakeSubmit.disabled = false;
       }
     });
+    intakeFile?.addEventListener("change", () => {
+      const file = intakeFile.files[0];
+      if (!file) return;
+      const sizeMb = file.size / 1_000_000;
+      intakeStatus.textContent = sizeMb > 10
+        ? "This file is too large. Choose a CSV under 10 MB."
+        : `${file.name} selected · ${sizeMb.toFixed(2)} MB · ready to analyse.`;
+    });
+
+    async function loadInvestigationCases() {
+      if (!caseList) return;
+      try {
+        const response = await fetch("/api/intake/cases", { cache: "no-store" });
+        const cases = await response.json();
+        if (!response.ok) throw new Error(cases.detail || "Could not load investigation cases.");
+        caseList.replaceChildren();
+        if (!cases.length) {
+          caseList.innerHTML = '<span class="analytics-empty">No investigation cases yet.</span>';
+          return;
+        }
+        for (const item of cases) {
+          const row = document.createElement("article");
+          row.className = "case-row";
+          const main = document.createElement("div");
+          main.className = "case-row-main";
+          const title = document.createElement("div");
+          title.className = "case-row-title";
+          title.textContent = `${item.case_id} · score ${item.scam_score}/100`;
+          const message = document.createElement("div");
+          message.className = "case-row-message";
+          message.textContent = item.message_text;
+          const meta = document.createElement("div");
+          meta.className = "case-row-meta";
+          meta.textContent = `${item.sender} · ${(item.detected_flags || []).join(", ") || "No classifier flags"}`;
+          main.append(title, message, meta);
+          const actions = document.createElement("div");
+          actions.className = "case-row-actions";
+          const status = document.createElement("span");
+          status.className = `case-status ${item.status}`;
+          status.textContent = item.status.replaceAll("_", " ");
+          actions.append(status);
+          if (item.status === "needs_review") {
+            const start = document.createElement("button");
+            start.className = "case-action primary";
+            start.textContent = "Start Investigation";
+            start.addEventListener("click", async () => {
+              await updateInvestigationCase(item.case_id, "engaging");
+              senderInput.value = item.case_id;
+              senderInput.dispatchEvent(new Event("change"));
+              setActivePage("lab-view");
+            });
+            const dismiss = document.createElement("button");
+            dismiss.className = "case-action";
+            dismiss.textContent = "Dismiss";
+            dismiss.addEventListener("click", () => updateInvestigationCase(item.case_id, "dismissed"));
+            actions.append(start, dismiss);
+          }
+          row.append(main, actions);
+          caseList.append(row);
+        }
+      } catch (error) {
+        caseList.textContent = error.message || "Could not load investigation cases.";
+      }
+    }
+
+    async function updateInvestigationCase(caseId, status) {
+      const response = await fetch(`/api/intake/cases/${encodeURIComponent(caseId)}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error("Could not update investigation case.");
+      await loadInvestigationCases();
+    }
+
+    refreshCasesButton?.addEventListener("click", loadInvestigationCases);
+
 
     const guidedDemoOpener =
       "Hi, sorry—is this Mei? I found this number saved in my phone.";
@@ -2149,6 +2267,7 @@
     async function loadConversation({ animateLatestReply = false } = {}) {
       const senderId = senderInput.value.trim();
       if (!senderId) return;
+      const loadToken = ++conversationLoadToken;
       thread.replaceChildren();
       document.getElementById("scam-stage").textContent = "No data yet";
       document.getElementById("pressure-level").textContent = "No data yet";
@@ -2166,6 +2285,11 @@
         const response = await fetch(`/conversation/${encodeURIComponent(senderId)}`);
         if (!response.ok) throw new Error("Could not load this conversation.");
         const data = await response.json();
+        // Changing thread/page can start overlapping loads. Ignore stale
+        // responses so one conversation is never painted twice.
+        if (loadToken !== conversationLoadToken || senderInput.value.trim() !== senderId) {
+          return;
+        }
         latestAssistantReply = data.messages.findLast(
           (message) => message.role === "assistant",
         )?.content || "";

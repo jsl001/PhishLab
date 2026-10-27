@@ -2,6 +2,7 @@ fastapi
 httpx
 openai>=1.42.0
 pydantic
+python-multipart
 psycopg[binary]>=3.2.1
 python-dotenv
 uvicorn

@@ -30,7 +30,6 @@ from backend.classifier import (
 )
 from backend import database as backend_database
 from backend import link_checker
-from backend.intelligence import classify_inbound_message
 from backend import scam_feed
 from backend.personas import PERSONAS
 from backend.whatsapp_client import WhatsAppClientError, send_whatsapp_message
@@ -71,29 +70,6 @@ class LinkCheckResponse(BaseModel):
     source: str | None
     checked_at: str | None
     threat_types: list[str]
-
-
-class IntelligenceIntakeRequest(BaseModel):
-    source: Literal["telco_simulator", "manual_review"] = "telco_simulator"
-    sender: str = Field(min_length=1, max_length=256)
-    recipient: str | None = Field(default=None, max_length=256)
-    message_text: str = Field(min_length=1, max_length=10_000)
-
-
-class IntelligenceIndicatorResponse(BaseModel):
-    artifact_type: str
-    artifact_value: str
-
-
-class IntelligenceIntakeResponse(BaseModel):
-    case_id: str
-    source: str
-    sender: str
-    scam_score: int
-    is_scam: bool
-    detected_flags: list[str]
-    indicators: list[IntelligenceIndicatorResponse]
-    review_required: bool
 
 
 class WhatsAppWebhookRequest(BaseModel):
@@ -376,42 +352,6 @@ async def check_link(request: LinkCheckRequest) -> LinkCheckResponse:
     except link_checker.LinkCheckError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     return LinkCheckResponse(**result)
-
-
-@app.post("/api/intake/messages", response_model=IntelligenceIntakeResponse)
-async def intake_intelligence_message(
-    request: IntelligenceIntakeRequest,
-) -> IntelligenceIntakeResponse:
-    """Ingest a synthetic telco message into the research record."""
-    analysis = classify_inbound_message(request.message_text)
-    case_id = f"telco:{request.sender.strip()}"
-    await asyncio.to_thread(
-        backend_database.save_message,
-        case_id,
-        "scammer",
-        request.message_text,
-        scam_score=analysis["scam_score"],
-        detected_flags=analysis["detected_flags"],
-    )
-    indicators = analysis["indicators"]
-    await asyncio.to_thread(backend_database.save_artifacts, case_id, indicators)
-    await asyncio.to_thread(
-        backend_database.log_event,
-        "INFO",
-        json.dumps({"event": "intelligence_intake", "source": request.source, "recipient": request.recipient}, separators=(",", ":")),
-        case_id,
-    )
-    score = int(analysis["scam_score"])
-    return IntelligenceIntakeResponse(
-        case_id=case_id,
-        source=request.source,
-        sender=request.sender,
-        scam_score=score,
-        is_scam=bool(analysis["is_scam"]),
-        detected_flags=[str(flag) for flag in analysis["detected_flags"]],
-        indicators=[IntelligenceIndicatorResponse(**item) for item in indicators],
-        review_required=score >= 50,
-    )
 
 
 @app.post("/api/persona/assign", response_model=PersonaAssignmentResponse)

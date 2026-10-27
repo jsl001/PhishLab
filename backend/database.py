@@ -376,6 +376,22 @@ def save_message(
     return message_id
 
 
+def conversation_message_exists(chat_id: str, sender: str, text: str) -> bool:
+    """Return whether this exact inbound message is already in a thread."""
+    normalized_sender = {"user": "scammer", "assistant": "bot"}.get(sender, sender)
+    with closing(_connect()) as connection:
+        row = connection.execute(
+            """
+            SELECT 1
+            FROM conversations
+            WHERE chat_id = ? AND sender = ? AND message_text = ?
+            LIMIT 1
+            """,
+            (chat_id, normalized_sender, text),
+        ).fetchone()
+    return row is not None
+
+
 def get_chat_history(chat_id: str, limit: int = 15) -> list[dict[str, Any]]:
     if limit < 0:
         raise ValueError("limit must be zero or greater")
@@ -496,12 +512,40 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
             }
         )
 
+    # A CSV can be uploaded more than once. Keep the research view readable
+    # even if older versions of the intake endpoint already stored duplicates.
+    unique_messages = []
+    seen_inbound: set[tuple[str, str]] = set()
+    for message in messages:
+        if message["role"] == "user":
+            key = (message["role"], message["content"])
+            if key in seen_inbound:
+                continue
+            seen_inbound.add(key)
+        unique_messages.append(message)
+
+    unique_artifacts = []
+    seen_artifacts: set[tuple[str, str]] = set()
+    for artifact_id, artifact_type, artifact_value, extracted_at in artifact_rows:
+        artifact_key = (artifact_type, artifact_value)
+        if artifact_key in seen_artifacts:
+            continue
+        seen_artifacts.add(artifact_key)
+        unique_artifacts.append(
+            {
+                "id": artifact_id,
+                "artifact_type": artifact_type,
+                "artifact_value": artifact_value,
+                "extracted_at": display_timestamp(extracted_at),
+            }
+        )
+
     return {
         "sender_id": chat_id,
         "persona_id": persona_row[0] if persona_row else None,
         "is_auto_reply": True if settings_row is None else bool(settings_row[0]),
         "manual_mode": False if settings_row is None else bool(settings_row[1]),
-        "messages": messages,
+        "messages": unique_messages,
         "pending_replies": [
             {
                 "id": reply_id,
@@ -512,15 +556,7 @@ def get_research_conversation(chat_id: str) -> dict[str, Any]:
             }
             for reply_id, response_text, stage, pressure, created_at in pending_rows
         ],
-        "artifacts": [
-            {
-                "id": artifact_id,
-                "artifact_type": artifact_type,
-                "artifact_value": artifact_value,
-                "extracted_at": display_timestamp(extracted_at),
-            }
-            for artifact_id, artifact_type, artifact_value, extracted_at in artifact_rows
-        ],
+        "artifacts": unique_artifacts,
     }
 
 
