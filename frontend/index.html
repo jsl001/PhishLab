@@ -89,10 +89,33 @@
     .persona-spotlight-detail strong { display: block; color: #27776c; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
     .persona-spotlight-detail span { display: block; margin-top: 4px; color: #66758a; font-size: 9px; line-height: 1.5; }
     .page-view[hidden] { display: none !important; }
-    .lab-view { display: flex; flex-direction: column; min-width: 0; }
-    .lab-view > .workspace { order: 1; width: min(1440px, 100%); margin: 0 auto; padding-top: 22px; }
+    .lab-view { display: flex; flex-direction: column; min-width: 0; height: calc(100vh - 68px); overflow: hidden; }
+    .lab-view > .workspace { order: 1; flex: 1; min-height: 0; width: min(1440px, 100%); margin: 0 auto; padding: 12px 32px 18px; overflow: hidden; }
+    .lab-view > .lab-overview { display: none; }
     .lab-view > .pitch-hero { display: none; }
+    .lab-progress { display: none; }
+    .lab-progress-step { display: flex; align-items: center; gap: 6px; color: #9aa5b2; font-size: 9px; white-space: nowrap; }
+    .lab-progress-step span { display: grid; place-items: center; width: 20px; height: 20px; border: 1px solid #dbe3e9; border-radius: 50%; background: #fff; font-size: 9px; font-weight: 750; }
+    .lab-progress-step.active, .lab-progress-step.complete { color: #267b73; }
+    .lab-progress-step.active span, .lab-progress-step.complete span { border-color: #84b9aa; background: #e6f3ef; }
+    .lab-progress-line { flex: 1; height: 1px; background: #e5ebef; }
+    .lab-progress-line.complete { background: #9bc8bb; }
     .lab-view > .dashboard { display: none; }
+    .lab-overview { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 66px; margin: 0; padding: 10px 32px; border-bottom: 1px solid #c9ddd7; background: linear-gradient(100deg, #eef7f4 0%, #f7faf9 52%, #edf4f7 100%); }
+    .lab-overview-copy h2 { margin: 0; color: #172d45; font-size: 16px; letter-spacing: -.02em; }
+    .lab-overview-copy p, .lab-overview-copy .hero-badge { display: none; }
+    .lab-overview-actions { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 0; border-left: 0; }
+    .lab-overview-note { color: #8794a2; font-size: 9px; }
+    .lab-mode-label { margin: 0; color: #8995a5; font-size: 9px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .lab-mode-switch { display: flex; padding: 3px; border: 1px solid #e0e7ed; border-radius: 8px; background: #f7f9fb; }
+    .lab-mode { flex: 1; padding: 7px 8px; border-radius: 6px; color: #7b8796; font-size: 10px; text-align: center; }
+    .lab-mode { border: 0; background: transparent; cursor: pointer; font: inherit; }
+    .lab-mode.active { background: #e6f3ef; color: #267b73; font-weight: 700; }
+    .lab-guided-slot { display: block; margin-top: 0; }
+    .lab-guided-slot .hero-actions { margin: 0; }
+    .lab-guided-slot .guided-demo-status { display: none; }
+    .lab-view .workspace { padding-top: 10px; }
+    .lab-view > .pitch-hero { display: none; }
     .dashboard-view { min-width: 0; padding: 24px 32px; }
     .dashboard-landing { max-width: 1440px; margin: 0 auto; }
     .dashboard-disclaimer { margin: 16px 0 0; color: #8793a2; font-size: 10px; }
@@ -524,6 +547,31 @@
     .metric-number { color: #1d344a; }
     .category-pressure { color: #27776c; }
     .analytics-guide { border-color: #e1e7ef; border-radius: 9px; }
+    /* Conversation Lab is a focused workspace, not a second dashboard. */
+    .lab-view > .dashboard { display: none; }
+    .lab-view .pitch-hero { grid-template-columns: minmax(0, 1fr) minmax(280px, .7fr); margin-bottom: 0; padding: 17px 22px; }
+    .lab-view .hero-title { max-width: 620px; font-size: clamp(22px, 2.2vw, 29px); }
+    .lab-view .hero-description { max-width: 620px; margin-top: 6px; font-size: 11px; }
+    .lab-view .hero-highlights { gap: 5px; }
+    .lab-view .hero-highlight { padding: 7px 9px; }
+    .lab-view .hero-highlight:nth-child(-n+3) { display: none; }
+    .lab-view .persona-spotlight { margin-top: 0; }
+    .lab-view .workspace { padding-top: 12px; }
+    .lab-view .workspace { padding-top: 12px; }
+    .lab-view .conversation { min-height: 0; height: auto; overflow: hidden; }
+    .lab-view .insights { min-height: 0; height: auto; overflow-y: auto; }
+    .lab-view .lab-context-bar { padding: 10px 17px; }
+    .lab-view .lab-context-copy { align-items: baseline; flex-direction: row; gap: 9px; }
+    .lab-view .lab-context-copy span { font-size: 10px; }
+    .lab-view .pending-review { max-height: 180px; margin: 0 17px 12px; overflow-y: auto; border-radius: 9px; }
+    .lab-view .pending-review-intro { font-size: 10px; }
+    .conversation .demo-choice-panel { flex: 0 0 auto; max-height: 190px; overflow-y: auto; padding: 12px 17px; border-right: 0; border-bottom: 0; border-left: 0; border-radius: 0; }
+    .conversation .demo-choice-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .demo-choice-panel.loading { background: #f1f7f5; }
+    .demo-choice-panel.loading .demo-choice-list { opacity: .55; }
+    .conversation-head .hero-actions { display: flex; align-items: center; margin: 0; }
+    .conversation-head .guided-demo-status { display: none; }
+    .lab-view .section-title { letter-spacing: .08em; }
     @media (max-width: 950px) {
       .sidebar { position: static; height: auto; }
       .pitch-hero { order: 1; }
@@ -574,6 +622,13 @@
       .sender-control input { flex: 1; min-width: 100px; }
     }
     @media (max-width: 620px) {
+      .lab-overview { gap: 8px; padding: 8px 12px; }
+      .lab-overview-actions { gap: 6px; }
+      .lab-overview { align-items: flex-start; flex-direction: column; }
+      .lab-overview-actions { width: 100%; flex-wrap: wrap; }
+      .queue-message { width: 100%; }
+      .lab-progress { align-items: flex-start; gap: 5px; overflow-x: auto; }
+      .lab-progress-line { min-width: 18px; margin-top: 10px; }
       .sidebar { padding: 9px 12px; }
       .pitch-hero { margin: 12px 12px 0; padding: 18px; }
       .workspace, .dashboard { padding: 12px; }
@@ -1101,14 +1156,34 @@
       </section>
 
       <section class="page-view lab-view" id="lab-view" aria-label="Conversation lab" hidden>
+      <section class="lab-overview" aria-label="Simulation controls">
+        <div class="lab-overview-copy">
+          <div class="hero-badge"><span class="hero-badge-dot" aria-hidden="true"></span> Local research workspace</div>
+          <h2>Simulate and inspect a suspicious conversation</h2>
+          <p>Choose a persona, send an incoming message, and review the evidence captured from the exchange.</p>
+        </div>
+        <div class="lab-overview-actions">
+          <span class="lab-overview-note">Local simulation · nothing is sent externally</span>
+          <div class="lab-guided-slot"></div>
+        </div>
+        <div class="lab-progress" id="lab-progress" aria-live="polite">
+          <div class="lab-progress-step active"><span>1</span><strong>Start conversation</strong></div>
+          <div class="lab-progress-line"></div>
+          <div class="lab-progress-step"><span>2</span><strong>Detect signals</strong></div>
+          <div class="lab-progress-line"></div>
+          <div class="lab-progress-step"><span>3</span><strong>Capture intelligence</strong></div>
+          <div class="lab-progress-line"></div>
+          <div class="lab-progress-step"><span>4</span><strong>Review outcome</strong></div>
+        </div>
+      </section>
       <section class="pitch-hero" aria-label="PhishLab introduction">
         <div class="hero-copy">
           <div class="hero-badge"><span class="hero-badge-dot" aria-hidden="true"></span> Local demo · no WhatsApp connection</div>
-          <h2 class="hero-title">See the moment a friendly chat starts to feel like a scam.</h2>
-          <p class="hero-description">Follow a fictional conversation from a wrong-number hello to emerging risk signals. Choose what the incoming contact says next, then watch the selected persona respond and the insight panel update — all in a local simulation.</p>
+          <h2 class="hero-title">Simulate and inspect a suspicious conversation.</h2>
+          <p class="hero-description">Choose a fictional Singaporean persona, send a test message, and review the signals captured from the exchange. Everything stays inside this local research demo.</p>
           <div class="hero-actions">
-            <button class="guided-demo-button" id="guided-demo-button" type="button">Start interactive demo</button>
-            <span class="guided-demo-status" id="guided-demo-status" role="status" aria-live="polite">A gradual romance-scam awareness scenario · local simulation</span>
+            <button class="guided-demo-button" id="guided-demo-button" type="button">Try guided scenario</button>
+            <span class="guided-demo-status" id="guided-demo-status" role="status" aria-live="polite">Optional step-by-step scenario</span>
           </div>
         </div>
         <div class="hero-highlights" aria-label="Platform capabilities">
@@ -1220,7 +1295,7 @@
             </div>
           </header>
           <div class="lab-context-bar">
-            <div class="lab-context-copy"><strong>Research simulation</strong><span>Explore how a fictional Singaporean persona responds while PhishLab records scam-stage and indicator signals.</span></div>
+            <div class="lab-context-copy"><strong>Ready to simulate</strong><span>Write an incoming message below or start the guided scenario.</span></div>
           </div>
           <div class="thread" id="thread" aria-live="polite">
             <div class="empty-state">
@@ -1411,6 +1486,8 @@
     const termsAcceptButton = document.getElementById("terms-accept");
     const termsReviewButton = document.getElementById("terms-review-button");
     const termsStorageKey = "phishlab-terms-v1";
+    const labProgress = document.getElementById("lab-progress");
+    const labModes = document.querySelectorAll(".lab-mode");
     let activePersonaId = personaSelect.value;
     let activeAutoReply = autoReplyToggle.checked;
     let activeManualMode = false;
@@ -1422,6 +1499,30 @@
     let activeModelName = "configured model";
     let appInitialized = false;
     let conversationLoadToken = 0;
+
+    function updateLabProgress(stage = 1) {
+      if (!labProgress) return;
+      const steps = [...labProgress.querySelectorAll(".lab-progress-step")];
+      const lines = [...labProgress.querySelectorAll(".lab-progress-line")];
+      steps.forEach((step, index) => {
+        step.classList.toggle("active", index === stage - 1);
+        step.classList.toggle("complete", index < stage - 1);
+      });
+      lines.forEach((line, index) => line.classList.toggle("complete", index < stage - 1));
+    }
+
+    labModes.forEach((mode) => mode.addEventListener("click", () => {
+      labModes.forEach((item) => item.classList.toggle("active", item === mode));
+      if (mode.textContent.includes("Guided")) {
+        guidedDemoButton.click();
+      } else if (guidedDemoRunning) {
+        guidedDemoRunning = false;
+        demoChoicePanel.hidden = true;
+        guidedDemoButton.disabled = false;
+        guidedDemoStatus.textContent = "Manual simulation selected · write an incoming message below.";
+        updateLabProgress(1);
+      }
+    }));
 
     function openTerms() {
       termsCheckbox.checked = false;
@@ -1754,6 +1855,9 @@
     if (labContextBar && personaControl) {
       labContextBar.append(personaControl);
     }
+    if (conversationPanel && pendingReview) {
+      conversationPanel.append(pendingReview);
+    }
 
     async function refreshThreatFeedStatus() {
       const statusElement = document.getElementById("threat-feed-status");
@@ -1979,6 +2083,7 @@
     function setTelemetry(telemetry) {
       document.getElementById("scam-stage").textContent =
         formatSignalLabel(telemetry.scam_stage);
+      updateLabProgress(telemetry.scam_stage && telemetry.scam_stage !== "unknown" ? 3 : 2);
       document.getElementById("pressure-level").replaceChildren();
       const pressure = document.createElement("span");
       pressure.className = "pill";
@@ -2517,6 +2622,7 @@
         guidedDemoRunning = false;
         guidedDemoButton.disabled = false;
         demoChoicePanel.hidden = true;
+        form.hidden = false;
       }
       sendButton.disabled = true;
       messageInput.disabled = true;
@@ -2571,6 +2677,7 @@
       guidedDemoRunning = false;
       guidedDemoButton.disabled = false;
       demoChoicePanel.hidden = true;
+      form.hidden = false;
       errorBanner.classList.remove("visible");
       senderInput.dispatchEvent(new Event("change"));
       messageInput.focus();
@@ -2578,6 +2685,8 @@
 
     function finishGuidedDemo(statusText) {
       guidedDemoRunning = false;
+      form.hidden = false;
+      updateLabProgress(4);
       demoChoicePanel.hidden = true;
       guidedDemoStatus.textContent = statusText;
       guidedDemoButton.disabled = false;
@@ -2621,6 +2730,8 @@
     }
 
     function showScammerMessageChoices() {
+      form.hidden = true;
+      demoChoicePanel.classList.remove("loading");
       const { context, choices } = getGuidedDemoChoices();
       demoChoiceList.replaceChildren();
       demoChoiceTitle.textContent = "Choose a scenario branch";
@@ -2641,7 +2752,10 @@
             item.disabled = true;
           });
           guidedDemoStatus.textContent = `Adding selected incoming message · ${personaSelect.selectedOptions[0]?.textContent || "Persona"} is responding…`;
-          demoChoicePanel.hidden = true;
+          demoChoicePanel.hidden = false;
+          demoChoicePanel.classList.add("loading");
+          demoChoiceTitle.textContent = "Analysing this branch…";
+          demoChoiceDescription.textContent = "The persona is responding and the Chat Inspector is updating.";
           try {
             const response = await fetch("/api/demo/chat", {
               method: "POST",
@@ -2657,6 +2771,8 @@
               guidedDemoButton.disabled = false;
               guidedDemoStatus.textContent =
                 "Manual takeover active · incoming message saved without an AI reply.";
+              demoChoicePanel.classList.remove("loading");
+              form.hidden = false;
               await loadConversation();
               return;
             }
@@ -2672,7 +2788,7 @@
               await loadAnalytics();
               finishGuidedDemo(choice.action === "end"
                 ? "Conversation ended · all messages stayed local"
-                : "Scenario complete · choose Start interactive demo to replay");
+                : "Scenario complete · choose Try guided scenario to replay");
               return;
             }
 
@@ -2682,6 +2798,8 @@
             showError(error.message || "Could not simulate the selected message.");
             guidedDemoStatus.textContent = "Message not processed · choose again or edit manually";
             demoChoicePanel.hidden = false;
+            demoChoicePanel.classList.remove("loading");
+            demoChoiceTitle.textContent = "Choose a scenario branch";
             demoChoiceList.querySelectorAll("button").forEach((item) => {
               item.disabled = false;
             });
@@ -2696,6 +2814,7 @@
     async function sendGuidedDemoOpener() {
       const chatId = senderInput.value.trim();
       guidedDemoStatus.textContent = `Starting with a natural wrong-number opener for ${personaSelect.selectedOptions[0]?.textContent || "the persona"}…`;
+      updateLabProgress(1);
       demoChoicePanel.hidden = true;
       addTypingIndicator(assistantTurnCount);
       const response = await fetch("/api/demo/chat", {
@@ -2722,6 +2841,7 @@
       }
       await loadConversation({ animateLatestReply: true });
       await loadAnalytics();
+            updateLabProgress(Math.min(4, guidedDemoStep + 2));
       guidedDemoRunning = true;
       showScammerMessageChoices();
       guidedDemoStatus.textContent = `${personaSelect.selectedOptions[0]?.textContent || "Persona"} replied · choose the next incoming message`;
@@ -2734,6 +2854,7 @@
       demoChoicePanel.hidden = true;
       guidedDemoRunning = false;
       guidedDemoStep = 0;
+      updateLabProgress(1);
       errorBanner.classList.remove("visible");
       guidedDemoStatus.textContent = "Preparing a fresh awareness scenario…";
       senderInput.value = chatId;

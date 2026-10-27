@@ -79,7 +79,7 @@ def _request_openai(messages: list[dict[str, str]]) -> AssistantOutput:
                 model=OPENAI_MODEL,
                 messages=messages,
                 response_format=AssistantOutput,
-                max_completion_tokens=256,
+                max_completion_tokens=512,
             )
     except OpenAIError as exc:
         raise AIHandlerError(f"OpenAI request failed: {exc}") from exc
