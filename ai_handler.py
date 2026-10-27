@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 load_dotenv()
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "").strip()
 OPENAI_TIMEOUT_SECONDS = 180
 
 SYSTEM_PROMPT = """
@@ -67,7 +68,13 @@ def _request_openai(messages: list[dict[str, str]]) -> AssistantOutput:
     if not api_key:
         raise AIHandlerError("OPENAI_API_KEY is not configured.")
     try:
-        with OpenAI(api_key=api_key, timeout=OPENAI_TIMEOUT_SECONDS) as client:
+        client_options = {
+            "api_key": api_key,
+            "timeout": OPENAI_TIMEOUT_SECONDS,
+        }
+        if OPENAI_BASE_URL:
+            client_options["base_url"] = OPENAI_BASE_URL
+        with OpenAI(**client_options) as client:
             response = client.chat.completions.parse(
                 model=OPENAI_MODEL,
                 messages=messages,

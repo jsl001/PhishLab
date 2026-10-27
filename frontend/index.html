@@ -112,6 +112,28 @@
     .chart-bar.incoming { background: #b7c8d8; }
     .chart-bar.detected { background: #267b73; }
     .chart-date { color: #8290a0; font-size: 9px; }
+    .intake-console { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 14px; margin-top: 14px; }
+    .intake-card { padding: 18px 20px; border: 1px solid #d9e6e0; border-radius: 14px; background: linear-gradient(125deg,#f7fbf8,#fff); }
+    .intake-card h3 { margin: 0; color: #1e344b; font-size: 14px; }
+    .intake-card p { margin: 5px 0 13px; color: #738196; font-size: 10px; line-height: 1.5; }
+    .intake-form { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .intake-form label { display: grid; gap: 5px; color: #65766e; font-size: 9px; font-weight: 700; }
+    .intake-form input, .intake-form textarea { width: 100%; padding: 9px; border: 1px solid #d7e3df; border-radius: 7px; background: #fff; color: #263c53; font-size: 11px; }
+    .intake-form textarea { grid-column: 1 / -1; min-height: 70px; resize: vertical; }
+    .intake-form input:focus, .intake-form textarea:focus { outline: none; border-color: #70a896; box-shadow: 0 0 0 3px #23776216; }
+    .intake-submit { grid-column: 1 / -1; justify-self: start; padding: 9px 12px; border: 0; border-radius: 7px; background: var(--green); color: #fff; font-size: 10px; font-weight: 700; }
+    .intake-submit:disabled { cursor: wait; opacity: .6; }
+    .intake-status { min-height: 14px; margin: 9px 0 0; color: #718079; font-size: 9px; }
+    .intake-results { padding: 18px 20px; border: 1px solid #e1e7ef; border-radius: 14px; background: #fff; }
+    .intake-results h3 { margin: 0 0 12px; color: #1e344b; font-size: 14px; }
+    .intake-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+    .intake-badge { padding: 5px 8px; border-radius: 999px; background: #edf5f1; color: #39715e; font-size: 9px; font-weight: 700; }
+    .intake-badge.alert { background: #fff0dd; color: #875a22; }
+    .intake-indicators { display: grid; gap: 7px; }
+    .intake-indicator { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #edf1f4; font-size: 9px; }
+    .intake-indicator strong { color: #718096; }
+    .intake-indicator span { color: #267b73; text-align: right; overflow-wrap: anywhere; }
+    @media (max-width: 800px) { .intake-console { grid-template-columns: 1fr; } }
     .faq-hero { padding: 28px 30px; border: 1px solid #dfe9e3; border-radius: 14px; background: linear-gradient(115deg,#fff,#f3faf6); }
     .faq-search { display: flex; align-items: center; gap: 9px; max-width: 580px; margin-top: 19px; padding: 0 13px; border: 1px solid #d6e4dc; border-radius: 9px; background: #fff; color: #5d7b6f; }
     .faq-search input { width: 100%; padding: 12px 0; border: 0; outline: 0; color: var(--ink); font-size: 12px; }
@@ -838,6 +860,10 @@
           </div>
           <div class="dashboard-details"><article class="dashboard-detail"><h3>Recent scam intelligence</h3><div class="category-list" id="landing-categories-list"><span class="analytics-empty">Loading…</span></div></article><article class="dashboard-detail"><h3>Next step</h3><p class="dashboard-subtitle">Open the Conversation Lab to review messages, approve replies, and inspect extracted artifacts.</p><button class="guided-demo-button" type="button" data-open-page="lab-view">Open conversation lab</button></article></div>
           <article class="overview-chart-card"><div class="overview-chart-head"><div><h3>Incoming activity</h3><p>Messages received compared with messages flagged for review.</p></div><div class="chart-legend"><span><i class="legend-incoming"></i>Incoming</span><span><i class="legend-detected"></i>Flagged</span></div></div><div class="overview-chart" id="landing-activity-chart" role="img" aria-label="Seven-day incoming and flagged message activity chart"><span class="analytics-empty">Loading activity…</span></div></article>
+          <section class="intake-console" aria-label="Telco intelligence intake">
+            <article class="intake-card"><h3>Telco Intake Console</h3><p>Send a synthetic inbound message into the same pipeline a telco integration would use.</p><form class="intake-form" id="intake-form"><label>Sender number<input id="intake-sender" value="+6591234567" maxlength="30" required></label><label>Source<input value="Telco simulator" disabled></label><textarea id="intake-message" required>DEMO ONLY: Your parcel is held. Pay the $2.99 release fee at https://delivery-demo.example/pay</textarea><button class="intake-submit" id="intake-submit" type="submit">Analyse inbound message</button></form><p class="intake-status" id="intake-status" role="status" aria-live="polite">Synthetic data only · no external message will be sent.</p></article>
+            <article class="intake-results"><h3>Latest intake result</h3><div id="intake-summary"><span class="analytics-empty">No message analysed yet.</span></div><div class="intake-indicators" id="intake-indicators"></div></article>
+          </section>
           <p class="dashboard-disclaimer">Research signals are model-generated and require human review. They are not verified scam verdicts.</p>
         </div>
       </section>
@@ -1330,6 +1356,13 @@
     const comparePersonasButton = document.getElementById("compare-personas-button");
     const comparisonStatus = document.getElementById("comparison-status");
     const comparisonResults = document.getElementById("comparison-results");
+    const intakeForm = document.getElementById("intake-form");
+    const intakeSender = document.getElementById("intake-sender");
+    const intakeMessage = document.getElementById("intake-message");
+    const intakeSubmit = document.getElementById("intake-submit");
+    const intakeStatus = document.getElementById("intake-status");
+    const intakeSummary = document.getElementById("intake-summary");
+    const intakeIndicators = document.getElementById("intake-indicators");
     const evidenceMessage = document.getElementById("evidence-message");
     const evidenceExplanation = document.getElementById("evidence-explanation");
     const modelStatusElement = document.getElementById("model-status");
@@ -1396,6 +1429,57 @@
     });
 
     termsReviewButton.addEventListener("click", openTerms);
+
+    intakeForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      intakeSubmit.disabled = true;
+      intakeStatus.textContent = "Analysing and storing synthetic intake…";
+      try {
+        const response = await fetch("/api/intake/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            source: "telco_simulator",
+            sender: intakeSender.value.trim(),
+            message_text: intakeMessage.value.trim(),
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || "Intake request failed.");
+        intakeSummary.replaceChildren();
+        for (const [label, value, alert] of [
+          ["Case", data.case_id, false],
+          ["Score", `${data.scam_score}/100`, data.review_required],
+          ["Review", data.review_required ? "Required" : "Not flagged", data.review_required],
+        ]) {
+          const badge = document.createElement("span");
+          badge.className = `intake-badge${alert ? " alert" : ""}`;
+          badge.textContent = `${label}: ${value}`;
+          intakeSummary.append(badge);
+        }
+        intakeIndicators.replaceChildren();
+        if (data.indicators.length) {
+          for (const indicator of data.indicators) {
+            const row = document.createElement("div");
+            row.className = "intake-indicator";
+            const type = document.createElement("strong");
+            type.textContent = indicator.artifact_type;
+            const value = document.createElement("span");
+            value.textContent = indicator.artifact_value;
+            row.append(type, value);
+            intakeIndicators.append(row);
+          }
+        } else {
+          intakeIndicators.innerHTML = '<span class="analytics-empty">No candidate indicators found.</span>';
+        }
+        intakeStatus.textContent = "Intake stored · indicators require human review.";
+        loadAnalytics();
+      } catch (error) {
+        intakeStatus.textContent = error.message || "Could not reach the intake API.";
+      } finally {
+        intakeSubmit.disabled = false;
+      }
+    });
 
     const guidedDemoOpener =
       "Hi, sorry—is this Mei? I found this number saved in my phone.";

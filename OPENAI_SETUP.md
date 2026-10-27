@@ -9,9 +9,12 @@ data-handling terms before using the app.
 2. Set `OPENAI_API_KEY` in the environment where the app runs. For local
    development, put it in the repository-root `.env` file. For Vercel, add it
    as an environment variable in the project settings.
-3. Optionally set `OPENAI_MODEL` to a model available to your account. The
+3. If your school provides an OpenAI-compatible gateway, set its base URL with
+   `OPENAI_BASE_URL`. Leave it empty to use OpenAI's default endpoint. The URL
+   normally ends in `/v1`, but use the exact URL supplied by your school.
+4. Optionally set `OPENAI_MODEL` to a model available to your account. The
    default is `gpt-4o-mini`.
-4. From the repository root, install the Python dependencies and start the
+5. From the repository root, install the Python dependencies and start the
    FastAPI app:
 
    ```powershell
