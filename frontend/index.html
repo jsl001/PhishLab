@@ -1494,6 +1494,7 @@
     let assistantTurnCount = 0;
     let guidedDemoRunning = false;
     let guidedDemoStep = 0;
+    let guidedDemoPath = null;
     let latestAssistantReply = "";
     let personaProfiles = new Map();
     let activeModelName = "configured model";
@@ -2693,6 +2694,148 @@
     }
 
     function getGuidedDemoChoices() {
+      const scenarioTrees = {
+        parcel: [
+          { context: "Parcel scam · establish the delivery claim.", choices: [
+            { label: "Introduce a delivery problem", text: "[DEMO] Your parcel is held at the courier centre because the address is incomplete.", category: "parcel" },
+            { label: "Claim a customs issue", text: "[DEMO] Customs has placed your parcel on hold. A small release fee is required today.", category: "payment" },
+            { label: "Send a payment link", text: "[DEMO] Confirm your delivery by paying the $2.99 release fee at delivery-demo.example/pay.", category: "payment" },
+          ] },
+          { context: "Parcel scam · introduce a fee or link.", choices: [
+            { label: "Add urgency", text: "Pay before midnight or the parcel will be returned and the delivery booking cancelled.", category: "pressure" },
+            { label: "Move to a new link", text: "Use this updated payment page instead; the previous page is no longer available.", category: "channel" },
+            { label: "Ask for card verification", text: "Enter your card details and the one-time verification code so we can release the parcel.", category: "credential" },
+          ] },
+          { context: "Parcel scam · apply urgency around delivery.", choices: [
+            { label: "Repeat the payment request", text: "This is the last reminder. Pay the release fee now to avoid disposal of the parcel.", category: "pressure" },
+            { label: "Offer a fake refund", text: "If you do not want the parcel, submit your bank details and we can process a refund.", category: "payment" },
+            { label: "End the contact", text: "No further action is possible until the payment is completed.", category: "end", action: "end" },
+          ] },
+        ],
+        impersonation: [
+          { context: "Impersonation scam · establish authority.", choices: [
+            { label: "Claim bank fraud", text: "[DEMO] DBS Fraud Prevention detected an unusual transfer on your account. Reply to secure it.", category: "impersonation" },
+            { label: "Claim Singpass risk", text: "[DEMO] Your Singpass access may be suspended unless the security check is completed today.", category: "impersonation" },
+            { label: "Claim police involvement", text: "[DEMO] This matter has been referred to SPF. Keep the case confidential while we investigate.", category: "impersonation" },
+          ] },
+          { context: "Impersonation scam · create fear or urgency.", choices: [
+            { label: "Demand immediate verification", text: "Verify your identity immediately or the suspicious transfer cannot be cancelled.", category: "pressure" },
+            { label: "Send a fake link", text: "Open this secure verification page so our fraud team can confirm the account holder.", category: "channel" },
+            { label: "Threaten account closure", text: "Your account will be frozen within one hour if the security check is not completed.", category: "pressure" },
+          ] },
+          { context: "Impersonation scam · attempt to collect sensitive information.", choices: [
+            { label: "Request an OTP", text: "Read out the one-time code sent to your phone so we can cancel the transfer.", category: "credential" },
+            { label: "Request Singpass access", text: "Complete the Singpass verification now so the officer can close the case.", category: "credential" },
+            { label: "Escalate the threat", text: "Failure to cooperate will result in immediate account restrictions and further investigation.", category: "end", action: "end" },
+          ] },
+        ],
+        investment: [
+          { context: "Investment scam · establish the opportunity.", choices: [
+            { label: "Promise guaranteed returns", text: "Our private crypto group delivers guaranteed USDT profits every week.", category: "investment" },
+            { label: "Show a success story", text: "My trading mentor helped me double my money last month. You can start small.", category: "investment" },
+            { label: "Create exclusivity", text: "Only selected contacts can join this investment opportunity before it closes tonight.", category: "pressure" },
+          ] },
+          { context: "Investment scam · move the conversation off-platform.", choices: [
+            { label: "Move to Telegram", text: "Join our Telegram investment group so I can show you the trading dashboard.", category: "channel" },
+            { label: "Request an app install", text: "Install our trading app from this short link to activate your investor account.", category: "software" },
+            { label: "Hide the public trail", text: "The public website cannot show this offer; it is available only through our private group.", category: "secrecy" },
+          ] },
+          { context: "Investment scam · introduce money pressure.", choices: [
+            { label: "Request a deposit", text: "Deposit $100 today to unlock the higher-return trading tier.", category: "payment" },
+            { label: "Add a withdrawal fee", text: "Your profits are ready, but a tax and processing fee must be paid before withdrawal.", category: "payment" },
+            { label: "Increase urgency", text: "If you miss this window, your account will lose its preferred investor status.", category: "pressure", action: "end" },
+          ] },
+        ],
+        romance: [
+          { context: "Romance scam · establish familiarity.", choices: [
+            { label: "Build familiarity", text: "You seem familiar. I think we may have met through a mutual friend before.", category: "rapport" },
+            { label: "Create fast rapport", text: "You seem kind and easy to talk to. I feel we were meant to connect.", category: "rapport" },
+            { label: "Ask personal details", text: "What do you do for work, and do you live alone?", category: "rapport" },
+          ] },
+          { context: "Romance scam · create trust and secrecy.", choices: [
+            { label: "Move off-platform", text: "I do not check this app often. Message me on WhatsApp so we can talk privately.", category: "channel" },
+            { label: "Create secrecy", text: "Do not tell anyone about our conversations yet; people may misunderstand us.", category: "secrecy" },
+            { label: "Introduce investment", text: "My friend teaches me crypto trading. I can show you how we make steady profits.", category: "investment" },
+          ] },
+          { context: "Romance scam · introduce a financial problem.", choices: [
+            { label: "Create a financial emergency", text: "I am stuck overseas and my bank account is blocked. I need help urgently.", category: "pressure" },
+            { label: "Request money", text: "Can you send a small amount to help me pay the emergency fee? I will return it.", category: "payment" },
+            { label: "Use guilt", text: "I thought you cared about me. Why are you refusing to help when I need you?", category: "pressure", action: "end" },
+          ] },
+        ],
+      };
+      if (guidedDemoStep === 0) {
+        return {
+          context: "Choose a scam storyline. Later branches will stay within the storyline you select.",
+          choices: [
+            { label: "Parcel delivery fee", text: "[DEMO] Your parcel is held. Pay the $2.99 release fee at delivery-demo.example/pay.", path: "parcel", category: "parcel" },
+            { label: "Bank or police impersonation", text: "[DEMO] DBS Fraud Prevention detected an unusual transfer. Verify your account immediately.", path: "impersonation", category: "impersonation" },
+            { label: "Investment pig-butchering", text: "I have a private crypto group with guaranteed USDT returns. Join before the offer closes tonight.", path: "investment", category: "investment" },
+            { label: "Wrong-number romance pivot", text: "Hi, sorry—is this Mei? I found this number saved in my phone. You seem nice—let us keep chatting.", path: "romance", category: "romance" },
+          ],
+        };
+      }
+      if (guidedDemoPath && scenarioTrees[guidedDemoPath]) {
+        const branch = scenarioTrees[guidedDemoPath][guidedDemoStep - 1];
+        if (branch) return branch;
+        return {
+          context: `${guidedDemoPath} scam · final pressure attempt. Choose how the scammer closes or escalates the conversation.`,
+          choices: [
+            { label: "Repeat the demand", text: "This is your final chance. Complete the requested action now or the offer will be cancelled.", category: "pressure" },
+            { label: "Request sensitive information", text: "To complete the process, provide the requested verification details through this chat.", category: "credential" },
+            { label: "End with a threat", text: "We cannot keep the case open. Further action will be taken if you do not comply.", category: "pressure", action: "end" },
+          ],
+        };
+      }
+
+      const progression = [
+        {
+          context: "Stage 1 · establish context. Choose how the unknown contact reacts to the wrong-number opener.",
+          choices: [
+            { label: "Claim familiarity", text: "Yes, I think we met through a work contact before.", category: "rapport" },
+            { label: "Ask for identity", text: "Who is this, and where did you get my number?", category: "verification" },
+            { label: "Stay vague", text: "Maybe, I am not sure. What do you need?", category: "vague" },
+            { label: "End immediately", text: "Sorry, I do not know you. Please do not message again.", category: "end", action: "end" },
+          ],
+        },
+        {
+          context: "Stage 2 · build rapport. Choose whether the contact creates familiarity or moves toward a sensitive topic.",
+          choices: [
+            { label: "Share harmless context", text: "I am just finishing work. How do we know each other?", category: "rapport" },
+            { label: "Suggest another channel", text: "This app is inconvenient. Should we continue somewhere else?", category: "channel" },
+            { label: "Ask for proof", text: "Can you share a detail that confirms who you are?", category: "verification" },
+            { label: "End the conversation", text: "I do not think this is someone I know. Take care.", category: "end", action: "end" },
+          ],
+        },
+        {
+          context: "Stage 3 · introduce a pivot. Notice how the conversation changes when money or urgency appears.",
+          choices: [
+            { label: "Introduce urgency", text: "There is something urgent I need to tell you before it is too late.", category: "pressure" },
+            { label: "Mention an opportunity", text: "I found an opportunity that could help you earn extra income.", category: "investment" },
+            { label: "Request privacy", text: "Let us keep this between us and talk privately.", category: "secrecy" },
+            { label: "Challenge the claim", text: "That sounds unusual. I will verify it independently first.", category: "boundary" },
+          ],
+        },
+        {
+          context: "Stage 4 · pressure test. Choose how the contact responds when the persona slows the conversation down.",
+          choices: [
+            { label: "Increase pressure", text: "You need to decide now or you will miss the chance.", category: "pressure" },
+            { label: "Ask for payment", text: "There is a small fee before this can proceed.", category: "payment" },
+            { label: "Ask to install something", text: "You will need a separate app to continue.", category: "software" },
+            { label: "Back off", text: "No worries, take your time and think about it.", category: "de-escalate" },
+          ],
+        },
+        {
+          context: "Stage 5 · outcome. End the exchange or record the final pressure signal for review.",
+          choices: [
+            { label: "End safely", text: "I will stop here and verify this through an official channel.", category: "end", action: "end" },
+            { label: "Decline clearly", text: "I will not pay, install anything, or share personal information.", category: "boundary", action: "end" },
+            { label: "Ask one final question", text: "Which organisation are you claiming to represent?", category: "impersonation" },
+          ],
+        },
+      ];
+      if (guidedDemoStep < progression.length) return progression[guidedDemoStep];
+
       const reply = latestAssistantReply.toLocaleLowerCase();
       const setBoundary =
         /\b(?:won't|will not|not comfortable|no thanks|careful|cautious|not share|don't share|do not share|please stop|avoid)\b/.test(reply);
@@ -2736,7 +2879,7 @@
       demoChoiceList.replaceChildren();
       demoChoiceTitle.textContent = "Choose a scenario branch";
       demoChoiceDescription.textContent =
-        `${context} Examples are predefined awareness cues; risky operational details are intentionally omitted.`;
+        `${context} Each option is the next incoming message from that storyline. Risky operational details are intentionally omitted.`;
       for (const choice of choices) {
         const button = document.createElement("button");
         button.type = "button";
@@ -2748,6 +2891,7 @@
         button.append(label, message);
         button.addEventListener("click", async () => {
           const chatId = senderInput.value.trim();
+          if (choice.path) guidedDemoPath = choice.path;
           demoChoiceList.querySelectorAll("button").forEach((item) => {
             item.disabled = true;
           });
@@ -2854,6 +2998,7 @@
       demoChoicePanel.hidden = true;
       guidedDemoRunning = false;
       guidedDemoStep = 0;
+      guidedDemoPath = null;
       updateLabProgress(1);
       errorBanner.classList.remove("visible");
       guidedDemoStatus.textContent = "Preparing a fresh awareness scenario…";
