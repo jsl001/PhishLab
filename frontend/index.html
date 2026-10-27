@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f6f8">
+  <meta name="theme-color" content="#263e43">
   <title>PhishLab — Interactive demo</title>
   <style>
     :root {
@@ -545,6 +545,228 @@
       .pitch-hero { grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); margin-right: 20px; margin-left: 20px; }
       .workspace { grid-template-columns: minmax(0, 1fr) 240px; padding-right: 20px; padding-left: 20px; }
     }
+
+    /* PhishLab visual refresh */
+    :root {
+      --ink: #25343b;
+      --muted: #6c7c7e;
+      --line: #dce5e1;
+      --paper: #fffefd;
+      --canvas: #f3f6f4;
+      --green: #4f7f75;
+      --green-strong: #35685f;
+      --green-light: #e8f2ee;
+      --dark: #263e43;
+      font-family: "Avenir Next", Avenir, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      background:
+        radial-gradient(circle at 84% 4%, #dfece7 0, transparent 28rem),
+        linear-gradient(145deg, #f7f8f6, var(--canvas));
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    button, input, select, textarea { border-radius: 10px; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+      outline: 3px solid #9bc0b6;
+      outline-offset: 2px;
+    }
+    .app { grid-template-columns: 236px minmax(0, 1fr); }
+    .sidebar {
+      background: linear-gradient(180deg, #2a454a, #21363b);
+      box-shadow: 12px 0 32px #1e333817;
+    }
+    .brand { gap: 13px; padding-inline: 6px; }
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      flex: 0 0 52px;
+      overflow: hidden;
+      border: 1px solid #ffffff2e;
+      border-radius: 50%;
+      background: #172a2e;
+      box-shadow: 0 8px 22px #101f233d;
+    }
+    .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-name { color: #fff; font-size: 17px; font-weight: 760; letter-spacing: -.01em; }
+    .brand-caption { color: #b8cbc7; font-size: 10px; letter-spacing: .02em; }
+    .nav-label, .persona-control label, .reply-mode-label { color: #a9bfba; }
+    .nav-item {
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      color: #e8f1ef;
+      font-size: 13px;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .nav-item:hover { border-color: #ffffff1c; background: #ffffff0d; transform: translateX(2px); }
+    .nav-item.active { border-color: #acc9c13b; background: #496a69; box-shadow: inset 3px 0 #b9d8d0; }
+    .persona-control select { min-height: 42px; border-color: #607c7d; background: #314f53; }
+    .side-note { border-color: #587477; background: #2d494e; color: #bed0cc; }
+    .side-note strong { color: #f5faf8; }
+    .terms-review-button {
+      margin-top: 10px;
+      padding: 0;
+      border: 0;
+      border-bottom: 1px solid #b8cec8;
+      border-radius: 0;
+      background: transparent;
+      color: #dce9e6;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .topbar {
+      border-bottom-color: var(--line);
+      background: #fffefdeb;
+      box-shadow: 0 8px 24px #20373c08;
+      backdrop-filter: blur(14px);
+    }
+    .eyebrow { color: #6d8d86; font-size: 11px; }
+    h1 { color: #263d43; font-size: 20px; }
+    .local-status { border-color: #d7e6e0; background: #f1f7f4; color: #4b6e66; }
+    .threat-feed-status { border-color: #d9e4e0; background: #fffefd; color: #5d6f72; font-size: 10px; }
+    .export-iocs-button { min-height: 38px; border-color: #c9ddd5; background: #edf5f2; color: #416d63; }
+    .dashboard-view { padding-block: 30px; }
+    .dashboard-title { color: #294149; font-size: 18px; }
+    .dashboard-subtitle { color: #6a7b7e; font-size: 12px; line-height: 1.55; }
+    .metric-grid { gap: 14px; }
+    .metric-card, .dashboard-detail, .overview-chart-card,
+    .overview-lead, .overview-proof, .overview-panel, .comparison-panel, .next-step,
+    .conversation, .insights {
+      border-color: var(--line);
+      border-radius: 16px;
+      background: #fffefd;
+      box-shadow: 0 12px 34px #2d474d0b;
+    }
+    .metric-card { padding: 19px; }
+    .metric-label { color: #718184; font-size: 11px; letter-spacing: .07em; }
+    .metric-number { color: #2d4a50; font-size: 30px; }
+    .metric-footnote { color: #819093; font-size: 11px; }
+    .category-name, .category-pressure, .category-meta { font-size: 12px; }
+    .guided-demo-button, .comparison-button, .next-step button, .send-button {
+      min-height: 42px;
+      border-radius: 10px;
+      background: var(--green);
+      box-shadow: 0 7px 18px #466f6626;
+    }
+    .guided-demo-button:hover, .comparison-button:hover, .next-step button:hover, .send-button:hover { background: var(--green-strong); }
+    .overview-title { color: #294149; }
+    .overview-copy { color: #65767a; font-size: 14px; }
+    .solution-card, .journey-step, .classifier-method, .classifier-localization-item { border-color: var(--line); }
+    .solution-card strong, .journey-step strong { font-size: 12px; }
+    .solution-card p, .journey-step p { font-size: 11px; }
+    .classifier-feature { border-color: #d3e2dd; background: linear-gradient(125deg, #edf5f2, #f8f7f3 63%, #edf2f5); }
+    .overview-chart-card { padding: 23px 24px 19px; overflow-x: auto; }
+    .overview-chart-head h3 { color: #294149; font-size: 17px; }
+    .overview-chart-head p { color: #6c7d80; font-size: 13px; }
+    .chart-legend { gap: 14px; color: #607276; font-size: 12px; font-weight: 650; }
+    .chart-legend i { width: 10px; height: 10px; }
+    .legend-incoming, .chart-bar.incoming { background: #a9bdc7; }
+    .legend-detected, .chart-bar.detected { background: #5a887e; }
+    .overview-chart { min-height: 208px; padding: 30px 8px 0; border-bottom-color: #dbe5e1; }
+    .overview-chart > .analytics-empty { grid-column: 1 / -1; align-self: center; color: #748487; font-size: 13px; text-align: center; }
+    .chart-day { height: 174px; gap: 12px; }
+    .chart-bars { gap: 8px; }
+    .chart-bar { position: relative; width: min(24px, 36%); border-radius: 7px 7px 2px 2px; }
+    .chart-bar::before {
+      position: absolute;
+      top: -23px;
+      left: 50%;
+      color: #40565c;
+      content: attr(data-value);
+      font-size: 12px;
+      font-weight: 750;
+      transform: translateX(-50%);
+    }
+    .chart-date { color: #52676c; font-size: 12px; font-weight: 700; }
+    .dashboard-disclaimer { color: #728286; font-size: 12px; }
+
+    /* Required first-use agreement */
+    body.terms-open { overflow: hidden; }
+    .terms-gate[hidden] { display: none; }
+    .terms-gate {
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: #182a2ec7;
+      backdrop-filter: blur(10px);
+    }
+    .terms-dialog {
+      width: min(680px, 100%);
+      max-height: min(760px, calc(100dvh - 44px));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #d7e3df;
+      border-radius: 22px;
+      background: #fffefd;
+      box-shadow: 0 28px 80px #0d1c2052;
+    }
+    .terms-header { display: flex; align-items: center; gap: 14px; padding: 22px 24px 18px; border-bottom: 1px solid var(--line); }
+    .terms-logo { width: 50px; height: 50px; flex: none; border-radius: 50%; background: #253f44; object-fit: contain; }
+    .terms-kicker { margin: 0 0 3px; color: #5e837a; font-size: 11px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .terms-header h2 { margin: 0; color: #263f45; font-size: 22px; letter-spacing: -.025em; }
+    .terms-content { overflow-y: auto; padding: 20px 24px; color: #586a6e; font-size: 13px; line-height: 1.65; }
+    .terms-summary { margin-top: 0; color: #344b51; font-size: 14px; }
+    .terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .terms-item { padding: 14px; border: 1px solid #dfe8e4; border-radius: 13px; background: #f7f9f7; }
+    .terms-item strong { display: block; margin-bottom: 5px; color: #345a53; font-size: 13px; }
+    .terms-item p { margin: 0; }
+    .terms-content h3 { margin: 20px 0 7px; color: #2d454b; font-size: 14px; }
+    .terms-content ul { margin: 0; padding-left: 20px; }
+    .terms-content li + li { margin-top: 5px; }
+    .terms-updated { margin: 18px 0 0; color: #7b898c; font-size: 11px; }
+    .terms-actions { padding: 17px 24px 22px; border-top: 1px solid var(--line); background: #fbfcfa; }
+    .terms-check { display: flex; align-items: flex-start; gap: 11px; color: #34494f; font-size: 13px; font-weight: 650; line-height: 1.45; }
+    .terms-check input { width: 19px; height: 19px; flex: none; margin-top: 1px; accent-color: var(--green); }
+    .terms-accept {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 750;
+      box-shadow: 0 8px 20px #456f652b;
+    }
+    .terms-accept:hover:not(:disabled) { background: var(--green-strong); }
+    .terms-accept:disabled { cursor: not-allowed; opacity: .48; box-shadow: none; }
+
+    @media (max-width: 950px) {
+      .app { grid-template-columns: minmax(0, 1fr); }
+      .sidebar { background: #263f44; }
+      .brand-mark { width: 44px; height: 44px; flex-basis: 44px; }
+      .brand-caption { display: none; }
+      .nav-item:hover { transform: none; }
+    }
+    @media (max-width: 720px) {
+      .topbar { min-height: 64px; height: auto; gap: 12px; padding-block: 11px; }
+      .topbar-statuses { gap: 5px; }
+      .threat-feed-status { max-width: 190px; padding: 6px 8px; font-size: 9px; }
+      .dashboard-view { padding: 16px 12px 24px; }
+      .overview-chart-card { padding: 18px 16px 15px; }
+      .overview-chart-head { min-width: 500px; }
+      .overview-chart { min-width: 500px; min-height: 222px; gap: 9px; }
+      .chart-day { height: 184px; }
+      .chart-date, .chart-bar::before { font-size: 13px; }
+      .chart-bar { width: min(22px, 38%); }
+      .terms-gate { padding: 10px; }
+      .terms-dialog { max-height: calc(100dvh - 20px); border-radius: 17px; }
+      .terms-header { padding: 18px 17px 14px; }
+      .terms-header h2 { font-size: 19px; }
+      .terms-content { padding: 16px 17px; font-size: 14px; }
+      .terms-grid { grid-template-columns: 1fr; }
+      .terms-actions { padding: 14px 17px 17px; }
+      .terms-check { font-size: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
   </style>
 </head>
 <body>
@@ -552,10 +774,7 @@
     <aside class="sidebar" aria-label="Main navigation">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="10.5" cy="10.5" r="6.25" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M15.2 15.2 20 20M7.5 10.5h1.8l1.2-2.2 1.7 4.4 1.1-2.2h1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <img src="/assets/phishlab-logo.png" alt="">
         </div>
         <div class="brand-name">PhishLab<span class="brand-caption">Scam awareness insights</span></div>
       </div>
@@ -589,8 +808,10 @@
         <p class="reply-mode-status" id="reply-mode-status" role="status" aria-live="polite">For the current thread</p>
       </div>
       <div class="side-note">
-        <strong>Demo session</strong>
+        <strong>Research demo session</strong>
+        <span id="model-data-disclosure">Checking where model processing occurs…</span>
         Messages and observations are stored in the configured database.
+        <button class="terms-review-button" id="terms-review-button" type="button">Review terms of use</button>
       </div>
     </aside>
 
@@ -600,6 +821,7 @@
         <div><div class="eyebrow">PhishLab</div><h1 id="page-heading">Why it matters</h1></div>
         <div class="topbar-statuses">
           <button class="export-iocs-button" id="export-iocs-button" type="button">Export IoCs</button>
+          <div class="threat-feed-status" id="model-status" data-state="checking" role="status" aria-live="polite">Model: Checking…</div>
           <div class="threat-feed-status" id="threat-feed-status" data-state="checking" role="status" aria-live="polite">Threat Feed: Checking ScamShield SG…</div>
           <div class="local-status"><span class="status-dot" aria-hidden="true"></span> Simulation only</div>
         </div>
@@ -615,7 +837,7 @@
             <article class="metric-card"><div class="metric-label">Average pressure</div><div class="metric-number" id="landing-pressure">—</div><div class="metric-footnote">Model assessment · 1–3</div></article>
           </div>
           <div class="dashboard-details"><article class="dashboard-detail"><h3>Recent scam intelligence</h3><div class="category-list" id="landing-categories-list"><span class="analytics-empty">Loading…</span></div></article><article class="dashboard-detail"><h3>Next step</h3><p class="dashboard-subtitle">Open the Conversation Lab to review messages, approve replies, and inspect extracted artifacts.</p><button class="guided-demo-button" type="button" data-open-page="lab-view">Open conversation lab</button></article></div>
-          <article class="overview-chart-card"><div class="overview-chart-head"><div><h3>Incoming activity</h3><p>Messages received compared with messages flagged for review.</p></div><div class="chart-legend"><span><i class="legend-incoming"></i>Incoming</span><span><i class="legend-detected"></i>Flagged</span></div></div><div class="overview-chart" id="landing-activity-chart"><span class="analytics-empty">Loading activity…</span></div></article>
+          <article class="overview-chart-card"><div class="overview-chart-head"><div><h3>Incoming activity</h3><p>Messages received compared with messages flagged for review.</p></div><div class="chart-legend"><span><i class="legend-incoming"></i>Incoming</span><span><i class="legend-detected"></i>Flagged</span></div></div><div class="overview-chart" id="landing-activity-chart" role="img" aria-label="Seven-day incoming and flagged message activity chart"><span class="analytics-empty">Loading activity…</span></div></article>
           <p class="dashboard-disclaimer">Research signals are model-generated and require human review. They are not verified scam verdicts.</p>
         </div>
       </section>
@@ -739,7 +961,7 @@
             <textarea id="comparison-message" maxlength="3000" aria-label="Same incoming message for persona comparison">I’ve enjoyed chatting with you. Someone mentioned a private investment group with unusually high returns—have you heard of it?</textarea>
             <button class="comparison-button" id="compare-personas-button" type="button">Compare personas</button>
           </div>
-          <p class="comparison-status" id="comparison-status" role="status" aria-live="polite">Replies and stage labels are generated live by OpenAI and may vary.</p>
+          <p class="comparison-status" id="comparison-status" role="status" aria-live="polite">Replies and stage labels are generated live by the configured model and may vary.</p>
           <div class="comparison-results" id="comparison-results" aria-live="polite">
             <p class="comparison-empty">Select “Compare personas” to generate three replies to the same message.</p>
           </div>
@@ -775,7 +997,7 @@
               <div class="methodology-answer" id="faq-data">
               <ol>
                 <li><strong>Conversation input:</strong> the message text, thread ID, sender role, and timestamp are saved to the configured database. Local development uses SQLite; the hosted deployment uses PostgreSQL.</li>
-                <li><strong>Model analysis:</strong> up to the latest 15 messages are sent to OpenAI to generate the selected persona’s reply and structured observations: scam stage, pressure, extracted artifacts, delay strategy, and notes.</li>
+                <li id="model-data-flow"><strong>Model analysis:</strong> up to the latest 15 messages are processed by the configured model to generate the selected persona’s reply and structured observations: scam stage, pressure, extracted artifacts, delay strategy, and notes. The model status at the top of the page shows whether processing is local or external.</li>
                 <li><strong>Research record:</strong> the reply, persona/settings, model observations, and extracted artifacts are stored in the app database for this conversation view, analytics, and export.</li>
               </ol>
                 <p>The guided scenario uses fictional, researcher-selected messages. It does not connect to WhatsApp or send messages externally.</p>
@@ -1023,6 +1245,54 @@
     </main>
   </div>
 
+  <section class="terms-gate" id="terms-gate" role="dialog" aria-modal="true" aria-labelledby="terms-title" aria-describedby="terms-summary" hidden>
+    <div class="terms-dialog">
+      <header class="terms-header">
+        <img class="terms-logo" src="/assets/phishlab-logo.png" alt="PhishLab logo">
+        <div>
+          <p class="terms-kicker">Before you continue</p>
+          <h2 id="terms-title">PhishLab Terms of Use</h2>
+        </div>
+      </header>
+      <div class="terms-content" tabindex="0">
+        <p class="terms-summary" id="terms-summary">PhishLab is a research and awareness prototype. Please review and accept these conditions before using the application.</p>
+        <div class="terms-grid">
+          <article class="terms-item">
+            <strong>Authorized, responsible use</strong>
+            <p>Use PhishLab only for lawful scam-awareness, education, testing, or research that you are authorized to conduct. Do not use it to deceive, harass, impersonate, or target real people.</p>
+          </article>
+          <article class="terms-item">
+            <strong>Use fictional or anonymized data</strong>
+            <p>Do not enter passwords, one-time codes, financial details, confidential information, or personal data that you do not have permission to process.</p>
+          </article>
+          <article class="terms-item">
+            <strong>AI output requires review</strong>
+            <p>Replies, labels, scores, and observations may be incomplete or wrong. They are research signals—not verified scam verdicts, professional advice, or a substitute for human judgment.</p>
+          </article>
+          <article class="terms-item">
+            <strong>External processing may occur</strong>
+            <p>Conversation context may be sent to the configured model provider. A link is sent to Google Safe Browsing only when you explicitly request a link check.</p>
+          </article>
+        </div>
+        <h3>Data and service conditions</h3>
+        <ul>
+          <li>Conversation messages and research observations are stored in the application’s configured database and may be available through its export tools.</li>
+          <li>You are responsible for obtaining any required consent and following applicable privacy, security, and data-protection requirements.</li>
+          <li>The prototype is provided for evaluation without guarantees of availability, accuracy, completeness, or fitness for a particular purpose.</li>
+          <li>Stop using the application if you do not understand or agree to these conditions.</li>
+        </ul>
+        <p class="terms-updated">Terms version 1.0 · Updated 27 October 2026</p>
+      </div>
+      <footer class="terms-actions">
+        <label class="terms-check" for="terms-checkbox">
+          <input id="terms-checkbox" type="checkbox">
+          <span>I have read and agree to the PhishLab Terms of Use.</span>
+        </label>
+        <button class="terms-accept" id="terms-accept" type="button" disabled>Agree and continue</button>
+      </footer>
+    </div>
+  </section>
+
   <script>
     const thread = document.getElementById("thread");
     const form = document.getElementById("message-form");
@@ -1062,6 +1332,14 @@
     const comparisonResults = document.getElementById("comparison-results");
     const evidenceMessage = document.getElementById("evidence-message");
     const evidenceExplanation = document.getElementById("evidence-explanation");
+    const modelStatusElement = document.getElementById("model-status");
+    const modelDataDisclosure = document.getElementById("model-data-disclosure");
+    const appRoot = document.querySelector(".app");
+    const termsGate = document.getElementById("terms-gate");
+    const termsCheckbox = document.getElementById("terms-checkbox");
+    const termsAcceptButton = document.getElementById("terms-accept");
+    const termsReviewButton = document.getElementById("terms-review-button");
+    const termsStorageKey = "phishlab-terms-v1";
     let activePersonaId = personaSelect.value;
     let activeAutoReply = autoReplyToggle.checked;
     let activeManualMode = false;
@@ -1070,6 +1348,54 @@
     let guidedDemoStep = 0;
     let latestAssistantReply = "";
     let personaProfiles = new Map();
+    let activeModelName = "configured model";
+    let appInitialized = false;
+
+    function openTerms() {
+      termsCheckbox.checked = false;
+      termsAcceptButton.disabled = true;
+      termsGate.hidden = false;
+      appRoot.inert = true;
+      document.body.classList.add("terms-open");
+      window.requestAnimationFrame(() => termsCheckbox.focus());
+    }
+
+    function closeTerms() {
+      termsGate.hidden = true;
+      appRoot.inert = false;
+      document.body.classList.remove("terms-open");
+    }
+
+    function initializeApp() {
+      if (appInitialized) return;
+      appInitialized = true;
+      loadPersonaProfiles();
+      loadConversation();
+      loadAnalytics();
+      refreshModelStatus();
+      refreshThreatFeedStatus();
+      window.setInterval(refreshModelStatus, 60_000);
+      window.setInterval(refreshThreatFeedStatus, 60_000);
+      setActivePage("dashboard-view");
+    }
+
+    termsCheckbox.addEventListener("change", () => {
+      termsAcceptButton.disabled = !termsCheckbox.checked;
+    });
+
+    termsAcceptButton.addEventListener("click", () => {
+      if (!termsCheckbox.checked) return;
+      try {
+        window.localStorage.setItem(termsStorageKey, "accepted");
+      } catch (error) {
+        console.warn("Terms acceptance could not be saved in this browser.", error);
+      }
+      closeTerms();
+      initializeApp();
+      document.getElementById("dashboard-tab")?.focus();
+    });
+
+    termsReviewButton.addEventListener("click", openTerms);
 
     const guidedDemoOpener =
       "Hi, sorry—is this Mei? I found this number saved in my phone.";
@@ -1256,6 +1582,26 @@
       }
     }
 
+    async function refreshModelStatus() {
+      try {
+        const response = await fetch("/api/model/status", { cache: "no-store" });
+        if (!response.ok) throw new Error(`Model status request failed (${response.status}).`);
+        const status = await response.json();
+        activeModelName = status.display_name || "configured model";
+        const location = status.is_local ? "local" : "external";
+        modelStatusElement.textContent = `Model: ${activeModelName} · ${location}`;
+        modelStatusElement.dataset.state = status.configured ? "active" : "unavailable";
+        modelStatusElement.title = `${status.model}. ${status.detail}`;
+        modelDataDisclosure.textContent = `${status.detail} `;
+      } catch (error) {
+        activeModelName = "configured model";
+        modelStatusElement.textContent = "Model: Status unavailable";
+        modelStatusElement.dataset.state = "unavailable";
+        modelStatusElement.title = error.message || "Could not retrieve model status.";
+        modelDataDisclosure.textContent = "Model processing location is unknown; do not enter private data. ";
+      }
+    }
+
     exportIocsButton.addEventListener("click", async () => {
       exportIocsButton.disabled = true;
       dashboardError.classList.remove("visible");
@@ -1333,7 +1679,7 @@
       comparePersonasButton.disabled = true;
       comparisonResults.replaceChildren();
       comparisonStatus.textContent =
-        "Generating three replies with OpenAI. This may take a moment…";
+        `Generating three replies with ${activeModelName}. This may take a moment…`;
       try {
         const response = await fetch("/api/personas/compare", {
           method: "POST",
@@ -1354,7 +1700,7 @@
         const emptyMessage = document.createElement("p");
         emptyMessage.className = "comparison-empty";
         emptyMessage.textContent =
-          "No comparison generated. Check the OpenAI API key and try again.";
+          "No comparison generated. Check the configured model status, then try again.";
         comparisonResults.replaceChildren(emptyMessage);
       } finally {
         comparePersonasButton.disabled = false;
@@ -1669,7 +2015,10 @@
               const bar = document.createElement("span");
               bar.className = `chart-bar ${type}`;
               bar.style.height = `${Math.max(3, ((Number(value) || 0) / maxActivity) * 100)}%`;
-              bar.title = `${value || 0} ${type === "incoming" ? "incoming messages" : "flagged messages"}`;
+              const barLabel = `${value || 0} ${type === "incoming" ? "incoming messages" : "flagged messages"}`;
+              bar.dataset.value = String(value || 0);
+              bar.title = barLabel;
+              bar.setAttribute("aria-label", barLabel);
               bars.append(bar);
             }
             const date = document.createElement("span");
@@ -1749,7 +2098,7 @@
         replyModeStatus.textContent = activeManualMode
           ? "Manual takeover active · no automated replies are generated."
           : activeAutoReply
-            ? "Generated replies appear in this local demo."
+            ? "Generated replies appear in this research demo."
             : "Generated replies wait for local review.";
         personaStatus.textContent = `Current thread: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId}`;
         document.querySelector(".contact-subtitle").textContent =
@@ -1859,7 +2208,7 @@
           replyModeStatus.textContent = activeManualMode
             ? "Manual takeover active · no automated replies are generated."
             : activeAutoReply
-              ? "Generated replies appear in this local demo."
+              ? "Generated replies appear in this research demo."
               : "Generated replies wait for local review.";
         }
       } catch (error) {
@@ -1895,7 +2244,7 @@
           activeAutoReply = data.is_auto_reply;
           autoReplyToggle.checked = activeAutoReply;
           replyModeStatus.textContent = activeAutoReply
-            ? "Generated replies appear in this local demo."
+            ? "Generated replies appear in this research demo."
             : "Generated replies wait for local review.";
         }
       } catch (error) {
@@ -2161,7 +2510,7 @@
         return;
       }
       if (result.status !== "simulated") {
-        throw new Error("The interactive demo requires local automatic replies.");
+        throw new Error("The interactive demo requires automatic replies.");
       }
       await loadConversation({ animateLatestReply: true });
       await loadAnalytics();
@@ -2211,12 +2560,17 @@
       }
     });
 
-    loadPersonaProfiles();
-    loadConversation();
-    loadAnalytics();
-    refreshThreatFeedStatus();
-    window.setInterval(refreshThreatFeedStatus, 60_000);
-    setActivePage("dashboard-view");
+    let termsAlreadyAccepted = false;
+    try {
+      termsAlreadyAccepted = window.localStorage.getItem(termsStorageKey) === "accepted";
+    } catch (error) {
+      console.warn("Terms acceptance could not be read in this browser.", error);
+    }
+    if (termsAlreadyAccepted) {
+      initializeApp();
+    } else {
+      openTerms();
+    }
   </script>
 </body>
 </html>

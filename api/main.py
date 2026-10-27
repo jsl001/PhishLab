@@ -267,6 +267,25 @@ async def get_scam_feed_status() -> dict[str, str | bool | int | None]:
     return scam_feed.get_feed_status()
 
 
+@app.get("/api/model/status")
+async def get_model_status() -> dict[str, str | bool]:
+    model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    configured = bool(os.getenv("OPENAI_API_KEY", "").strip())
+    return {
+        "provider": "openai",
+        "display_name": "OpenAI",
+        "model": model,
+        "is_local": False,
+        "configured": configured,
+        "singlish_mode": True,
+        "detail": (
+            "Conversation text is processed by the configured OpenAI service."
+            if configured
+            else "OpenAI is not configured; generated replies are unavailable."
+        ),
+    }
+
+
 @app.get("/api/personas")
 async def get_personas() -> list[dict[str, str]]:
     return [
