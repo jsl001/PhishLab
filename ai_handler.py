@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 load_dotenv()
 
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "default")
 OPENAI_BASE_URL = "https://soclaas-api.comp.nus.edu.sg/v1"
 OPENAI_TIMEOUT_SECONDS = 180
 
