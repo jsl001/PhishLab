@@ -2480,10 +2480,30 @@
         const lastAssistantIndex = data.messages.findLastIndex(
           (message) => message.role === "assistant",
         );
-        const latestIncomingMessage = data.messages.findLast(
+        const incomingMessages = data.messages.filter(
           (message) => message.role === "user",
         );
-        setScamClassification(latestIncomingMessage);
+        const recentIncomingMessages = incomingMessages.slice(-5);
+        const latestIncomingMessage = incomingMessages.at(-1);
+        if (latestIncomingMessage) {
+          const scoredMessages = recentIncomingMessages.filter(
+            (message) => message.scam_score != null,
+          );
+          const recentScore = scoredMessages.length
+            ? Math.max(...scoredMessages.map((message) => Number(message.scam_score) || 0))
+            : latestIncomingMessage.scam_score;
+          const recentFlags = [...new Set(
+            recentIncomingMessages.flatMap((message) => message.detected_flags || []),
+          )];
+          setScamClassification({
+            ...latestIncomingMessage,
+            scam_score: recentScore,
+            is_scam: Number(recentScore) >= 50,
+            detected_flags: recentFlags,
+          });
+        } else {
+          setScamClassification(null);
+        }
         if (lastAssistantIndex >= 0) {
           const incoming = data.messages
             .slice(0, lastAssistantIndex)
@@ -2755,6 +2775,23 @@
 
     function getGuidedDemoChoices() {
       const scenarioTrees = {
+        voucher: [
+          { context: "CDC/GST voucher scam · establish the public-benefit lure.", choices: [
+            { label: "Claim voucher eligibility", text: "[DEMO] Your CDC voucher balance is ready for collection. Confirm your details before the claim window closes.", category: "voucher" },
+            { label: "Claim a GST payout", text: "[DEMO] IRAS has approved your GST voucher payout. Complete the verification to receive it.", category: "impersonation" },
+            { label: "Send a PayNow claim request", text: "[DEMO] We can credit the voucher directly through PayNow once the small verification step is completed.", category: "payment" },
+          ] },
+          { context: "CDC/GST voucher scam · move the recipient to a fake verification step.", choices: [
+            { label: "Request Singpass verification", text: "Use the Singpass verification page to confirm your identity before the voucher can be released.", category: "credential" },
+            { label: "Add a small processing fee", text: "A $2 processing charge is required before the voucher payout can be credited to your PayNow account.", category: "payment" },
+            { label: "Create a deadline", text: "Complete the voucher verification by 11:59pm today or the CDC claim will expire.", category: "pressure" },
+          ] },
+          { context: "CDC/GST voucher scam · apply final pressure or request sensitive information.", choices: [
+            { label: "Request an OTP", text: "Read out the OTP sent to your phone so we can complete the voucher verification.", category: "credential" },
+            { label: "Request PayNow details", text: "Send the PayNow mobile number linked to your bank account so we can process the payout.", category: "payment" },
+            { label: "End with an expiry warning", text: "The claim cannot be held any longer. It will be cancelled if you do not complete verification now.", category: "pressure", action: "end" },
+          ] },
+        ],
         parcel: [
           { context: "Parcel scam · establish the delivery claim.", choices: [
             { label: "Introduce a delivery problem", text: "[DEMO] Your parcel is held at the courier centre because the address is incomplete.", category: "parcel" },
@@ -2828,10 +2865,11 @@
         return {
           context: "Choose a scam storyline. Later branches will stay within the storyline you select.",
           choices: [
-            { label: "Parcel delivery fee", text: "[DEMO] Your parcel is held. Pay the $2.99 release fee at delivery-demo.example/pay.", path: "parcel", category: "parcel" },
-            { label: "Bank or police impersonation", text: "[DEMO] DBS Fraud Prevention detected an unusual transfer. Verify your account immediately.", path: "impersonation", category: "impersonation" },
+            { label: "CDC/GST voucher lure", text: "[DEMO] Your CDC voucher or GST payout is ready. Complete the verification before the claim window closes.", path: "voucher", category: "voucher" },
+            { label: "Singpass or bank impersonation", text: "[DEMO] DBS Fraud Prevention detected an unusual transfer. Do not share your OTP, but verify the account through this chat.", path: "impersonation", category: "impersonation" },
+            { label: "Parcel delivery fee", text: "[DEMO] Your SingPost parcel is held. Pay the S$2.99 release fee before delivery is cancelled.", path: "parcel", category: "parcel" },
             { label: "Investment pig-butchering", text: "I have a private crypto group with guaranteed USDT returns. Join before the offer closes tonight.", path: "investment", category: "investment" },
-            { label: "Wrong-number romance pivot", text: "Hi, sorry—is this Mei? I found this number saved in my phone. You seem nice—let us keep chatting.", path: "romance", category: "romance" },
+            { label: "Wrong-number romance pivot", text: "Hi, sorry—is this Mei? I found this Singapore number saved in my phone. You seem nice—let us keep chatting.", path: "romance", category: "romance" },
           ],
         };
       }
@@ -2937,9 +2975,9 @@
       demoChoicePanel.classList.remove("loading");
       const { context, choices } = getGuidedDemoChoices();
       demoChoiceList.replaceChildren();
-      demoChoiceTitle.textContent = "Choose a scenario branch";
+      demoChoiceTitle.textContent = guidedDemoStep === 0 ? "Choose the starting message" : "Choose a scenario branch";
       demoChoiceDescription.textContent =
-        `${context} Each option is the next incoming message from that storyline. Risky operational details are intentionally omitted.`;
+        `${context} Each option is an incoming message from the scammer. Risky operational details are intentionally omitted.`;
       for (const choice of choices) {
         const button = document.createElement("button");
         button.type = "button";
@@ -3076,7 +3114,9 @@
           throw new Error(assignment.detail || "Could not prepare the guided scenario.");
         }
         await loadConversation();
-        await sendGuidedDemoOpener();
+        guidedDemoRunning = true;
+        guidedDemoStatus.textContent = "Choose a starting message to begin the guided scenario.";
+        showScammerMessageChoices();
       } catch (error) {
         showError(error.message || "Could not complete the guided scenario.");
         guidedDemoStatus.textContent = "Scenario stopped · see the error above";
