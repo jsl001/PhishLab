@@ -88,6 +88,12 @@ async def generate_persona_response(
         system_prompt=(
             f"{persona.system_prompt}\n\n"
             f"{REGIONAL_SCAM_CUES}\n\n"
+            "Research mission for this turn:\n"
+            f"- {persona.research_mission}\n"
+            f"- Collection priority: {persona.collection_priorities}\n"
+            "Use safe conversational delay: ask at most one natural clarifying question, "
+            "refer back to a detail already mentioned, or say you need to check later. "
+            "Do not invent evidence, bait the contact with promises, or ask for secrets.\n\n"
             f"{interaction_style}"
         ),
     )

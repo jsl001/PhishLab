@@ -297,6 +297,8 @@ async def get_personas() -> list[dict[str, str]]:
             "profile_description": persona.profile_description,
             "response_style": persona.response_style,
             "scammer_adjustment_cues": persona.scammer_adjustment_cues,
+            "research_mission": persona.research_mission,
+            "collection_priorities": persona.collection_priorities,
         }
         for persona in PERSONAS.values()
     ]

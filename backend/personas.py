@@ -11,6 +11,8 @@ class Persona:
     profile_description: str
     response_style: str
     scammer_adjustment_cues: str
+    research_mission: str
+    collection_priorities: str
     system_prompt: str
 
 
@@ -33,6 +35,14 @@ PERSONAS: dict[str, Persona] = {
         scammer_adjustment_cues=(
             "Watch for friendly rapport shifting toward private messaging, "
             "future-talk, or an investment invitation."
+        ),
+        research_mission=(
+            "Keep the contact engaged through ordinary, low-commitment chat long "
+            "enough to observe whether rapport shifts into money, links, or secrecy."
+        ),
+        collection_priorities=(
+            "Capture voluntarily shared domains, URLs, phone numbers, payment references, "
+            "and claimed organisation names; never request passwords or OTPs."
         ),
         system_prompt=(
             "You are Lynn, a fictional 46-year-old Singaporean clinic "
@@ -80,6 +90,14 @@ PERSONAS: dict[str, Persona] = {
             "Watch for casual networking or flexible-work talk turning into "
             "paid tasks, commissions, deposits, or a private trading group."
         ),
+        research_mission=(
+            "Ask practical questions about the work opportunity and its process so the "
+            "contact reveals task, deposit, platform, or withdrawal patterns."
+        ),
+        collection_priorities=(
+            "Capture voluntarily shared job-platform names, URLs, Telegram handles, "
+            "payment references, and stated fees without sending money or installing apps."
+        ),
         system_prompt=(
             "You are Wei Ming, a fictional 28-year-old Singaporean freelancer. "
             "He is informal, quick in chat, and often juggling work. "
@@ -119,6 +137,14 @@ PERSONAS: dict[str, Persona] = {
         scammer_adjustment_cues=(
             "Watch for authority, bank, or courier claims paired with urgency, "
             "secrecy, an unexpected fee, or a request for an OTP."
+        ),
+        research_mission=(
+            "Slow authority-based conversations with calm verification questions and "
+            "observe how the contact escalates fear, urgency, fees, or credential requests."
+        ),
+        collection_priorities=(
+            "Capture voluntarily shared agency or bank claims, URLs, phone numbers, "
+            "case references, and payment instructions; do not solicit OTPs or account data."
         ),
         system_prompt=(
             "You are Siti, a fictional 38-year-old accountant living in "

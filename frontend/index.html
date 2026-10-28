@@ -130,6 +130,15 @@
     .stage-track-step.active, .stage-track-step.complete { border-color: #3c947b; color: #27776c; font-weight: 750; }
     .sg-cues { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
     .sg-cue { padding: 4px 7px; border-radius: 99px; background: #e8f4ef; color: #27776c; font-size: 9px; }
+    .persona-explainer { position: relative; margin-left: auto; max-width: 300px; color: #65766e; font-size: 9px; }
+    .persona-explainer summary { cursor: pointer; color: #27776c; font-size: 9px; font-weight: 750; list-style: none; }
+    .persona-explainer summary::-webkit-details-marker { display: none; }
+    .persona-explainer summary::after { content: "⌄"; margin-left: 5px; }
+    .persona-explainer[open] summary::after { content: "⌃"; }
+    .persona-explainer-body { position: absolute; z-index: 5; right: 0; top: 22px; width: 270px; padding: 10px; border: 1px solid #cfe2dc; border-radius: 9px; background: #fff; box-shadow: 0 8px 22px #20312a18; line-height: 1.45; }
+    .persona-explainer-body strong { display: block; margin-bottom: 3px; color: #28483d; }
+    .persona-explainer-body p { margin: 0 0 7px; }
+    .persona-explainer-body p:last-child { margin-bottom: 0; }
     .lab-view > .pitch-hero { display: none; }
     .dashboard-view { min-width: 0; padding: 24px 32px; }
     .dashboard-landing { max-width: 1440px; margin: 0 auto; }
@@ -1319,6 +1328,14 @@
           </header>
           <div class="lab-context-bar">
             <div class="lab-context-copy"><strong>Ready to simulate</strong><span>Write an incoming message below or start the guided scenario.</span></div>
+            <details class="persona-explainer">
+              <summary>How this persona works</summary>
+              <div class="persona-explainer-body">
+                <p><strong id="persona-explainer-name">This fictional persona</strong><span id="persona-explainer-style">Replies naturally while keeping personal boundaries.</span></p>
+                <p><strong>What it watches for</strong><span id="persona-explainer-cues">Scam pressure, off-platform requests, payment cues, and sensitive-data requests.</span></p>
+                <p><strong>Research goal</strong><span id="persona-explainer-mission">Keep the exchange natural while safely observing scam signals.</span></p>
+              </div>
+            </details>
           </div>
           <div class="thread" id="thread" aria-live="polite">
             <div class="empty-state">
@@ -1848,6 +1865,14 @@
       personaProfileDescription.textContent = profile.profile_description;
       personaProfileResponse.textContent = profile.response_style;
       personaProfileCues.textContent = profile.scammer_adjustment_cues;
+      const explainerName = document.getElementById("persona-explainer-name");
+      const explainerStyle = document.getElementById("persona-explainer-style");
+      const explainerCues = document.getElementById("persona-explainer-cues");
+      const explainerMission = document.getElementById("persona-explainer-mission");
+      if (explainerName) explainerName.textContent = `${profile.name} is a fictional research persona`;
+      if (explainerStyle) explainerStyle.textContent = profile.response_style;
+      if (explainerCues) explainerCues.textContent = profile.scammer_adjustment_cues;
+      if (explainerMission) explainerMission.textContent = profile.research_mission || "Keep the exchange natural while safely observing scam signals.";
       if (contactName) contactName.textContent = `${profile.name} · Research persona`;
     }
 
