@@ -115,6 +115,21 @@
     .lab-guided-slot .hero-actions { margin: 0; }
     .lab-guided-slot .guided-demo-status { display: none; }
     .lab-view .workspace { padding-top: 10px; }
+    .risk-summary { margin: 12px 0 14px; padding: 13px; border: 1px solid #cfe2dc; border-radius: 12px; background: linear-gradient(145deg,#f3faf7,#fff); }
+    .risk-summary-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .risk-summary-kicker { margin: 0 0 3px; color: #27776c; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .risk-summary-title { margin: 0; color: #17372e; font-size: 14px; }
+    .risk-score-large { color: #17372e; font-size: 24px; font-weight: 800; letter-spacing: -.04em; white-space: nowrap; }
+    .risk-score-large span { color: #82938c; font-size: 11px; font-weight: 650; letter-spacing: 0; }
+    .risk-meter { height: 7px; margin-top: 11px; overflow: hidden; border-radius: 99px; background: #e7efeb; }
+    .risk-meter-fill { width: 0%; height: 100%; border-radius: inherit; background: #55a386; transition: width .25s ease, background .25s ease; }
+    .risk-summary-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; color: #71827a; font-size: 9px; }
+    .risk-summary-explanation { margin: 10px 0 0; color: #5f7169; font-size: 10px; line-height: 1.45; }
+    .stage-track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 11px; }
+    .stage-track-step { padding-top: 6px; border-top: 3px solid #e1ebe6; color: #8a9992; font-size: 8px; line-height: 1.2; text-align: center; }
+    .stage-track-step.active, .stage-track-step.complete { border-color: #3c947b; color: #27776c; font-weight: 750; }
+    .sg-cues { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+    .sg-cue { padding: 4px 7px; border-radius: 99px; background: #e8f4ef; color: #27776c; font-size: 9px; }
     .lab-view > .pitch-hero { display: none; }
     .dashboard-view { min-width: 0; padding: 24px 32px; }
     .dashboard-landing { max-width: 1440px; margin: 0 auto; }
@@ -354,6 +369,12 @@
     .send-button:disabled { cursor: wait; opacity: .55; }
     .composer-hint { margin: 9px 2px 0; color: #9aa4a1; font-size: 10px; }
     .insights { align-self: start; padding: 18px; }
+    .inspector-rail { display: grid; grid-template-rows: auto minmax(0, 1fr); align-content: stretch; gap: 12px; min-width: 0; height: min(760px, calc(100vh - 145px)); }
+    .inspector-rail > .risk-summary { margin: 0; }
+    .inspector-rail > .insights { min-height: 0; height: auto; overflow-y: auto; }
+    .duplicate-insight { display: none; }
+    .risk-pressure { margin-top: 9px; color: #71827a; font-size: 9px; }
+    .risk-pressure strong { color: #27776c; font-weight: 750; }
     .insights-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .insights h2 { margin: 0; font-size: 13px; font-weight: 700; }
     .manual-takeover-button { flex: none; padding: 7px 9px; border: 1px solid #bfd5ca; border-radius: 8px; background: #eef7f1; color: #35674e; font-size: 9px; font-weight: 750; cursor: pointer; }
@@ -557,8 +578,10 @@
     .lab-view .hero-highlight:nth-child(-n+3) { display: none; }
     .lab-view .persona-spotlight { margin-top: 0; }
     .lab-view .workspace { padding-top: 12px; }
+    .lab-view .inspector-rail { height: auto; align-self: stretch; }
     .lab-view .workspace { padding-top: 12px; }
-    .lab-view .conversation { min-height: 0; height: auto; overflow: hidden; }
+    .lab-view .conversation { min-height: 0; height: 100%; overflow: hidden; }
+    .lab-view .inspector-rail { min-height: 0; height: 100%; }
     .lab-view .insights { min-height: 0; height: auto; overflow-y: auto; }
     .lab-view .lab-context-bar { padding: 10px 17px; }
     .lab-view .lab-context-copy { align-items: baseline; flex-direction: row; gap: 9px; }
@@ -1324,22 +1347,33 @@
           </form>
         </section>
 
-        <aside class="insights" aria-label="Chat Inspector">
+        <div class="inspector-rail">
+          <section class="risk-summary" aria-label="Conversation risk summary">
+            <div class="risk-summary-head"><div><p class="risk-summary-kicker">Live risk assessment</p><h3 class="risk-summary-title" id="risk-summary-title">Awaiting first message</h3></div><div class="risk-score-large" id="risk-score-large">—<span>/100</span></div></div>
+            <div class="risk-meter" aria-hidden="true"><div class="risk-meter-fill" id="risk-meter-fill"></div></div>
+            <div class="risk-summary-meta"><span id="risk-summary-status">No assessment yet</span><span>Review at 50+</span></div>
+            <div class="risk-pressure">Pressure level: <strong id="risk-pressure">Awaiting message</strong></div>
+            <p class="risk-summary-explanation" id="risk-summary-explanation">The classifier looks at the latest five incoming messages and combines observed behavioural cues.</p>
+            <div class="stage-track" aria-label="Scam progression"><div class="stage-track-step" data-stage-step="contact">Contact</div><div class="stage-track-step" data-stage-step="rapport">Rapport</div><div class="stage-track-step" data-stage-step="shift">Shift</div><div class="stage-track-step" data-stage-step="request">Request</div></div>
+            <div class="sg-cues" id="sg-cues" aria-label="Singapore-specific cues"></div>
+          </section>
+          <aside class="insights" aria-label="Chat Inspector">
           <div class="insights-header">
             <h2>Chat Inspector</h2>
             <button class="manual-takeover-button" id="manual-takeover-toggle" type="button" data-active="false" aria-pressed="false" disabled>Manual Takeover [OFF]</button>
           </div>
           <p class="manual-takeover-status" id="manual-takeover-status" data-active="false" role="status" aria-live="polite">Automated replies are available for this thread.</p>
           <p class="insights-intro">Structured observations and heuristic cues from the current conversation.</p>
-          <div class="insight-section">
+
+          <div class="insight-section duplicate-insight">
             <div class="section-title">Scam stage</div>
             <div class="insight-value" id="scam-stage">No data yet</div>
           </div>
-          <div class="insight-section">
+          <div class="insight-section duplicate-insight">
             <div class="section-title">Pressure level</div>
             <div class="insight-value" id="pressure-level">No data yet</div>
           </div>
-          <section class="evidence-panel" aria-label="Heuristic scam behavior classification">
+          <section class="evidence-panel duplicate-insight" aria-label="Heuristic scam behavior classification">
             <h3>Scam risk score</h3>
             <div class="classifier-score-badge">
               <span class="classifier-score-value" id="classifier-score">No classifier result yet</span>
@@ -1375,7 +1409,8 @@
             <div class="insight-value" id="telemetry-notes">Telemetry will appear after a reply.</div>
           </div>
           <div class="privacy-note">For authorized research and local testing. Do not enter real passwords, one-time codes, or financial details.</div>
-        </aside>
+          </aside>
+        </div>
       </div>
       </section>
     </main>
@@ -2053,6 +2088,12 @@
       const flagsElement = document.getElementById("classifier-flags");
       flagsElement.replaceChildren();
       if (!message || message.scam_score == null) {
+        document.getElementById("risk-score-large").innerHTML = "—<span>/100</span>";
+        document.getElementById("risk-meter-fill").style.width = "0%";
+        document.getElementById("risk-summary-title").textContent = "Awaiting first message";
+        document.getElementById("risk-summary-status").textContent = "No assessment yet";
+        document.getElementById("risk-pressure").textContent = "Awaiting message";
+        document.getElementById("sg-cues").replaceChildren();
         scoreElement.textContent = "No classifier result yet";
         statusElement.textContent = "Awaiting message";
         statusElement.dataset.flagged = "false";
@@ -2062,7 +2103,18 @@
         return;
       }
 
-      scoreElement.textContent = `${message.scam_score}/100`;
+      const score = Math.max(0, Math.min(100, Number(message.scam_score) || 0));
+      document.getElementById("risk-score-large").innerHTML = `${score}<span>/100</span>`;
+      const meter = document.getElementById("risk-meter-fill");
+      meter.style.width = `${score}%`;
+      meter.style.background = score >= 75 ? "#c66d5b" : score >= 50 ? "#d79a4d" : "#55a386";
+      document.getElementById("risk-summary-title").textContent = score >= 50 ? "Review recommended" : "Low signal so far";
+      document.getElementById("risk-summary-status").textContent = message.is_scam ? "Flagged for human review" : "Below review threshold";
+      const cueLabels = { CDC_VOUCHER_PHISHING: "CDC/GST voucher", GOV_IMPERSONATION: "Government or bank impersonation", LOCAL_PAYMENT_TRAPS: "PayNow/PayLah or OTP cue", DYNAMIC_SG_ADVISORY: "Current SG advisory match" };
+      const cueContainer = document.getElementById("sg-cues");
+      cueContainer.replaceChildren();
+      for (const flag of (message.detected_flags || [])) if (cueLabels[flag]) { const cue = document.createElement("span"); cue.className = "sg-cue"; cue.textContent = cueLabels[flag]; cueContainer.append(cue); }
+      scoreElement.textContent = `${score}/100`;
       statusElement.textContent = message.is_scam
         ? "Flagged for review"
         : "Below review threshold";
@@ -2082,8 +2134,15 @@
     }
 
     function setTelemetry(telemetry) {
-      document.getElementById("scam-stage").textContent =
-        formatSignalLabel(telemetry.scam_stage);
+      const stageLabel = formatSignalLabel(telemetry.scam_stage);
+      document.getElementById("scam-stage").textContent = stageLabel;
+      const normalizedStage = String(telemetry.scam_stage || "").toLowerCase();
+      const stageIndex = normalizedStage.includes("request") || normalizedStage.includes("payment") || normalizedStage.includes("credential") ? 3 : normalizedStage.includes("shift") || normalizedStage.includes("off") || normalizedStage.includes("money") || normalizedStage.includes("investment") ? 2 : normalizedStage.includes("rapport") || normalizedStage.includes("relationship") || normalizedStage.includes("trust") ? 1 : normalizedStage && normalizedStage !== "unknown" ? 0 : -1;
+      document.querySelectorAll("[data-stage-step]").forEach((step) => {
+        const order = ["contact", "rapport", "shift", "request"].indexOf(step.dataset.stageStep);
+        step.classList.toggle("active", order === stageIndex);
+        step.classList.toggle("complete", stageIndex >= 0 && order < stageIndex);
+      });
       updateLabProgress(telemetry.scam_stage && telemetry.scam_stage !== "unknown" ? 3 : 2);
       document.getElementById("pressure-level").replaceChildren();
       const pressure = document.createElement("span");
@@ -2091,6 +2150,7 @@
       const pressureLabels = { 1: "low", 2: "medium", 3: "high" };
       pressure.textContent =
         pressureLabels[telemetry.pressure_level] || telemetry.pressure_level || "unknown";
+      document.getElementById("risk-pressure").textContent = pressure.textContent;
       document.getElementById("pressure-level").append(pressure);
 
       const artifacts = document.getElementById("artifacts");
