@@ -13,15 +13,98 @@ from backend.db import (
     identity_primary_key,
     is_postgres,
 )
-from backend.personas import DEFAULT_PERSONA_ID, get_persona
+from backend.personas import DEFAULT_PERSONA_ID, Persona, get_persona
 
 
 DB_PATH = os.getenv("DATABASE_PATH", "./data/honeypot.db")
 DATABASE_PATH = Path(DB_PATH)
 
+PERSONA_COLUMNS = (
+    "persona_id",
+    "name",
+    "age",
+    "location",
+    "occupation",
+    "profile_description",
+    "response_style",
+    "scammer_adjustment_cues",
+    "research_mission",
+    "collection_priorities",
+    "system_prompt",
+    "stall_strategy",
+    "engagement_level",
+    "question_frequency",
+    "ioc_priority",
+    "ioc_types",
+    "boundary_strictness",
+    "response_length",
+    "escalation_behaviour",
+    "familiarity_level",
+    "scam_focus",
+    "scam_stage_focus",
+    "localisation",
+    "local_context",
+    "reference_conversation",
+)
+
 
 def _connect() -> DatabaseConnection:
     return connect(DATABASE_PATH)
+
+
+def _persona_values(persona: Persona) -> tuple[object, ...]:
+    return tuple(getattr(persona, column) for column in PERSONA_COLUMNS)
+
+
+def load_custom_personas() -> list[dict[str, object]]:
+    """Load persisted custom persona records for application startup."""
+    columns = ", ".join(PERSONA_COLUMNS)
+    with closing(_connect()) as connection:
+        rows = connection.execute(
+            f"SELECT {columns} FROM personas ORDER BY name, persona_id"
+        ).fetchall()
+    return [dict(zip(PERSONA_COLUMNS, row)) for row in rows]
+
+
+def save_persona(persona: Persona) -> None:
+    """Insert or update a custom persona in the configured database."""
+    columns = ", ".join(PERSONA_COLUMNS)
+    placeholders = ", ".join("?" for _ in PERSONA_COLUMNS)
+    update_columns = ", ".join(
+        f"{column} = ?"
+        for column in PERSONA_COLUMNS
+        if column != "persona_id"
+    )
+    values = _persona_values(persona)
+    with closing(_connect()) as connection:
+        with connection:
+            existing = connection.execute(
+                "SELECT 1 FROM personas WHERE persona_id = ?",
+                (persona.persona_id,),
+            ).fetchone()
+            if existing:
+                connection.execute(
+                    f"UPDATE personas SET {update_columns} WHERE persona_id = ?",
+                    (*values[1:], persona.persona_id),
+                )
+            else:
+                connection.execute(
+                    f"""
+                    INSERT INTO personas ({columns})
+                    VALUES ({placeholders})
+                    """,
+                    values,
+                )
+
+
+def delete_persona_record(persona_id: str) -> None:
+    """Delete only the persisted custom persona record."""
+    with closing(_connect()) as connection:
+        with connection:
+            connection.execute(
+                "DELETE FROM personas WHERE persona_id = ?",
+                (persona_id,),
+            )
 
 
 def init_db() -> None:
@@ -67,6 +150,37 @@ def init_db() -> None:
                 CREATE TABLE IF NOT EXISTS chat_personas (
                     chat_id TEXT PRIMARY KEY,
                     persona_id TEXT NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS personas (
+                    persona_id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    age INTEGER NOT NULL,
+                    location TEXT NOT NULL,
+                    occupation TEXT NOT NULL,
+                    profile_description TEXT NOT NULL,
+                    response_style TEXT NOT NULL,
+                    scammer_adjustment_cues TEXT NOT NULL,
+                    research_mission TEXT NOT NULL,
+                    collection_priorities TEXT NOT NULL,
+                    system_prompt TEXT NOT NULL,
+                    stall_strategy TEXT NOT NULL,
+                    engagement_level TEXT NOT NULL,
+                    question_frequency TEXT NOT NULL,
+                    ioc_priority TEXT NOT NULL,
+                    ioc_types TEXT NOT NULL,
+                    boundary_strictness TEXT NOT NULL,
+                    response_length TEXT NOT NULL,
+                    escalation_behaviour TEXT NOT NULL,
+                    familiarity_level TEXT NOT NULL,
+                    scam_focus TEXT NOT NULL,
+                    scam_stage_focus TEXT NOT NULL,
+                    localisation TEXT NOT NULL,
+                    local_context TEXT NOT NULL,
+                    reference_conversation TEXT NOT NULL
                 )
                 """
             )
@@ -282,6 +396,17 @@ def assign_persona(chat_id: str, persona_id: str) -> None:
                 """,
                 (chat_id, persona_id),
             )
+
+
+def clear_persona_assignments(persona_id: str) -> int:
+    """Remove assignments to a deleted persona while preserving chat history."""
+    with closing(_connect()) as connection:
+        with connection:
+            cursor = connection.execute(
+                "DELETE FROM chat_personas WHERE persona_id = ?",
+                (persona_id,),
+            )
+            return max(cursor.rowcount, 0)
 
 
 def get_or_assign_persona(
@@ -827,6 +952,32 @@ def get_research_analytics() -> dict[str, Any]:
             for activity_date, incoming_messages, detected_scams in activity_rows
         ],
         "active_window_days": 30,
+    }
+
+
+def get_persona_overview(persona_id: str) -> dict[str, Any]:
+    """Return conversation-backed summary metrics for one persona."""
+    with closing(_connect()) as connection:
+        row = connection.execute(
+            """
+            SELECT
+                COUNT(DISTINCT conversations.chat_id),
+                COUNT(conversations.id),
+                AVG(CASE WHEN conversations.sender = 'bot' THEN conversations.pressure_level END),
+                MAX(conversations.timestamp)
+            FROM conversations
+            JOIN chat_personas ON chat_personas.chat_id = conversations.chat_id
+            WHERE chat_personas.persona_id = ?
+            """,
+            (persona_id,),
+        ).fetchone()
+    conversations, messages, pressure, last_activity = row or (0, 0, None, None)
+    return {
+        "persona_id": persona_id,
+        "conversation_count": int(conversations or 0),
+        "message_count": int(messages or 0),
+        "average_pressure": round(float(pressure), 2) if pressure is not None else None,
+        "last_activity": str(last_activity) if last_activity else None,
     }
 
 

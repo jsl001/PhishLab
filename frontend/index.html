@@ -333,6 +333,37 @@
     .lab-context-bar .persona-control label { margin: 0; color: #718079; font-size: 9px; letter-spacing: .08em; }
     .lab-context-bar .persona-control select { width: 132px; padding: 7px 8px; border-color: #cbded4; background: #fff; color: #28483d; font-size: 10px; }
     .lab-context-bar .persona-status { display: none; }
+    .persona-picker-control { position: relative; z-index: 20; }
+    .persona-picker-label { flex: none; }
+    .persona-picker-trigger { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 182px; padding: 8px 10px; border: 1px solid #cbded4; border-radius: 8px; background: #fff; color: #28483d; font-size: 10px; font-weight: 700; text-align: left; }
+    .persona-picker-trigger:hover { border-color: #87b4a3; background: #fbfdfc; }
+    .persona-picker-trigger:disabled { cursor: wait; opacity: .6; }
+    .persona-picker-chevron { color: #6f8b81; font-size: 13px; line-height: 1; }
+    .persona-picker-modal { position: fixed; z-index: 1100; inset: 0; display: grid; place-items: center; padding: 24px; background: #182a2eb8; backdrop-filter: blur(8px); }
+    .persona-picker-modal[hidden] { display: none !important; }
+    .persona-picker-dialog { width: min(720px, 100%); max-height: min(680px, calc(100vh - 48px)); padding: 22px; overflow: hidden; border: 1px solid #d7e3df; border-radius: 16px; background: #fffefd; box-shadow: 0 28px 80px #0d1c2052; }
+    .persona-picker-dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .persona-picker-kicker { color: #5e837a; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .persona-picker-dialog h2 { margin: 4px 0 5px; color: #294149; font-size: 20px; letter-spacing: -.025em; }
+    .persona-picker-dialog p { margin: 0; color: #718184; font-size: 11px; line-height: 1.45; }
+    .persona-picker-close { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #d4e2dc; border-radius: 8px; background: #f5f9f7; color: #55736c; font-size: 20px; line-height: 1; }
+    .persona-picker-close:hover { border-color: #a9cdbf; background: #eaf4ef; }
+    .persona-picker-search-wrap { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; padding: 0 10px; border: 1px solid #dbe7e1; border-radius: 8px; color: #759087; }
+    .persona-picker-search-wrap input { width: 100%; min-width: 0; padding: 8px 0; border: 0; outline: 0; background: transparent; color: #28483d; font-size: 11px; }
+    .persona-picker-search-wrap:focus-within { border-color: #86b5a2; box-shadow: 0 0 0 3px #dcefe6; }
+    .persona-picker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 470px; overflow-y: auto; gap: 8px; padding: 2px; scrollbar-gutter: stable; }
+    .persona-picker-option { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; min-height: 76px; padding: 11px; border: 1px solid #e0eae5; border-radius: 10px; background: #fbfcfb; color: #28483d; text-align: left; }
+    .persona-picker-option:hover, .persona-picker-option[aria-selected="true"] { border-color: #9fc7b7; background: #eef7f2; box-shadow: 0 3px 10px #315d5510; }
+    .persona-picker-avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #e2f0e9; color: #367765; font-size: 12px; font-weight: 800; }
+    .persona-picker-option-copy { min-width: 0; }
+    .persona-picker-option-name, .persona-picker-option-meta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .persona-picker-option-name { font-size: 12px; font-weight: 700; }
+    .persona-picker-option-meta { margin-top: 3px; color: #7a8c85; font-size: 10px; }
+    .persona-picker-empty { grid-column: 1 / -1; padding: 28px 10px; color: #7a8c85; font-size: 10px; text-align: center; }
+    .persona-danger-button { min-height: 34px; padding: 7px 10px; border: 1px solid #e3bdb5; border-radius: 7px; background: #fff8f6; color: #a45145; font-size: 10px; font-weight: 750; }
+    .persona-danger-button:hover { border-color: #c98578; background: #fff0ed; }
+    .persona-danger-button:disabled { cursor: wait; opacity: .6; }
+    @media (max-width: 620px) { .persona-picker-modal { padding: 14px; } .persona-picker-dialog { padding: 17px; } .persona-picker-grid { grid-template-columns: 1fr; max-height: calc(100vh - 200px); } }
     .conversation-head { min-height: 73px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); }
     .contact { display: flex; align-items: center; gap: 11px; min-width: 0; }
     .contact-copy { min-width: 0; }
@@ -914,6 +945,315 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
     }
+    .persona-studio-view { width: min(1180px, 100%); margin: 0 auto; padding: 30px 32px 42px; }
+    .persona-library-home { margin-top: 18px; }
+    .persona-library-home-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 14px; padding: 0 3px; }
+    .persona-library-home-head h2, .persona-library-home-head h3 { margin: 4px 0 3px; color: #294149; font-size: 24px; letter-spacing: -.03em; }
+    .persona-library-home-head p { max-width: 620px; margin: 0; color: #718184; font-size: 12px; line-height: 1.55; }
+    .persona-library-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .persona-library-card { display: grid; gap: 8px; min-height: 235px; padding: 18px; border: 1px solid #dce5e1; border-radius: 16px; background: #fffefd; box-shadow: 0 10px 26px #2d474d09; color: inherit; text-align: left; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+    .persona-library-card:hover { border-color: #a9cdbf; box-shadow: 0 14px 30px #2d625220; transform: translateY(-2px); }
+    .persona-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .persona-card-avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: #e4f1eb; color: #3d796b; font-size: 18px; font-weight: 800; }
+    .persona-card-badge { padding: 5px 8px; border-radius: 99px; background: #eef4f1; color: #638078; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .persona-card-name { color: #294149; font-size: 16px; }
+    .persona-card-role { color: #6e8180; font-size: 10px; }
+    .persona-card-description { color: #687b7c; font-size: 11px; line-height: 1.55; }
+    .persona-card-open { align-self: end; margin-top: 8px; color: #4f7f75; font-size: 11px; font-weight: 800; }
+    .persona-back-button { margin: 16px 0 2px; padding: 0; border: 0; background: transparent; color: #4f7f75; font-size: 11px; font-weight: 800; }
+    .persona-back-button:hover { color: #294149; }
+    .persona-create-modal[hidden] { display: none; }
+    .persona-create-modal { position: fixed; z-index: 1100; inset: 0; display: grid; place-items: center; padding: 20px; background: #182a2eb8; backdrop-filter: blur(10px); }
+    .persona-create-dialog { width: min(470px, 100%); padding: 28px; border: 1px solid #d7e3df; border-radius: 20px; background: #fffefd; box-shadow: 0 28px 80px #0d1c2052; }
+    .persona-create-icon { display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: 18px; border: 1px solid #b8d2c9; border-radius: 14px; background: #e3f1eb; color: #3d796b; font-size: 22px; }
+    .persona-create-dialog h2 { margin: 4px 0 8px; color: #294149; font-size: 24px; letter-spacing: -.03em; }
+    .persona-create-description { margin: 0 0 22px; color: #6d7e7f; font-size: 12px; line-height: 1.6; }
+    .persona-create-label { display: block; margin-bottom: 7px; color: #55736c; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .persona-create-input { width: 100%; padding: 12px; border: 1px solid #cbded6; border-radius: 10px; color: #294149; font: inherit; font-size: 13px; }
+    .persona-create-input:focus { outline: 3px solid #b9d8ce; outline-offset: 1px; border-color: #6b9c8d; }
+    .persona-create-error { min-height: 16px; margin: 10px 0 -8px; color: #a24d3d; font-size: 11px; }
+    .persona-create-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+    .persona-delete-modal[hidden] { display: none; }
+    .persona-delete-modal { position: fixed; z-index: 1100; inset: 0; display: grid; place-items: center; padding: 20px; background: #182a2eb8; backdrop-filter: blur(10px); }
+    .persona-delete-dialog { width: min(460px, 100%); padding: 26px; border: 1px solid #e1d9d5; border-radius: 18px; background: #fffefd; box-shadow: 0 28px 80px #0d1c2052; }
+    .persona-delete-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 16px; border: 1px solid #e3bdb5; border-radius: 12px; background: #fff0ed; color: #a45145; font-size: 20px; font-weight: 800; }
+    .persona-delete-dialog h2 { margin: 4px 0 8px; color: #294149; font-size: 22px; letter-spacing: -.03em; }
+    .persona-delete-description { margin: 0; color: #6d7e7f; font-size: 12px; line-height: 1.6; }
+    .persona-delete-note { display: grid; gap: 4px; margin-top: 17px; padding: 11px 12px; border: 1px solid #eadfda; border-radius: 9px; background: #fcf8f6; color: #765e58; font-size: 10px; line-height: 1.45; }
+    .persona-delete-note strong { color: #684d47; font-size: 10px; }
+    .persona-delete-error { min-height: 16px; margin: 10px 0 -8px; color: #a24d3d; font-size: 11px; }
+    .persona-delete-dialog .persona-create-actions { margin-top: 18px; }
+    /* Persona Studio workspace treatment */
+    .persona-studio-view { width: min(1320px, 100%); padding: 24px 34px 40px; background: #f7f9f8; }
+    .persona-library-home, .persona-detail-view { max-width: 1220px; margin: 0 auto; }
+    .persona-library-home-head { align-items: center; margin: 12px 0 22px; padding-bottom: 18px; border-bottom: 1px solid #dfe8e4; }
+    .persona-library-home-head h2 { font-size: 26px; font-weight: 700; }
+    .persona-library-home-head p { font-size: 12px; }
+    .persona-library-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .persona-library-card { min-height: 210px; padding: 16px; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px #20373c08; }
+    .persona-library-card:hover { transform: translateY(-1px); box-shadow: 0 5px 14px #20373c12; }
+    .persona-card-avatar { width: 36px; height: 36px; border-radius: 9px; font-size: 15px; }
+    .persona-card-name { font-size: 14px; }
+    .persona-card-description { font-size: 11px; }
+    .persona-back-button { margin: 4px 0 14px; }
+    .persona-studio-layout { grid-template-columns: 230px minmax(0, 1fr); gap: 14px; margin-top: 0; align-items: start; }
+    .persona-library, .persona-editor { border-radius: 10px; box-shadow: 0 2px 8px #20373c08; }
+    .persona-library { padding: 14px 10px 10px; }
+    .persona-library-head { padding: 0 5px 11px; }
+    .persona-library-head h3 { font-size: 14px; }
+    .persona-side-tab { padding: 10px 9px; border-radius: 7px; }
+    .persona-side-tab.active { box-shadow: inset 2px 0 #4f7f75; }
+    .persona-studio-toolbar { margin: 0 0 12px; padding: 12px 14px; border-radius: 10px; box-shadow: 0 2px 8px #20373c08; }
+    .persona-editor { padding: 20px; }
+    .persona-editor-heading { padding-bottom: 14px; }
+    .persona-editor-heading h3 { font-size: 16px; }
+    .persona-editor-grid { gap: 14px; padding-top: 16px; }
+    .persona-editor-grid label { font-size: 9px; }
+    .persona-studio-view input, .persona-studio-view textarea, .persona-studio-view select { border-radius: 7px; padding: 9px 10px; background: #fbfcfb; color: #344c50; font-family: inherit; font-size: 12px; font-weight: 450; line-height: 1.45; }
+    .persona-studio-view input::placeholder, .persona-studio-view textarea::placeholder { color: #9aa9a7; font-weight: 400; }
+    .persona-studio-view textarea { min-height: 92px; }
+    .persona-editor-footer { margin-top: 16px; padding-top: 13px; }
+    .persona-primary-button, .persona-secondary-button { min-height: 34px; padding: 8px 11px; border-radius: 7px; }
+    @media (max-width: 900px) { .persona-library-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .persona-studio-view { padding: 18px 14px 28px; } .persona-library-cards { grid-template-columns: 1fr; } }
+    .persona-studio-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 26px 30px; border: 1px solid #d7e6e0; border-radius: 18px; background: linear-gradient(120deg,#fffefd,#edf6f1 70%,#e4f0ed); box-shadow: 0 12px 30px #315d5510; }
+    .persona-studio-hero h2 { margin: 0; color: #294149; font-size: 28px; letter-spacing: -.04em; }
+    .persona-studio-hero p:not(.overview-kicker) { max-width: 680px; margin: 8px 0 0; color: #687b7c; font-size: 13px; line-height: 1.6; }
+    .persona-studio-hero-mark { display: grid; place-items: center; width: 62px; height: 62px; border: 1px solid #b8d2c9; border-radius: 18px; background: #dceee7; color: #3d796b; font-size: 30px; }
+    .persona-studio-toolbar { display: flex; align-items: end; gap: 14px; margin: 16px 0 12px; padding: 14px 16px; border: 1px solid #dce7e3; border-radius: 13px; background: #fffefd; box-shadow: 0 6px 20px #315d5508; }
+    .persona-studio-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+    .persona-library { align-self: start; padding: 16px 12px 12px; border: 1px solid #dce5e1; border-radius: 16px; background: #fffefd; box-shadow: 0 10px 28px #2d474d09; }
+    .persona-library-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 5px 13px; border-bottom: 1px solid #e6eeea; }
+    .persona-library-head h3 { margin: 3px 0 0; color: #294149; font-size: 15px; }
+    .persona-library-add { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #bcd6cd; border-radius: 9px; background: #eaf5f0; color: #3d796b; font-size: 21px; line-height: 1; }
+    .persona-side-tabs { display: grid; gap: 5px; padding-top: 10px; }
+    .persona-side-tab { display: grid; gap: 4px; width: 100%; padding: 11px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #49605f; text-align: left; }
+    .persona-side-tab:hover { border-color: #d5e5df; background: #f4f9f6; }
+    .persona-side-tab.active { border-color: #b9d7cc; background: #eaf4ef; box-shadow: inset 3px 0 #4f7f75; }
+    .persona-side-tab-name { color: #294149; font-size: 12px; font-weight: 750; }
+    .persona-side-tab-meta { color: #7b8d8b; font-size: 10px; }
+    .persona-editor-column { min-width: 0; }
+    .persona-picker { display: grid; gap: 6px; min-width: 230px; color: #647675; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .persona-studio-view select, .persona-studio-view input, .persona-studio-view textarea { width: 100%; border: 1px solid #d2e0dc; border-radius: 9px; background: #fff; color: #294149; padding: 10px 11px; font: inherit; font-size: 12px; }
+    .persona-studio-view textarea { resize: vertical; line-height: 1.5; }
+    .persona-studio-view input:disabled, .persona-studio-view textarea:disabled { background: #f1f5f3; color: #84918e; cursor: not-allowed; }
+    .persona-mode-status { flex: 1; padding-bottom: 10px; color: #55736c; font-size: 11px; }
+    .persona-studio-actions, .persona-editor-footer > div { display: flex; gap: 8px; }
+    .persona-primary-button, .persona-secondary-button { min-height: 38px; padding: 9px 13px; border-radius: 9px; font-size: 11px; font-weight: 750; }
+    .persona-primary-button { border: 1px solid var(--green); background: var(--green); color: #fff; box-shadow: 0 5px 14px #466f6620; }
+    .persona-primary-button:hover { background: var(--green-strong); }
+    .persona-secondary-button { border: 1px solid #c9ddd5; background: #f1f7f4; color: #416d63; }
+    .persona-secondary-button:hover { background: #e5f1ec; }
+    .persona-editor { padding: 22px; border: 1px solid #dce5e1; border-radius: 16px; background: #fffefd; box-shadow: 0 12px 34px #2d474d0b; }
+    .persona-editor-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid #e6eeea; }
+    .persona-editor-heading h3 { margin: 3px 0 0; color: #294149; font-size: 17px; }
+    .persona-editor-kicker { color: #5e837a; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .persona-editor-help { color: #849391; font-size: 10px; }
+    .persona-editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 18px; }
+    .persona-strategy-summary { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; padding: 12px 14px; border: 1px solid #cfe3da; border-radius: 9px; background: #f0f7f3; color: #416d63; }
+    .persona-strategy-summary-icon { display: grid; place-items: center; width: 24px; height: 24px; flex: none; border-radius: 7px; background: #d6ebe2; color: #3d796b; font-weight: 800; }
+    .persona-strategy-summary strong { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .persona-strategy-summary p { margin: 3px 0 0; color: #607873; font-size: 11px; line-height: 1.4; }
+    .persona-editor-tabs { display: flex; gap: 4px; margin-top: 16px; padding: 4px; border-bottom: 1px solid #dfe8e4; background: #f4f7f5; }
+    .persona-editor-tab { padding: 9px 13px; border: 0; border-radius: 6px 6px 0 0; background: transparent; color: #71817f; font-size: 11px; font-weight: 700; }
+    .persona-editor-tab:hover { color: #315f55; background: #eaf3ee; }
+    .persona-editor-tab.active { background: #fff; color: #315f55; box-shadow: 0 -2px #4f7f75; }
+    /* Compact research-console layout */
+    .persona-studio-view { height: calc(100vh - 76px); min-height: 560px; overflow: hidden; padding: 5px 28px 16px; }
+    .persona-detail-view { height: 100%; }
+    .persona-back-button { height: 18px; margin: 0; line-height: 18px; }
+    .persona-studio-layout { height: calc(100% - 18px); grid-template-columns: 224px minmax(0, 1fr); gap: 12px; align-items: stretch; }
+    .persona-library { height: 100%; margin-top: 0; overflow-y: auto; }
+    .persona-editor-column { display: flex; height: 100%; min-height: 0; flex-direction: column; overflow: hidden; }
+    .persona-studio-toolbar { flex: none; margin: 0 0 8px !important; }
+    .persona-editor { min-height: 0; flex: 1; overflow-x: hidden; overflow-y: auto; padding: 16px 18px 18px; scrollbar-gutter: stable; }
+    .persona-editor-heading { position: sticky; z-index: 2; top: -16px; margin: -16px -18px 0; padding: 15px 18px 12px; background: #fffefd; }
+    .persona-strategy-summary { align-items: center; margin-top: 12px; padding: 10px 12px; }
+    .persona-summary-copy { min-width: 0; flex: 1; }
+    .persona-strategy-summary p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .persona-strategy-meters { display: flex; gap: 9px; flex: none; }
+    .persona-strategy-meters span { display: grid; gap: 3px; width: 48px; }
+    .persona-strategy-meters i { display: block; height: 4px; border-radius: 99px; background: linear-gradient(90deg,#4f7f75 78%,#d9e8e2 78%); }
+    .persona-strategy-meters span:nth-child(2) i { background: linear-gradient(90deg,#6b9c8d 62%,#d9e8e2 62%); }
+    .persona-strategy-meters span:nth-child(3) i { background: linear-gradient(90deg,#3d796b 88%,#d9e8e2 88%); }
+    .persona-strategy-meters b { color: #879795; font-size: 8px; font-weight: 700; text-align: center; }
+    .persona-editor-tabs { position: sticky; z-index: 3; top: 57px; display: flex; flex-wrap: nowrap; max-width: 100%; overflow-x: auto; margin: 12px -18px 0; padding: 4px 18px; background: #fffefd; scrollbar-width: thin; }
+    .persona-editor-tab { flex: 0 0 auto; white-space: nowrap; }
+    /* Keep the section switcher in normal flow so it cannot cover fields while the editor scrolls. */
+    .persona-editor-heading { position: relative; top: auto; margin: 0; padding: 0 0 12px; }
+    .persona-editor-tabs { position: relative; z-index: 1; top: auto; margin: 0; padding: 4px; border: 1px solid #dfe8e4; border-radius: 8px; background: #f4f7f5; }
+    .persona-editor-heading > div:first-child { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+    .persona-editor-heading-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+    .persona-editor-heading-actions .persona-secondary-button { flex: none; min-height: 32px; padding: 7px 11px; }
+    .persona-editor-heading .persona-mode-status { flex: none; padding: 0; color: #55736c; font-size: 10px; font-weight: 600; }
+    /* Match the Conversation Lab workspace rhythm. */
+    .persona-studio-view { width: 100%; max-width: none; height: auto; min-height: 0; overflow: visible; padding: 0; }
+    .persona-detail-view { max-width: none; height: auto; }
+    .persona-back-button { display: block; width: min(1440px, 100%); height: 18px; margin: 10px auto 0; padding: 0 32px; box-sizing: border-box; text-align: left; }
+    .persona-studio-layout { width: 100%; max-width: 1440px; height: min(650px, calc(100vh - 285px)); min-height: 520px; margin: 0 auto; padding: 14px 32px 24px; box-sizing: border-box; grid-template-columns: 274px minmax(0, 1fr); gap: 15px; }
+    .persona-library, .persona-editor-column { height: 100%; min-height: 0; }
+    .persona-editor-column { overflow: hidden; }
+    .persona-editor { height: auto; }
+    .persona-save-bar { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: none; min-height: 45px; padding-top: 8px; color: #55736c; font-size: 11px; }
+    .persona-save-bar #persona-editor-status { margin-right: auto; }
+    .persona-bottom-workbench { width: min(1440px, 100%); margin: 0 auto; padding: 0 32px 18px; box-sizing: border-box; }
+    .persona-workbench-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 58px; padding: 10px 16px; border: 1px solid #cfe1d9; border-radius: 10px; background: #eaf4ef; color: #315f55; text-align: left; }
+    .persona-workbench-toggle strong { display: block; margin-top: 2px; font-size: 14px; }
+    .persona-workbench-chevron { font-size: 18px; transition: transform .2s ease; }
+    .persona-workbench-toggle.expanded .persona-workbench-chevron { transform: rotate(180deg); }
+    .persona-workbench-content { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr); gap: 12px; margin-top: 8px; padding: 12px; border: 1px solid #dce7e3; border-radius: 10px; background: #fffefd; }
+    .persona-workbench-content[hidden] { display: none; }
+    .persona-workbench-content .persona-quick-test { margin-top: 0; }
+    .persona-strategy-map { display: grid; align-content: center; gap: 14px; padding: 15px; border: 1px solid #e0eae5; border-radius: 9px; background: #f7faf8; }
+    .persona-strategy-map h4 { margin: 3px 0 0; color: #294149; font-size: 14px; }
+    .persona-strategy-map-track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .persona-strategy-map-track span { display: grid; gap: 5px; }
+    .persona-strategy-map-track i { height: 42px; border-radius: 6px; background: linear-gradient(180deg,#7fae9e,#d8e9e2); }
+    .persona-strategy-map-track span:nth-child(2) i { height: 30px; align-self: end; background: linear-gradient(180deg,#a7c9bd,#e0eee9); }
+    .persona-strategy-map-track span:nth-child(3) i { height: 48px; background: linear-gradient(180deg,#5d9281,#c9e0d7); }
+    .persona-strategy-map-track span:nth-child(4) i { height: 36px; align-self: end; background: linear-gradient(180deg,#8eb5a8,#dbeae5); }
+    .persona-strategy-map-track b { color: #718582; font-size: 9px; text-align: center; }
+    .persona-test-view { min-width: 0; padding: 24px 32px; }
+    .persona-test-page-head, .persona-test-workspace, .persona-test-strategy-map { width: min(1200px, 100%); margin: 0 auto; }
+    .persona-test-page-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid #dfe8e4; }
+    .persona-test-page-head h2 { margin: 4px 0 6px; color: #294149; font-size: 25px; letter-spacing: -.03em; }
+    .persona-test-page-head p { max-width: 650px; margin: 0; color: #718184; font-size: 12px; line-height: 1.55; }
+    .persona-test-page-head label { display: grid; gap: 6px; min-width: 220px; color: #647675; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .persona-test-page-head select { padding: 10px; border: 1px solid #cbded6; border-radius: 8px; background: #fff; color: #344c50; font: inherit; font-size: 12px; font-weight: 500; }
+    .persona-test-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 15px; margin-top: 16px; }
+    .persona-test-console, .persona-test-insights, .persona-test-strategy-map { border: 1px solid #dce5e1; border-radius: 12px; background: #fffefd; box-shadow: 0 5px 16px #20373c08; }
+    .persona-test-console { padding: 18px; }
+    .persona-test-console-head { display: flex; justify-content: space-between; gap: 12px; }
+    .persona-test-console h3, .persona-test-insights h3 { margin: 3px 0 12px; color: #294149; font-size: 16px; }
+    .persona-test-console textarea { width: 100%; min-height: 110px; padding: 12px; border: 1px solid #d2e0dc; border-radius: 8px; color: #344c50; font: inherit; font-size: 13px; font-weight: 450; resize: vertical; }
+    .persona-test-console-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; color: #8a9996; font-size: 10px; }
+    .persona-test-insights { padding: 18px; }
+    .persona-test-insights > p { margin: 0 0 18px; color: #718184; font-size: 11px; line-height: 1.5; }
+    .persona-test-metric { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid #e6eeea; color: #7a8b89; font-size: 10px; }
+    .persona-test-metric strong { color: #416d63; font-size: 11px; font-weight: 750; }
+    .persona-test-strategy-map { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 15px; padding: 18px; }
+    .persona-test-strategy-map h3 { margin: 3px 0 0; color: #294149; font-size: 15px; }
+    .persona-test-strategy-map .persona-strategy-map-track { min-width: 360px; flex: 1; }
+    .persona-overview-panel { width: min(1200px, 100%); margin: 0 auto; padding: 18px 20px; border: 1px solid #dce5e1; border-radius: 12px; background: #fffefd; box-shadow: 0 5px 16px #20373c08; }
+    .persona-overview-panel[hidden] { display: none; }
+    .persona-editor-workspace[hidden] { display: none !important; }
+    .persona-detail-view.overview-mode #persona-editor-workspace { display: none !important; }
+    .persona-detail-view.editor-mode #persona-overview-panel { display: none !important; }
+    .persona-overview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 15px; border-bottom: 1px solid #e4ece8; }
+    .persona-overview-head h2 { margin: 3px 0 5px; color: #294149; font-size: 24px; letter-spacing: -.03em; }
+    .persona-overview-head p { max-width: 680px; margin: 0; color: #718184; font-size: 12px; line-height: 1.5; }
+    .persona-overview-actions { display: flex; align-items: center; gap: 12px; }
+    .persona-overview-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+    .persona-overview-metrics > div { padding: 11px 12px; border: 1px solid #e5ece8; border-radius: 8px; background: #f8faf9; }
+    .persona-overview-metrics span { display: block; color: #7c8c89; font-size: 9px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+    .persona-overview-metrics strong { display: block; margin-top: 5px; color: #315f55; font-size: 18px; }
+    .persona-overview-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 10px; margin-top: 10px; }
+    .persona-overview-card { padding: 14px; border: 1px solid #e5ece8; border-radius: 8px; background: #fbfcfb; }
+    .persona-overview-card h3 { margin: 4px 0; color: #294149; font-size: 14px; }
+    .persona-overview-card p { margin: 0; color: #718184; font-size: 11px; line-height: 1.45; }
+    .persona-overview-bars { display: flex; gap: 5px; margin-top: 13px; }
+    .persona-overview-bars i { height: 5px; flex: 1; border-radius: 99px; background: #79a999; }
+    .persona-overview-bars i:nth-child(2) { background: #a8cabe; }
+    .persona-overview-bars i:nth-child(3) { background: #4f7f75; }
+    .persona-overview-test-row { display: flex; gap: 8px; margin-top: 10px; }
+    .persona-overview-test-row input { min-width: 0; flex: 1; padding: 9px 10px; border: 1px solid #d2e0dc; border-radius: 7px; color: #344c50; font: inherit; font-size: 11px; }
+    .persona-overview-quick-test > p { min-height: 16px; margin-top: 8px; color: #55736c; }
+    .persona-playbook { margin-top: 10px; padding-top: 14px; border-top: 1px solid #e4ece8; }
+    .persona-playbook-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .persona-playbook-head h3 { margin: 3px 0 0; color: #294149; font-size: 15px; }
+    .persona-playbook-head > span { color: #8a9996; font-size: 9px; }
+    .persona-playbook-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .persona-playbook-grid article { display: flex; gap: 9px; padding: 11px; border: 1px solid #e5ece8; border-radius: 8px; background: #fbfcfb; }
+    .playbook-icon { display: grid; place-items: center; width: 24px; height: 24px; flex: none; border-radius: 7px; background: #e0eee8; color: #477f70; font-size: 12px; font-weight: 800; }
+    .persona-playbook-grid strong { color: #416d63; font-size: 11px; }
+    .persona-playbook-grid p { margin: 3px 0 0; color: #718184; font-size: 10px; line-height: 1.45; }
+    .persona-stage-map { margin-top: 12px; padding-top: 14px; border-top: 1px solid #e4ece8; }
+    .persona-stage-track { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-top: 10px; }
+    .persona-stage-track article { position: relative; min-height: 92px; padding: 10px; border: 1px solid #e3ebe7; border-radius: 8px; background: #f8faf9; }
+    .persona-stage-track article:not(:last-child)::after { content: "→"; position: absolute; z-index: 1; top: 36px; right: -10px; color: #9ab4aa; font-size: 13px; }
+    .persona-stage-track b { color: #6f9b8d; font-size: 9px; letter-spacing: .08em; }
+    .persona-stage-track strong { display: block; margin-top: 5px; color: #315f55; font-size: 10px; }
+    .persona-stage-track p { margin: 4px 0 0; color: #718184; font-size: 9px; line-height: 1.35; }
+    .persona-ai-summary { max-width: 450px; color: #718184; font-size: 10px; line-height: 1.45; text-align: right; }
+    @media (max-width: 900px) { .persona-stage-track { grid-template-columns: repeat(2, minmax(0, 1fr)); } .persona-stage-track article:nth-child(even)::after { display: none; } .persona-ai-summary { max-width: 320px; } }
+    @media (max-width: 760px) { .persona-stage-track { grid-template-columns: 1fr; } .persona-stage-track article::after { display: none !important; } .persona-ai-summary { max-width: none; text-align: left; } }
+    @media (max-width: 760px) { .persona-overview-head, .persona-overview-actions { align-items: flex-start; flex-direction: column; } .persona-overview-metrics { grid-template-columns: repeat(2, 1fr); } .persona-overview-grid, .persona-playbook-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .persona-test-view { padding: 18px 14px; } .persona-test-page-head, .persona-test-strategy-map { align-items: flex-start; flex-direction: column; } .persona-test-page-head label, .persona-test-workspace { width: 100%; min-width: 0; } .persona-test-workspace { grid-template-columns: 1fr; } .persona-test-strategy-map .persona-strategy-map-track { width: 100%; min-width: 0; } }
+    @media (max-width: 760px) { .persona-bottom-workbench { padding: 0 12px 16px; } .persona-workbench-content { grid-template-columns: 1fr; } .persona-save-bar { flex-wrap: wrap; } }
+    .persona-editor-grid { gap: 10px; padding-top: 13px; }
+    .persona-editor-grid .editor-panel[hidden] { display: none !important; }
+    .persona-control-section-title:not(:first-child) { margin-top: 7px; padding-top: 11px; }
+    .persona-editor-grid label { gap: 5px; padding: 9px 10px; }
+    .persona-studio-view input, .persona-studio-view textarea, .persona-studio-view select { padding: 8px 9px; }
+    .persona-studio-view textarea { min-height: 76px; }
+    .persona-quick-test { margin-top: 12px; padding: 12px; }
+    .persona-editor-footer { margin-top: 12px; padding-top: 10px; }
+    @media (max-width: 760px) { .persona-studio-view { height: auto; min-height: calc(100vh - 76px); overflow: visible; padding: 14px 12px 20px; } .persona-detail-view, .persona-studio-layout { height: auto; } .persona-editor { overflow: visible; } .persona-editor-heading, .persona-editor-tabs { position: static; } .persona-strategy-meters { display: none; } }
+    .persona-editor-grid label { display: grid; gap: 7px; color: #647675; font-size: 10px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
+    .persona-editor-grid label { padding: 12px; border: 1px solid #e1e9e5; border-radius: 9px; background: #fbfcfb; }
+    .persona-editor-grid label:focus-within { border-color: #9ec5b6; background: #fff; box-shadow: 0 0 0 3px #d9ebe3; }
+    .persona-control-section-title { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 9px; margin-top: 5px; padding-bottom: 2px; color: #315f55; font-size: 11px; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .persona-control-section-title:not(:first-child) { margin-top: 12px; padding-top: 16px; border-top: 1px solid #e3ebe7; }
+    .persona-control-section-title span { color: #879795; font-size: 10px; font-weight: 500; letter-spacing: normal; text-transform: none; }
+    .persona-editor-grid input, .persona-editor-grid textarea { text-transform: none; letter-spacing: normal; }
+    .persona-context-wide, .persona-reference-field { grid-column: 1 / -1; }
+    .examples-panel { display: none !important; }
+    .persona-control-pair { grid-column: 1 / -1; padding: 11px; border: 1px solid #e1e9e5; border-radius: 9px; background: #f8fbf9; }
+    .persona-pair-title { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; color: #315f55; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .persona-pair-title span { color: #879795; font-size: 10px; font-weight: 500; letter-spacing: normal; text-transform: none; }
+    .persona-pair-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .persona-pair-grid .persona-range-field { padding: 10px; border: 1px solid #e1e9e5; border-radius: 8px; background: #fff; }
+    .persona-editor-grid > label, .persona-pair-grid > label { color: #5e716e; font-size: 10px; font-weight: 500; letter-spacing: .02em; text-transform: none; }
+    .persona-editor-grid > label input, .persona-editor-grid > label select, .persona-editor-grid > label textarea { margin-top: 2px; }
+    .persona-reference-field { align-content: start; }
+    .persona-field-note { color: #7b8b89; font-size: 9px; font-weight: 500; letter-spacing: normal; line-height: 1.4; text-transform: none; }
+    .persona-reference-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #71817f; font-size: 10px; font-weight: 500; letter-spacing: normal; text-transform: none; }
+    .persona-reference-tools input[type="file"] { max-width: 220px; padding: 3px; border: 0; background: transparent; font-size: 10px; }
+    .persona-reference-tools .persona-secondary-button { padding: 6px 9px; font-size: 10px; }
+    .persona-reference-tools span { color: #55736c; }
+    .persona-range-field { min-width: 0; }
+    .persona-range-row { display: flex; align-items: center; gap: 10px; }
+    .persona-range-row input[type="range"] { min-width: 0; height: 6px; flex: 1; padding: 0; border: 0; border-radius: 99px; accent-color: #4f7f75; background: #d8e9e2; cursor: pointer; }
+    .persona-range-row input[type="range"]:disabled { opacity: .65; cursor: not-allowed; }
+    .persona-range-row output { min-width: 142px; color: #416d63; font-size: 10px; font-weight: 700; letter-spacing: normal; line-height: 1.35; text-align: right; text-transform: none; }
+    @media (max-width: 760px) { .persona-pair-grid { grid-template-columns: 1fr; } .persona-pair-title { align-items: flex-start; flex-direction: column; gap: 2px; } .persona-range-row output { min-width: 126px; } }
+    .persona-quick-test { margin-top: 18px; padding: 15px; border: 1px solid #dce7e3; border-radius: 10px; background: #f8fbf9; }
+    .persona-quick-test-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .persona-quick-test-head h4 { margin: 3px 0 2px; color: #294149; font-size: 14px; }
+    .persona-quick-test-head p { margin: 0; color: #7b8b89; font-size: 10px; }
+    .persona-quick-test-status { color: #55736c; font-size: 10px; }
+    .persona-quick-test-row { display: flex; align-items: end; gap: 9px; margin-top: 11px; }
+    .persona-quick-test-row textarea { min-height: 58px; flex: 1; background: #fff; }
+    .persona-test-result { margin-top: 10px; padding: 11px 12px; border-left: 3px solid #5a887e; border-radius: 6px; background: #fff; color: #38565a; font-size: 12px; line-height: 1.5; }
+    .persona-prompt-field { grid-column: 1 / -1; }
+    @media (min-width: 1050px) { .persona-editor-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .persona-control-name { grid-column: span 3; } .persona-control-strategy, .persona-control-ioc, .persona-ioc-types { grid-column: span 2; } .persona-prompt-field { grid-column: span 3; } }
+    .persona-editor-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e6eeea; color: #55736c; font-size: 11px; }
+    @media (max-width: 900px) { .persona-library-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .persona-studio-view { padding: 18px 14px 28px; } .persona-studio-hero { padding: 22px; } .persona-studio-hero-mark { display: none; } .persona-library-home-head { align-items: flex-start; flex-direction: column; } .persona-library-cards { grid-template-columns: 1fr; } .persona-studio-layout { grid-template-columns: 1fr; } .persona-library { order: 0; } .persona-side-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .persona-studio-toolbar { align-items: stretch; flex-direction: column; } .persona-picker { min-width: 0; } .persona-mode-status { padding: 0; } .persona-studio-actions { justify-content: flex-end; } .persona-editor-grid { grid-template-columns: 1fr; } .persona-prompt-field { grid-column: auto; } .persona-editor-heading, .persona-editor-footer { align-items: flex-start; flex-direction: column; } }
+    /* Application viewport: keep the document fixed and give each workspace its own content pane. */
+    html, body { height: 100%; overflow: hidden; }
+    body { min-height: 0; }
+    .app { height: 100dvh; min-height: 0; overflow: hidden; }
+    .sidebar { height: 100%; min-height: 0; overflow-y: auto; }
+    main { height: 100%; min-height: 0; overflow: hidden; }
+    .page-view:not([hidden]) { flex: 1 1 auto; min-height: 0; }
+    .dashboard-view, .overview-view, .persona-test-view { min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+    .lab-view { height: auto; min-height: 0; }
+    /* Persona Studio uses the full area below the top bar; only the inner work panes scroll. */
+    .persona-studio-view { height: auto; min-height: 0; flex: 1 1 auto; overflow: hidden; padding: 0 0 16px; }
+    .persona-detail-view { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+    .persona-detail-view[hidden], .persona-library-home[hidden] { display: none !important; }
+    .persona-back-button { flex: none; height: 22px; margin: 8px auto 4px; }
+    .persona-overview-panel { width: min(1440px, calc(100% - 64px)); max-height: none; flex: 1 1 auto; min-height: 0; margin: 0 auto 24px; padding-bottom: 32px; overflow-y: auto; scrollbar-gutter: stable; }
+    .persona-studio-layout { flex: 1 1 auto; height: auto; min-height: 0; margin-top: 0; padding-top: 10px; align-items: stretch; }
+    .persona-library { align-self: stretch; }
+    .persona-editor { height: auto; }
+    @media (max-width: 760px) {
+      .app { grid-template-rows: auto minmax(0, 1fr); }
+      .sidebar { height: auto; max-height: 64px; overflow-x: auto; overflow-y: hidden; }
+      .persona-overview-panel { width: calc(100% - 28px); margin-bottom: 18px; }
+      .persona-studio-layout { padding: 10px 14px 18px; }
+    }
   </style>
 </head>
 <body>
@@ -933,13 +1273,26 @@
         <button class="nav-item page-tab" id="lab-tab" type="button" aria-current="false" data-page="lab-view">
           <span class="nav-icon" aria-hidden="true">◉</span> Conversation Lab
         </button>
+        <button class="nav-item page-tab" id="personas-tab" type="button" aria-current="false" data-page="personas-view">
+          <span class="nav-icon" aria-hidden="true">✦</span> Persona Studio
+        </button>
         <button class="nav-item page-tab" id="about-tab" type="button" aria-current="false" data-page="faq-view">
           <span class="nav-icon" aria-hidden="true">?</span> FAQ &amp; Safeguards
         </button>
       </div>
-      <div class="persona-control">
-        <label for="persona-select">Active persona</label>
-        <select id="persona-select" aria-describedby="persona-status">
+      <div class="persona-control persona-picker-control">
+        <label class="persona-picker-label" for="persona-picker-trigger">Active persona</label>
+        <button class="persona-picker-trigger" id="persona-picker-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="persona-picker-modal">
+          <span id="persona-picker-current">Choose a persona</span><span class="persona-picker-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="persona-picker-modal" id="persona-picker-modal" hidden>
+          <div class="persona-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="persona-picker-title">
+            <div class="persona-picker-dialog-head"><div><span class="persona-picker-kicker">Conversation Lab</span><h2 id="persona-picker-title">Choose an active persona</h2><p>Open a persona profile to use for this research thread.</p></div><button class="persona-picker-close" id="persona-picker-close" type="button" aria-label="Close persona selection">×</button></div>
+            <div class="persona-picker-search-wrap"><span aria-hidden="true">⌕</span><input id="persona-picker-search" type="search" placeholder="Search personas" autocomplete="off" aria-label="Search personas"></div>
+            <div class="persona-picker-grid" id="persona-picker-grid" role="listbox" aria-label="Available personas"></div>
+          </div>
+        </div>
+        <select id="persona-select" hidden aria-hidden="true" aria-describedby="persona-status">
           <option value="lynn">Lynn</option>
           <option value="wei_ming">Wei Ming</option>
           <option value="siti">Siti</option>
@@ -1208,6 +1561,7 @@
           <div class="lab-progress-step"><span>4</span><strong>Review outcome</strong></div>
         </div>
       </section>
+
       <section class="pitch-hero" aria-label="PhishLab introduction">
         <div class="hero-copy">
           <div class="hero-badge"><span class="hero-badge-dot" aria-hidden="true"></span> Local demo · no WhatsApp connection</div>
@@ -1430,6 +1784,67 @@
         </div>
       </div>
       </section>
+      <section class="page-view persona-studio-view" id="personas-view" aria-labelledby="personas-title" hidden>
+        <div class="persona-library-home" id="persona-library-home">
+          <div class="persona-library-home-head"><div><span class="overview-kicker">Persona Studio</span><h2 id="personas-title">Persona library</h2><p>Choose a template to inspect or open a custom design to adjust its behaviour.</p></div><button class="persona-primary-button" id="persona-new-library-button" type="button">＋ New custom persona</button></div>
+          <div class="persona-library-cards" id="persona-library-cards"></div>
+        </div>
+        <div class="persona-detail-view" id="persona-detail-view" hidden>
+          <button class="persona-back-button" id="persona-back-button" type="button">← Back to persona library</button>
+          <section class="persona-overview-panel" id="persona-overview-panel" aria-labelledby="persona-overview-title">
+            <div class="persona-overview-head"><div><h2 id="persona-overview-title">Selected persona</h2><p id="persona-overview-description">Conversation history and strategy signals for this persona.</p></div><div class="persona-overview-actions"><span class="persona-mode-status" id="persona-overview-mode"></span><button class="persona-danger-button persona-delete-button" id="persona-delete-overview-button" type="button" hidden>Delete persona</button><button class="persona-primary-button" id="persona-open-editor" type="button">Edit persona</button></div></div>
+            <div class="persona-overview-metrics"><div><span>Conversations</span><strong id="persona-stat-conversations">—</strong></div><div><span>Messages analysed</span><strong id="persona-stat-messages">—</strong></div><div><span>Average pressure</span><strong id="persona-stat-pressure">—</strong></div><div><span>Last activity</span><strong id="persona-stat-last-active">—</strong></div></div>
+            <div class="persona-overview-grid"><div class="persona-overview-card"><h3 id="persona-overview-strategy">Balanced stalling</h3><p id="persona-overview-strategy-copy">Moderate engagement with high-priority IOC capture.</p><div class="persona-overview-bars"><i></i><i></i><i></i></div></div><div class="persona-overview-card persona-overview-quick-test"><div><h3>Try this persona</h3></div><div class="persona-overview-test-row"><input id="persona-overview-test-message" type="text" placeholder="Enter a fictional incoming message"><button class="persona-secondary-button" id="persona-overview-test-button" type="button">Run test</button></div><p id="persona-overview-test-result" role="status" aria-live="polite">Results will appear here and will not be saved.</p></div></div>
+            <div class="persona-playbook"><div class="persona-playbook-head"><div><h3>Scam response playbook</h3></div><span>Strategy preview · not a prediction of real behaviour</span></div><div class="persona-playbook-grid"><article><span class="playbook-icon">↗</span><div><strong>Investment pressure</strong><p>Stalls, asks a clarifying question, and watches for group names, links, and payment instructions.</p></div></article><article><span class="playbook-icon">!</span><div><strong>Authority impersonation</strong><p>Slows down the exchange and prefers independent verification over urgent compliance.</p></div></article><article><span class="playbook-icon">⌁</span><div><strong>Parcel or fee lure</strong><p>Maintains the conversation without paying and captures voluntarily shared delivery references.</p></div></article></div></div>
+            <div class="persona-stage-map"><div class="persona-playbook-head"><div><h3>Four-stage conversation model</h3></div><span id="persona-ai-summary">Strategy interpretation will appear here.</span></div><div class="persona-stage-track"><article><b>01</b><strong>Contact</strong><p>Responds naturally and avoids early commitments.</p></article><article><b>02</b><strong>Rapport</strong><p>Keeps the exchange human while remembering context.</p></article><article><b>03</b><strong>Shift</strong><p>Notices movement toward money, links, secrecy, or urgency.</p></article><article><b>04</b><strong>Request</strong><p>Slows down, captures voluntary indicators, and protects boundaries.</p></article></div></div>
+          </section>
+          <div class="persona-studio-layout" id="persona-editor-workspace" hidden>
+          <aside class="persona-library" aria-label="Persona library">
+            <div class="persona-library-head"><div><span class="persona-editor-kicker">Library</span><h3>Persona designs</h3></div><button class="persona-library-add" id="persona-new-button" type="button" aria-label="Create custom persona">+</button></div>
+            <div class="persona-side-tabs" id="persona-side-tabs"></div>
+          </aside>
+            <div class="persona-editor-column">
+            <select id="persona-studio-select" hidden aria-hidden="true"></select>
+            <form id="persona-editor-form" class="persona-editor">
+          <div class="persona-editor-heading"><div><span class="persona-editor-kicker">Research controls</span><span class="persona-mode-status" id="persona-mode-status"></span></div><div class="persona-editor-heading-actions"><span class="persona-editor-help">Set parameters that shape stalling, engagement, and IOC collection.</span><button class="persona-danger-button persona-delete-button" id="persona-delete-editor-button" type="button" hidden>Delete persona</button><button class="persona-secondary-button" id="persona-duplicate-button" type="button">Duplicate</button></div></div>
+          <nav class="persona-editor-tabs" aria-label="Persona settings sections"><button class="persona-editor-tab active" type="button" data-editor-tab="strategy">Strategy</button><button class="persona-editor-tab" type="button" data-editor-tab="profile">Persona profile</button><button class="persona-editor-tab" type="button" data-editor-tab="context">Scam context</button><button class="persona-editor-tab" type="button" data-editor-tab="evidence">Evidence &amp; safety</button></nav>
+          <div class="persona-editor-grid">
+            <div class="persona-control-section-title editor-panel strategy-panel">Conversation strategy<span>How the persona keeps the exchange going</span></div>
+            <label class="persona-control-name editor-panel strategy-panel">Persona name<input id="persona-edit-name" type="text" maxlength="100"></label>
+            <div class="persona-control-pair editor-panel strategy-panel"><div class="persona-pair-title">Conversation pacing<span>Balance time, rapport, and safe curiosity.</span></div><div class="persona-pair-grid"><label class="persona-range-field">Stalling patience<div class="persona-range-row"><input id="persona-edit-stall_strategy" type="range" min="1" max="5" step="1"><output id="persona-edit-stall_strategy-value">Balanced · time + evidence</output></div><span class="persona-field-note">How deliberately it slows the conversation before responding.</span></label><label class="persona-range-field">Interaction intensity<div class="persona-range-row"><input id="persona-edit-engagement_level" type="range" min="1" max="5" step="1"><output id="persona-edit-engagement_level-value">Moderate · natural conversation</output></div><span class="persona-field-note">How much it sustains rapport while staying cautious.</span></label></div></div>
+            <div class="persona-control-pair editor-panel strategy-panel"><div class="persona-pair-title">Curiosity and capture<span>Choose how actively it asks questions and notices evidence.</span></div><div class="persona-pair-grid"><label class="persona-range-field">Question frequency<div class="persona-range-row"><input id="persona-edit-question_frequency" type="range" min="1" max="5" step="1"><output id="persona-edit-question_frequency-value">Occasional</output></div><span class="persona-field-note">How often it asks a natural clarifying question.</span></label><label class="persona-range-field">IOC extraction priority<div class="persona-range-row"><input id="persona-edit-ioc_priority" type="range" min="1" max="5" step="1"><output id="persona-edit-ioc_priority-value">High</output></div><span class="persona-field-note">How strongly it prioritises voluntarily shared indicators.</span></label></div></div>
+            <label class="editor-panel strategy-panel">Apparent familiarity<select id="persona-edit-familiarity_level"><option value="naive">Low · unfamiliar with scam mechanics</option><option value="ordinary">Ordinary · asks natural questions</option><option value="aware">High · recognises common warning signs</option></select></label>
+            <div class="persona-control-section-title editor-panel profile-panel">Persona profile<span>Who this fictional participant is</span></div>
+            <label class="editor-panel profile-panel">Background and characteristics<textarea id="persona-edit-profile" rows="5"></textarea></label>
+            <label class="editor-panel profile-panel">Voice and response style<textarea id="persona-edit-style" rows="5"></textarea></label>
+            <label class="editor-panel profile-panel">Awareness cues<textarea id="persona-edit-cues" rows="5"></textarea></label>
+            <div class="persona-control-section-title editor-panel context-panel">Scam context<span>Focus the research behaviour without hard-coding a script</span></div>
+            <label class="editor-panel context-panel">Scam pattern focus<select id="persona-edit-scam_focus"><option value="mixed">Mixed patterns</option><option value="investment">Investment or crypto</option><option value="authority">Authority impersonation</option><option value="delivery">Parcel, prize, or fee lure</option><option value="job">Job or task scam</option><option value="romance">Romance or relationship grooming</option><option value="credential">Account, OTP, or credential theft</option></select></label>
+            <label class="editor-panel context-panel">Priority scam stage<select id="persona-edit-scam_stage_focus"><option value="contact">Contact · establish context</option><option value="rapport">Rapport · keep it natural</option><option value="shift">Shift · notice the turn</option><option value="request">Request · slow down and protect</option></select></label>
+            <label class="editor-panel context-panel">Localisation<select id="persona-edit-localisation"><option value="Singapore">Singapore</option><option value="Malaysia · Johor Bahru">Malaysia · Johor Bahru</option><option value="Singapore &amp; Malaysia">Singapore &amp; Malaysia</option><option value="Australia">Australia</option><option value="United Kingdom">United Kingdom</option><option value="United States">United States</option><option value="Neutral English">Neutral English</option></select></label>
+            <label class="persona-context-wide editor-panel context-panel">Local context cues<input id="persona-edit-local_context" type="text" maxlength="500" placeholder="e.g. PayNow, Singpass, MAS, local courier references"></label>
+            <div class="persona-control-section-title editor-panel evidence-panel">Evidence capture<span>What the researcher wants to recover</span></div>
+            <label class="persona-ioc-types editor-panel evidence-panel">IOC types to watch<input id="persona-edit-ioc_types" type="text" placeholder="domains, URLs, phone numbers, payment references"></label>
+            <div class="persona-control-pair editor-panel evidence-panel"><div class="persona-pair-title">Safety posture<span>Pair response shape with the persona’s willingness to hold a boundary.</span></div><div class="persona-pair-grid"><label>Response length<select id="persona-edit-response_length"><option value="short">Short · 1–2 sentences</option><option value="medium">Medium · 2–4 sentences</option><option value="long">Long · detailed response</option></select><span class="persona-field-note">How much detail it uses while keeping the exchange natural.</span></label><label class="persona-range-field">Boundary strictness<div class="persona-range-row"><input id="persona-edit-boundary_strictness" type="range" min="1" max="5" step="1"><output id="persona-edit-boundary_strictness-value">High</output></div><span class="persona-field-note">How quickly it refuses unsafe requests or ends the exchange.</span></label></div></div>
+            <div class="persona-control-section-title editor-panel evidence-panel">Safety boundaries<span>How the persona responds when pressure increases</span></div>
+            <label class="editor-panel evidence-panel">When pressure rises<select id="persona-edit-escalation_behaviour"><option value="slow down and verify">Slow down and verify</option><option value="change topic">Change topic</option><option value="end conversation">End conversation</option></select></label>
+            <div class="persona-control-section-title editor-panel examples-panel">Reference examples<span>Use fictional or anonymised samples to guide tone and pacing</span></div>
+            <label class="persona-reference-field editor-panel examples-panel">Sample conversation data<textarea id="persona-edit-reference_conversation" rows="9" maxlength="12000" placeholder="Paste a fictional exchange here. The bot will use it as untrusted style/context reference, not as instructions."></textarea><span class="persona-field-note">Accepted as plain text, CSV, JSON, or JSONL. Keep passwords, OTPs, payment details, and real personal data out.</span><span class="persona-reference-tools"><input id="persona-reference-file" type="file" accept=".txt,.csv,.json,.jsonl"><button class="persona-secondary-button" id="persona-reference-clear" type="button">Clear example</button><span id="persona-reference-file-status" role="status" aria-live="polite"></span></span></label>
+          </div>
+            </form>
+            <div class="persona-save-bar"><span id="persona-editor-status" role="status" aria-live="polite"></span><button class="persona-secondary-button" id="persona-reset-button" type="button">Reset changes</button><button class="persona-primary-button" type="submit" form="persona-editor-form">Save persona</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="page-view persona-test-view" id="persona-test-view" aria-labelledby="persona-test-page-title" hidden>
+        <div class="persona-test-page-head"><div><span class="overview-kicker">Persona Test Bench</span><h2 id="persona-test-page-title">Test a persona before deployment</h2><p>Run fictional incoming messages through a selected persona and review how its strategy behaves. Tests are not saved to conversation history.</p></div><label>Persona<select id="persona-test-persona-select"></select></label></div>
+        <div class="persona-test-workspace">
+          <section class="persona-test-console"><div class="persona-test-console-head"><div><span class="persona-editor-kicker">Incoming message</span><h3>Give the persona something to respond to</h3></div><span class="persona-quick-test-status" id="persona-test-status"></span></div><textarea id="persona-test-message" rows="4" placeholder="e.g. The investment group closes tonight. Can you join now?"></textarea><div class="persona-test-console-actions"><button class="persona-primary-button" id="persona-test-button" type="button">Run test</button><span>Fictional research input only</span></div><div class="persona-test-result" id="persona-test-result" hidden></div></section>
+          <aside class="persona-test-insights"><span class="persona-editor-kicker">Strategy snapshot</span><h3 id="persona-test-persona-name">Selected persona</h3><p id="persona-test-persona-description">Choose a persona to see its current strategy.</p><div class="persona-test-metric"><span>Stall strategy</span><strong id="persona-test-stall">—</strong></div><div class="persona-test-metric"><span>IOC priority</span><strong id="persona-test-ioc">—</strong></div><div class="persona-test-metric"><span>Familiarity</span><strong id="persona-test-familiarity">—</strong></div></aside>
+        </div>
+        <div class="persona-test-strategy-map"><div><span class="persona-editor-kicker">Behaviour map</span><h3>How the strategy balances the conversation</h3></div><div class="persona-strategy-map-track"><span><i></i><b>Engage</b></span><span><i></i><b>Stall</b></span><span><i></i><b>Capture</b></span><span><i></i><b>Protect</b></span></div></div>
+      </section>
     </main>
   </div>
 
@@ -1481,6 +1896,32 @@
     </div>
   </section>
 
+  <section class="persona-create-modal" id="persona-create-modal" role="dialog" aria-modal="true" aria-labelledby="persona-create-title" hidden>
+    <form class="persona-create-dialog" id="persona-create-form">
+      <div class="persona-create-icon">✦</div>
+      <p class="persona-editor-kicker">New custom design</p>
+      <h2 id="persona-create-title">Create a research persona</h2>
+      <p class="persona-create-description">Give your persona a name first. You’ll define its voice, boundaries, and research priorities in the editor next.</p>
+      <label class="persona-create-label" for="persona-create-name">Persona name</label>
+      <input id="persona-create-name" class="persona-create-input" type="text" maxlength="100" placeholder="e.g. Cautious online shopper" required>
+      <p class="persona-create-error" id="persona-create-error" role="alert"></p>
+      <div class="persona-create-actions"><button class="persona-secondary-button" id="persona-create-cancel" type="button">Cancel</button><button class="persona-primary-button" type="submit">Create persona</button></div>
+    </form>
+  </section>
+
+  <section class="persona-delete-modal" id="persona-delete-modal" role="dialog" aria-modal="true" aria-labelledby="persona-delete-title" aria-describedby="persona-delete-description" hidden>
+    <div class="persona-delete-dialog">
+      <div class="persona-delete-icon" aria-hidden="true">!</div>
+      <p class="persona-editor-kicker">Remove custom design</p>
+      <h2 id="persona-delete-title">Delete <span id="persona-delete-name">this persona</span>?</h2>
+      <p class="persona-delete-description" id="persona-delete-description">This removes the persona configuration from the current application session. Conversation history will be preserved.</p>
+      <div class="persona-delete-note"><strong>What happens next</strong><span>Any research threads using this persona will no longer have it assigned and will fall back to the default persona.</span></div>
+      <p class="persona-delete-error" id="persona-delete-error" role="alert"></p>
+      <div class="persona-create-actions"><button class="persona-secondary-button" id="persona-delete-cancel" type="button">Keep persona</button><button class="persona-danger-button" id="persona-delete-confirm" type="button">Delete persona</button></div>
+    </div>
+  </section>
+
+  <script src="/js/api.js"></script>
   <script>
     const thread = document.getElementById("thread");
     const form = document.getElementById("message-form");
@@ -1496,6 +1937,13 @@
     const sendButton = document.getElementById("send-button");
     const personaSelect = document.getElementById("persona-select");
     const personaStatus = document.getElementById("persona-status");
+    const personaPickerControl = document.querySelector(".persona-picker-control");
+    const personaPickerTrigger = document.getElementById("persona-picker-trigger");
+    const personaPickerCurrent = document.getElementById("persona-picker-current");
+    const personaPickerModal = document.getElementById("persona-picker-modal");
+    const personaPickerClose = document.getElementById("persona-picker-close");
+    const personaPickerSearch = document.getElementById("persona-picker-search");
+    const personaPickerGrid = document.getElementById("persona-picker-grid");
     const autoReplyToggle = document.getElementById("auto-reply-toggle");
     const manualTakeoverToggle = document.getElementById("manual-takeover-toggle");
     const manualTakeoverStatus = document.getElementById("manual-takeover-status");
@@ -1518,6 +1966,60 @@
     const comparePersonasButton = document.getElementById("compare-personas-button");
     const comparisonStatus = document.getElementById("comparison-status");
     const comparisonResults = document.getElementById("comparison-results");
+    const personaStudioSelect = document.getElementById("persona-studio-select");
+    const personaEditorForm = document.getElementById("persona-editor-form");
+    const personaEditorStatus = document.getElementById("persona-editor-status");
+    const personaResetButton = document.getElementById("persona-reset-button");
+    const personaNewButton = document.getElementById("persona-new-button");
+    const personaDuplicateButton = document.getElementById("persona-duplicate-button");
+    const personaModeStatus = document.getElementById("persona-mode-status");
+    const personaSideTabs = document.getElementById("persona-side-tabs");
+    const personaLibraryHome = document.getElementById("persona-library-home");
+    const personaLibraryCards = document.getElementById("persona-library-cards");
+    const personaDetailView = document.getElementById("persona-detail-view");
+    const personaBackButton = document.getElementById("persona-back-button");
+    const personaNewLibraryButton = document.getElementById("persona-new-library-button");
+    const personaCreateModal = document.getElementById("persona-create-modal");
+    const personaCreateForm = document.getElementById("persona-create-form");
+    const personaCreateName = document.getElementById("persona-create-name");
+    const personaCreateCancel = document.getElementById("persona-create-cancel");
+    const personaCreateError = document.getElementById("persona-create-error");
+    const personaDeleteModal = document.getElementById("persona-delete-modal");
+    const personaDeleteName = document.getElementById("persona-delete-name");
+    const personaDeleteError = document.getElementById("persona-delete-error");
+    const personaDeleteCancel = document.getElementById("persona-delete-cancel");
+    const personaDeleteConfirm = document.getElementById("persona-delete-confirm");
+    const personaStrategySummary = document.getElementById("persona-strategy-summary");
+    const personaTestMessage = document.getElementById("persona-test-message");
+    const personaTestButton = document.getElementById("persona-test-button");
+    const personaTestStatus = document.getElementById("persona-test-status");
+    const personaTestResult = document.getElementById("persona-test-result");
+    const personaTestPersonaSelect = document.getElementById("persona-test-persona-select");
+    const personaTestPersonaName = document.getElementById("persona-test-persona-name");
+    const personaTestPersonaDescription = document.getElementById("persona-test-persona-description");
+    const personaTestStall = document.getElementById("persona-test-stall");
+    const personaTestIoc = document.getElementById("persona-test-ioc");
+    const personaTestFamiliarity = document.getElementById("persona-test-familiarity");
+    const personaOverviewPanel = document.getElementById("persona-overview-panel");
+    const personaEditorWorkspace = document.getElementById("persona-editor-workspace");
+    const personaOpenEditor = document.getElementById("persona-open-editor");
+    const personaOverviewTitle = document.getElementById("persona-overview-title");
+    const personaOverviewDescription = document.getElementById("persona-overview-description");
+    const personaOverviewMode = document.getElementById("persona-overview-mode");
+    const personaStatConversations = document.getElementById("persona-stat-conversations");
+    const personaStatMessages = document.getElementById("persona-stat-messages");
+    const personaStatPressure = document.getElementById("persona-stat-pressure");
+    const personaStatLastActive = document.getElementById("persona-stat-last-active");
+    const personaOverviewStrategy = document.getElementById("persona-overview-strategy");
+    const personaOverviewStrategyCopy = document.getElementById("persona-overview-strategy-copy");
+    const personaOverviewTestMessage = document.getElementById("persona-overview-test-message");
+    const personaOverviewTestButton = document.getElementById("persona-overview-test-button");
+    const personaOverviewTestResult = document.getElementById("persona-overview-test-result");
+    const personaDeleteButtons = document.querySelectorAll(".persona-delete-button");
+    const personaAiSummary = document.getElementById("persona-ai-summary");
+    const personaReferenceFile = document.getElementById("persona-reference-file");
+    const personaReferenceClear = document.getElementById("persona-reference-clear");
+    const personaReferenceFileStatus = document.getElementById("persona-reference-file-status");
     // Legacy intake hooks are intentionally disabled; telco ingestion is no
     // longer part of the product surface.
     const intakeForm = null;
@@ -1549,6 +2051,7 @@
     let guidedDemoPath = null;
     let latestAssistantReply = "";
     let personaProfiles = new Map();
+    let personaDeleteTargetId = null;
     let activeModelName = "configured model";
     let appInitialized = false;
     let conversationLoadToken = 0;
@@ -1883,6 +2386,8 @@
         "about-view": "About & safeguards",
         "faq-view": "FAQ & Safeguards",
         "lab-view": "Conversation Lab",
+        "personas-view": "Persona Studio",
+        "persona-test-view": "Persona Test Bench",
       };
       if (!Object.hasOwn(pageHeadings, pageId)) {
         throw new Error(`Unknown page: ${pageId}`);
@@ -1900,7 +2405,102 @@
         loadConversation();
         loadAnalytics();
       }
+      if (pageId === "personas-view") renderPersonaEditor();
     }
+
+    function closePersonaPicker() {
+      personaPickerModal.hidden = true;
+      personaPickerTrigger.setAttribute("aria-expanded", "false");
+    }
+
+    function syncPersonaPicker() {
+      const profile = personaProfiles.get(personaSelect.value);
+      const fallback = personaSelect.selectedOptions[0]?.textContent || "Choose a persona";
+      personaPickerCurrent.textContent = profile?.name || fallback.replace(/\s+·\s+(Template|Custom)$/, "");
+      personaPickerTrigger.title = profile
+        ? `${profile.name} · ${profile.is_template ? "Template" : "Custom"}`
+        : personaPickerCurrent.textContent;
+      for (const option of personaPickerGrid.querySelectorAll(".persona-picker-option")) {
+        option.setAttribute("aria-selected", option.dataset.personaId === personaSelect.value ? "true" : "false");
+      }
+    }
+
+    function renderPersonaPicker(profiles = Array.from(personaProfiles.values())) {
+      const query = personaPickerSearch.value.trim().toLowerCase();
+      const visibleProfiles = profiles.filter((profile) => {
+        const haystack = [profile.name, profile.occupation, profile.localisation, profile.profile_description]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return !query || haystack.includes(query);
+      });
+      personaPickerGrid.replaceChildren();
+      if (!visibleProfiles.length) {
+        const empty = document.createElement("div");
+        empty.className = "persona-picker-empty";
+        empty.textContent = query ? "No personas match that search." : "No personas available yet.";
+        personaPickerGrid.append(empty);
+        return;
+      }
+      for (const profile of visibleProfiles) {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "persona-picker-option";
+        option.dataset.personaId = profile.persona_id;
+        option.setAttribute("role", "option");
+        option.setAttribute("aria-selected", profile.persona_id === personaSelect.value ? "true" : "false");
+        const avatar = document.createElement("span");
+        avatar.className = "persona-picker-avatar";
+        avatar.textContent = (profile.name || "?")
+          .split(/\s+/)
+          .map((part) => part[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase();
+        const copy = document.createElement("span");
+        copy.className = "persona-picker-option-copy";
+        const name = document.createElement("strong");
+        name.className = "persona-picker-option-name";
+        name.textContent = profile.name;
+        const meta = document.createElement("small");
+        meta.className = "persona-picker-option-meta";
+        meta.textContent = `${profile.is_template ? "Template" : "Custom"} · ${profile.occupation || profile.localisation || "Research persona"}`;
+        copy.append(name, meta);
+        option.append(avatar, copy);
+        option.addEventListener("click", () => {
+          personaSelect.value = profile.persona_id;
+          closePersonaPicker();
+          personaSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        personaPickerGrid.append(option);
+      }
+    }
+
+    personaPickerTrigger.addEventListener("click", () => {
+      if (personaPickerTrigger.disabled) return;
+      const willOpen = personaPickerModal.hidden;
+      personaPickerModal.hidden = !willOpen;
+      personaPickerTrigger.setAttribute("aria-expanded", String(willOpen));
+      if (willOpen) {
+        personaPickerSearch.value = "";
+        renderPersonaPicker();
+        window.requestAnimationFrame(() => personaPickerSearch.focus());
+      }
+    });
+    personaPickerClose.addEventListener("click", closePersonaPicker);
+    personaPickerModal.addEventListener("click", (event) => {
+      if (event.target === personaPickerModal) closePersonaPicker();
+    });
+    personaPickerSearch.addEventListener("input", () => renderPersonaPicker());
+    personaPickerSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closePersonaPicker();
+        personaPickerTrigger.focus();
+      }
+    });
+    document.addEventListener("click", (event) => {
+      if (!personaPickerControl.contains(event.target)) closePersonaPicker();
+    });
 
     // Keep the guided simulation action in the conversation toolbar without
     // letting the promotional hero compete with the message thread.
@@ -1923,11 +2523,7 @@
     async function refreshThreatFeedStatus() {
       const statusElement = document.getElementById("threat-feed-status");
       try {
-        const response = await fetch("/api/scam-feed/status", { cache: "no-store" });
-        if (!response.ok) {
-          throw new Error(`Threat feed status request failed (${response.status}).`);
-        }
-        const status = await response.json();
+        const status = await PhishLabApi.requestJson("/api/scam-feed/status");
         if (status.scamshield_synced === true) {
           statusElement.textContent =
             "Threat Feed: Active (Synced with ScamShield SG)";
@@ -1951,9 +2547,7 @@
 
     async function refreshModelStatus() {
       try {
-        const response = await fetch("/api/model/status", { cache: "no-store" });
-        if (!response.ok) throw new Error(`Model status request failed (${response.status}).`);
-        const status = await response.json();
+        const status = await PhishLabApi.requestJson("/api/model/status");
         activeModelName = status.display_name || "configured model";
         const location = status.is_local ? "local" : "external";
         modelStatusElement.textContent = `Model: ${activeModelName} · ${location}`;
@@ -2087,6 +2681,41 @@
         personaProfiles = new Map(
           profiles.map((profile) => [profile.persona_id, profile]),
         );
+        personaSelect.replaceChildren();
+        personaStudioSelect.replaceChildren();
+        personaSideTabs.replaceChildren();
+        personaTestPersonaSelect.replaceChildren();
+        for (const profile of profiles) {
+          const activeOption = document.createElement("option");
+          activeOption.value = profile.persona_id;
+          activeOption.textContent = `${profile.name}${profile.is_template ? " · Template" : " · Custom"}`;
+          personaSelect.append(activeOption);
+          const option = document.createElement("option");
+          option.value = profile.persona_id;
+          option.textContent = `${profile.name}${profile.is_template ? " · Template" : " · Custom"}`;
+          personaStudioSelect.append(option);
+          personaTestPersonaSelect.append(option.cloneNode(true));
+          const tab = document.createElement("button");
+          tab.type = "button";
+          tab.className = "persona-side-tab";
+          tab.dataset.personaId = profile.persona_id;
+          tab.innerHTML = `<span class="persona-side-tab-name"></span><span class="persona-side-tab-meta"></span>`;
+          tab.querySelector(".persona-side-tab-name").textContent = profile.name;
+          tab.querySelector(".persona-side-tab-meta").textContent = profile.is_template ? "Template · read-only" : "Custom · editable";
+          tab.addEventListener("click", () => {
+            personaStudioSelect.value = profile.persona_id;
+            if (!personaOverviewPanel.hidden) renderPersonaOverview();
+            else renderPersonaEditor();
+          });
+          personaSideTabs.append(tab);
+        }
+        personaStudioSelect.value = activePersonaId;
+        personaSelect.value = activePersonaId;
+        personaTestPersonaSelect.value = activePersonaId;
+        renderPersonaPicker(profiles);
+        syncPersonaPicker();
+        renderPersonaLibrary();
+        renderPersonaTestPersona();
         updatePersonaProfile();
       } catch (error) {
         personaProfileName.textContent = "Persona profile unavailable";
@@ -2097,6 +2726,426 @@
         personaProfileCues.textContent = "Unavailable";
       }
     }
+
+    const personaRangeConfig = {
+      stall_strategy: { conservative: 1, cautious: 2, balanced: 3, curious: 4, disclosure: 5, labels: { 1: "Conservative · prioritise time", 2: "Cautious · small delays", 3: "Balanced · time + evidence", 4: "Curious · ask for context", 5: "Disclosure · maximise safe detail" } },
+      engagement_level: { minimal: 1, low: 2, moderate: 3, high: 4, sustained: 5, labels: { 1: "Minimal · brief replies", 2: "Low · limited rapport", 3: "Moderate · natural conversation", 4: "High · sustain rapport", 5: "Sustained · keep the thread going" } },
+      question_frequency: { rare: 1, occasional: 2, regular: 3, frequent: 4, persistent: 5, labels: { 1: "Rare", 2: "Occasional", 3: "Regular", 4: "Frequent", 5: "Persistent · one at a time" } },
+      ioc_priority: { low: 1, selective: 2, medium: 3, high: 4, maximum: 5, labels: { 1: "Low", 2: "Selective", 3: "Medium", 4: "High", 5: "Maximum · capture what appears" } },
+      boundary_strictness: { flexible: 1, moderate: 2, high: 3, very_high: 4, absolute: 5, labels: { 1: "Flexible", 2: "Moderate", 3: "High", 4: "Very high", 5: "Absolute · end unsafe turns" } },
+    };
+
+    const personaStageLabels = { contact: "Contact", rapport: "Rapport", shift: "Shift", request: "Request", pivot: "Shift", pressure: "Request", extraction: "Request", exit: "Request" };
+    const personaStageValues = { contact: "contact", rapport: "rapport", shift: "shift", request: "request", pivot: "shift", pressure: "request", extraction: "request", exit: "request" };
+
+    function enumToPersonaRange(field, value) {
+      return personaRangeConfig[field]?.[value] || 2;
+    }
+
+    function normalizePersonaStage(value) {
+      return personaStageValues[value] || "request";
+    }
+
+    function personaRangeToEnum(field) {
+      const input = document.getElementById(`persona-edit-${field}`);
+      const config = personaRangeConfig[field];
+      if (!input || !config) return "";
+      const rangeValue = Number(input.value) || 2;
+      return Object.entries(config).find(([key, value]) => key !== "labels" && value === rangeValue)?.[0] || Object.keys(config).find((key) => key !== "labels") || "";
+    }
+
+    function updatePersonaRangeLabels() {
+      for (const field of Object.keys(personaRangeConfig)) {
+        const input = document.getElementById(`persona-edit-${field}`);
+        const output = document.getElementById(`persona-edit-${field}-value`);
+        if (input && output) output.textContent = personaRangeConfig[field].labels[input.value] || "—";
+      }
+    }
+
+    function renderPersonaEditor() {
+      const profile = personaProfiles.get(personaStudioSelect.value || activePersonaId);
+      if (!profile) return;
+      personaDeleteButtons.forEach((button) => { button.hidden = profile.is_template; });
+      const fields = {
+        name: profile.name,
+        stall_strategy: enumToPersonaRange("stall_strategy", profile.stall_strategy || "balanced"),
+        engagement_level: enumToPersonaRange("engagement_level", profile.engagement_level || "moderate"),
+        question_frequency: enumToPersonaRange("question_frequency", profile.question_frequency || "occasional"),
+        familiarity_level: profile.familiarity_level || "ordinary",
+        ioc_priority: enumToPersonaRange("ioc_priority", profile.ioc_priority || "high"),
+        profile: profile.profile_description || "",
+        style: profile.response_style || "",
+        cues: profile.scammer_adjustment_cues || "",
+        response_length: profile.response_length || "short",
+        boundary_strictness: enumToPersonaRange("boundary_strictness", profile.boundary_strictness || "high"),
+        escalation_behaviour: profile.escalation_behaviour || "slow down and verify",
+        ioc_types: profile.ioc_types || "domains, URLs, phone numbers, payment references, organisation names",
+        scam_focus: profile.scam_focus || "mixed",
+        scam_stage_focus: normalizePersonaStage(profile.scam_stage_focus),
+        localisation: profile.localisation || profile.location || "Singapore",
+        local_context: profile.local_context || "",
+        reference_conversation: profile.reference_conversation || "",
+      };
+      for (const [name, value] of Object.entries(fields)) {
+        document.getElementById(`persona-edit-${name}`).value = value;
+      }
+      const editable = !profile.is_template;
+      personaEditorForm.querySelectorAll("input, textarea, select").forEach((field) => { field.disabled = !editable; });
+      personaReferenceClear.disabled = !editable;
+      personaReferenceFileStatus.textContent = profile.reference_conversation ? "Saved reference loaded" : "";
+      document.querySelector('button[form="persona-editor-form"]').disabled = !editable;
+      personaDuplicateButton.disabled = false;
+      personaModeStatus.textContent = editable ? "Custom persona · editable" : "Template persona · duplicate to edit";
+      personaSideTabs.querySelectorAll(".persona-side-tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.personaId === profile.persona_id);
+      });
+      personaEditorStatus.textContent = `${profile.name} · ${profile.occupation}`;
+      renderPersonaTestPersona(profile);
+      updatePersonaStrategySummary();
+    }
+
+    function renderPersonaTestPersona(profile = personaProfiles.get(personaTestPersonaSelect.value || activePersonaId)) {
+      if (!profile) return;
+      personaTestPersonaName.textContent = profile.name;
+      personaTestPersonaDescription.textContent = profile.profile_description;
+      personaTestStall.textContent = profile.stall_strategy || "balanced";
+      personaTestIoc.textContent = profile.ioc_priority || "high";
+      personaTestFamiliarity.textContent = profile.familiarity_level || "ordinary";
+    }
+
+    function updatePersonaStrategySummary() {
+      const get = (id) => document.getElementById(id)?.value || "—";
+      updatePersonaRangeLabels();
+      if (personaStrategySummary) personaStrategySummary.textContent = `${get("persona-edit-stall_strategy")} stalling, ${get("persona-edit-engagement_level")} engagement, ${get("persona-edit-question_frequency")} questions, ${get("persona-edit-ioc_priority")} IOC capture · ${get("persona-edit-scam_focus")} focus in ${get("persona-edit-localisation")}.`;
+    }
+
+    function openPersonaEditor(personaId) {
+      personaStudioSelect.value = personaId;
+      personaLibraryHome.hidden = true;
+      personaDetailView.hidden = false;
+      personaDetailView.classList.remove("editor-mode");
+      personaDetailView.classList.add("overview-mode");
+      personaOverviewPanel.hidden = false;
+      personaEditorWorkspace.hidden = true;
+      renderPersonaOverview();
+    }
+
+    function openPersonaEditorWorkspace() {
+      personaDetailView.classList.remove("overview-mode");
+      personaDetailView.classList.add("editor-mode");
+      personaOverviewPanel.hidden = true;
+      personaEditorWorkspace.hidden = false;
+      renderPersonaEditor();
+    }
+
+    async function renderPersonaOverview() {
+      const profile = personaProfiles.get(personaStudioSelect.value || activePersonaId);
+      if (!profile) return;
+      personaDeleteButtons.forEach((button) => { button.hidden = profile.is_template; });
+      personaOverviewTitle.textContent = profile.name;
+      personaOverviewDescription.textContent = profile.profile_description;
+      personaOverviewMode.textContent = profile.is_template ? "Template · duplicate to customise" : "Custom · editable";
+      personaOverviewStrategy.textContent = `${profile.stall_strategy || "balanced"} stalling`;
+      personaOverviewStrategyCopy.textContent = `${profile.engagement_level || "moderate"} engagement · ${profile.question_frequency || "occasional"} questions · ${profile.ioc_priority || "high"} IOC capture`;
+      const stall = profile.stall_strategy || "balanced";
+      const engagement = profile.engagement_level || "moderate";
+      const questions = profile.question_frequency || "occasional";
+      const iocPriority = profile.ioc_priority || "high";
+      const familiarity = profile.familiarity_level || "ordinary";
+      const scamFocus = profile.scam_focus || "mixed scam patterns";
+      const scamStage = personaStageLabels[normalizePersonaStage(profile.scam_stage_focus)];
+      const localisation = profile.localisation || profile.location || "the selected locale";
+      personaAiSummary.textContent = `${profile.name} uses a ${stall} stall pattern with ${engagement} engagement, ${questions} questions, and ${iocPriority}-priority IOC capture. It prioritises ${scamFocus} cues around the ${scamStage} stage in ${localisation}, appearing ${familiarity} while keeping safety boundaries intact.`;
+      personaOverviewTestMessage.value = "";
+      personaOverviewTestResult.textContent = "Results will appear here and will not be saved.";
+      try {
+        const stats = await PhishLabApi.requestJson(`/api/personas/${encodeURIComponent(profile.persona_id)}/overview`);
+        personaStatConversations.textContent = stats.conversation_count;
+        personaStatMessages.textContent = stats.message_count;
+        personaStatPressure.textContent = stats.average_pressure == null ? "—" : `${stats.average_pressure}/3`;
+        personaStatLastActive.textContent = stats.last_activity ? new Date(stats.last_activity).toLocaleDateString() : "No activity";
+      } catch (error) {
+        personaStatConversations.textContent = "—";
+        personaStatMessages.textContent = "—";
+        personaStatPressure.textContent = "—";
+        personaStatLastActive.textContent = "Unavailable";
+      }
+    }
+
+    function renderPersonaLibrary() {
+      personaLibraryCards.replaceChildren();
+      for (const profile of personaProfiles.values()) {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "persona-library-card";
+        card.innerHTML = `<span class="persona-card-top"><span class="persona-card-avatar"></span><span class="persona-card-badge"></span></span><strong class="persona-card-name"></strong><span class="persona-card-role"></span><span class="persona-card-description"></span><span class="persona-card-open">Open overview →</span>`;
+        card.querySelector(".persona-card-avatar").textContent = profile.name.slice(0, 1).toUpperCase();
+        card.querySelector(".persona-card-badge").textContent = profile.is_template ? "Template" : "Custom";
+        card.querySelector(".persona-card-name").textContent = profile.name;
+        card.querySelector(".persona-card-role").textContent = `${profile.location} · ${profile.occupation}`;
+        card.querySelector(".persona-card-description").textContent = profile.profile_description;
+        card.addEventListener("click", () => openPersonaEditor(profile.persona_id));
+        personaLibraryCards.append(card);
+      }
+    }
+
+    personaStudioSelect.addEventListener("change", () => { if (!personaOverviewPanel.hidden) renderPersonaOverview(); else renderPersonaEditor(); });
+    personaOpenEditor.addEventListener("click", openPersonaEditorWorkspace);
+    personaOverviewTestButton.addEventListener("click", async () => {
+      const messageText = personaOverviewTestMessage.value.trim();
+      const personaId = personaStudioSelect.value;
+      if (!messageText) { personaOverviewTestResult.textContent = "Enter a fictional incoming message first."; return; }
+      personaOverviewTestButton.disabled = true;
+      personaOverviewTestResult.textContent = "Generating reply…";
+      try {
+        const result = await PhishLabApi.requestJson(`/api/personas/${encodeURIComponent(personaId)}/test`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message_text: messageText }) });
+        personaOverviewTestResult.textContent = result.reply;
+      } catch (error) {
+        personaOverviewTestResult.textContent = error.message || "Could not run the persona test.";
+      } finally {
+        personaOverviewTestButton.disabled = false;
+      }
+    });
+    personaTestPersonaSelect.addEventListener("change", () => renderPersonaTestPersona());
+    function setPersonaEditorTab(tabName) {
+      document.querySelectorAll(".persona-editor-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.editorTab === tabName));
+      const editorGrid = document.querySelector(".persona-editor-grid");
+      if (editorGrid) editorGrid.dataset.activeTab = tabName;
+      document.querySelectorAll(".editor-panel").forEach((panel) => { panel.hidden = !panel.classList.contains(`${tabName}-panel`); });
+      if (personaStrategySummary) personaStrategySummary.hidden = tabName !== "strategy";
+    }
+    document.querySelectorAll(".persona-editor-tab").forEach((tab) => tab.addEventListener("click", () => setPersonaEditorTab(tab.dataset.editorTab)));
+    setPersonaEditorTab("strategy");
+    personaTestButton.addEventListener("click", async () => {
+      const messageText = personaTestMessage.value.trim();
+      const personaId = personaStudioSelect.value;
+      if (!messageText) { personaTestStatus.textContent = "Enter a fictional message first."; return; }
+      personaTestButton.disabled = true;
+      personaTestStatus.textContent = "Generating test reply…";
+      personaTestResult.hidden = true;
+      try {
+        const result = await PhishLabApi.requestJson(`/api/personas/${encodeURIComponent(personaId)}/test`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message_text: messageText }),
+        });
+        personaTestResult.textContent = result.reply;
+        personaTestResult.hidden = false;
+        personaTestStatus.textContent = "Test complete · not saved to conversation history.";
+      } catch (error) {
+        personaTestStatus.textContent = error.message || "Could not run persona test.";
+      } finally {
+        personaTestButton.disabled = false;
+      }
+    });
+    ["stall_strategy", "engagement_level", "question_frequency", "ioc_priority", "response_length", "boundary_strictness", "escalation_behaviour", "ioc_types", "scam_focus", "scam_stage_focus", "localisation", "local_context"].forEach((field) => {
+      const control = document.getElementById(`persona-edit-${field}`);
+      control.addEventListener("change", updatePersonaStrategySummary);
+      if (control.type === "range") control.addEventListener("input", updatePersonaStrategySummary);
+    });
+    personaReferenceFile.addEventListener("change", async () => {
+      const file = personaReferenceFile.files?.[0];
+      if (!file) return;
+      if (file.size > 200_000) {
+        personaReferenceFileStatus.textContent = "Choose a sample smaller than 200 KB.";
+        personaReferenceFile.value = "";
+        return;
+      }
+      try {
+        const text = await file.text();
+        document.getElementById("persona-edit-reference_conversation").value = text.slice(0, 12000);
+        personaReferenceFileStatus.textContent = `${file.name} loaded · save persona to keep it.`;
+      } catch (error) {
+        personaReferenceFileStatus.textContent = "Could not read that sample file.";
+      }
+    });
+    personaReferenceClear.addEventListener("click", () => {
+      document.getElementById("persona-edit-reference_conversation").value = "";
+      personaReferenceFile.value = "";
+      personaReferenceFileStatus.textContent = "Reference cleared · save persona to remove it.";
+    });
+    personaBackButton.addEventListener("click", () => {
+      if (!personaEditorWorkspace.hidden) {
+        personaEditorWorkspace.hidden = true;
+        personaOverviewPanel.hidden = false;
+        personaDetailView.classList.remove("editor-mode");
+        personaDetailView.classList.add("overview-mode");
+        renderPersonaOverview();
+      } else {
+        personaDetailView.hidden = true;
+        personaDetailView.classList.remove("overview-mode", "editor-mode");
+        personaLibraryHome.hidden = false;
+      }
+    });
+    function openPersonaCreateDialog() {
+      personaCreateForm.reset();
+      personaCreateError.textContent = "";
+      personaCreateModal.hidden = false;
+      window.requestAnimationFrame(() => personaCreateName.focus());
+    }
+    function closePersonaCreateDialog() { personaCreateModal.hidden = true; }
+    personaNewLibraryButton.addEventListener("click", openPersonaCreateDialog);
+    personaCreateCancel.addEventListener("click", closePersonaCreateDialog);
+    personaCreateModal.addEventListener("click", (event) => { if (event.target === personaCreateModal) closePersonaCreateDialog(); });
+    personaResetButton.addEventListener("click", renderPersonaEditor);
+    personaNewButton.addEventListener("click", openPersonaCreateDialog);
+    personaCreateForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = personaCreateName.value.trim();
+      if (!name) return;
+      const submitButton = personaCreateForm.querySelector("button[type=submit]");
+      submitButton.disabled = true;
+      try {
+        const created = await PhishLabApi.requestJson("/api/personas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            profile_description: "A fictional research participant with clearly defined boundaries.",
+            response_style: "Concise, natural, and cautious.",
+            scammer_adjustment_cues: "Watch for pressure, secrecy, payment, links, and requests for sensitive information.",
+            research_mission: "Keep the exchange natural while safely observing scam signals.",
+            collection_priorities: "Capture voluntarily shared research indicators without requesting secrets.",
+            system_prompt: "You are a fictional participant in authorised anti-scam research. Never share or solicit sensitive information, send money, click links, or install software.",
+          }),
+        });
+        personaProfiles.set(created.persona_id, created);
+        renderPersonaLibrary();
+        const option = document.createElement("option");
+        option.value = created.persona_id;
+        option.textContent = `${created.name} · Custom`;
+        personaStudioSelect.append(option);
+        personaStudioSelect.value = created.persona_id;
+        closePersonaCreateDialog();
+        openPersonaEditor(created.persona_id);
+      } catch (error) {
+        personaCreateError.textContent = error.message || "Could not create persona.";
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+    personaDuplicateButton.addEventListener("click", async () => {
+      const sourceId = personaStudioSelect.value;
+      try {
+        const copy = await PhishLabApi.requestJson(`/api/personas/${encodeURIComponent(sourceId)}/duplicate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        personaProfiles.set(copy.persona_id, copy);
+        renderPersonaLibrary();
+        const option = document.createElement("option");
+        option.value = copy.persona_id;
+        option.textContent = `${copy.name} · Custom`;
+        personaStudioSelect.append(option);
+        personaStudioSelect.value = copy.persona_id;
+        openPersonaEditor(copy.persona_id);
+      } catch (error) {
+        personaEditorStatus.textContent = error.message || "Could not duplicate persona.";
+      }
+    });
+    function openPersonaDeleteDialog() {
+      const personaId = personaStudioSelect.value;
+      const profile = personaProfiles.get(personaId);
+      if (!profile || profile.is_template) return;
+      personaDeleteTargetId = personaId;
+      personaDeleteName.textContent = profile.name;
+      personaDeleteError.textContent = "";
+      personaDeleteConfirm.disabled = false;
+      personaDeleteModal.hidden = false;
+      window.requestAnimationFrame(() => personaDeleteConfirm.focus());
+    }
+    function closePersonaDeleteDialog() {
+      personaDeleteTargetId = null;
+      personaDeleteModal.hidden = true;
+      personaDeleteError.textContent = "";
+      personaDeleteConfirm.disabled = false;
+    }
+    async function confirmPersonaDelete() {
+      const personaId = personaDeleteTargetId;
+      const profile = personaProfiles.get(personaId);
+      if (!personaId || !profile || profile.is_template) {
+        closePersonaDeleteDialog();
+        return;
+      }
+      personaDeleteButtons.forEach((button) => { button.disabled = true; });
+      personaDeleteConfirm.disabled = true;
+      personaEditorStatus.textContent = "Deleting persona…";
+      try {
+        await PhishLabApi.requestJson(`/api/personas/${encodeURIComponent(personaId)}`, { method: "DELETE" });
+        personaProfiles.delete(personaId);
+        if (activePersonaId === personaId) {
+          activePersonaId = "lynn";
+          personaSelect.value = activePersonaId;
+          syncPersonaPicker();
+          updatePersonaProfile(activePersonaId);
+        }
+        personaStudioSelect.value = "lynn";
+        personaDetailView.hidden = true;
+        personaDetailView.classList.remove("overview-mode", "editor-mode");
+        personaLibraryHome.hidden = false;
+        closePersonaDeleteDialog();
+        await loadPersonaProfiles();
+      } catch (error) {
+        personaDeleteError.textContent = error.message || "Could not delete persona.";
+        personaDeleteConfirm.disabled = false;
+      } finally {
+        personaDeleteButtons.forEach((button) => { button.disabled = false; });
+      }
+    }
+    personaDeleteButtons.forEach((button) => button.addEventListener("click", openPersonaDeleteDialog));
+    personaDeleteCancel.addEventListener("click", closePersonaDeleteDialog);
+    personaDeleteConfirm.addEventListener("click", confirmPersonaDelete);
+    personaDeleteModal.addEventListener("click", (event) => {
+      if (event.target === personaDeleteModal) closePersonaDeleteDialog();
+    });
+    personaDeleteModal.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closePersonaDeleteDialog();
+    });
+    personaEditorForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const personaId = personaStudioSelect.value;
+      const profile = personaProfiles.get(personaId) || {};
+      const body = {
+        name: document.getElementById("persona-edit-name").value,
+        profile_description: document.getElementById("persona-edit-profile").value || profile?.profile_description || "A fictional research participant.",
+        response_style: document.getElementById("persona-edit-style").value || profile?.response_style || "Natural, concise, and cautious.",
+        scammer_adjustment_cues: document.getElementById("persona-edit-cues").value || profile?.scammer_adjustment_cues || "Watch for pressure, secrecy, payment, links, and sensitive information.",
+        research_mission: profile?.research_mission || "Safely observe scam signals over time.",
+        collection_priorities: profile?.collection_priorities || "Capture voluntarily shared indicators without requesting secrets.",
+        system_prompt: profile?.system_prompt || "You are a fictional participant in authorised anti-scam research.",
+        familiarity_level: document.getElementById("persona-edit-familiarity_level").value,
+        stall_strategy: personaRangeToEnum("stall_strategy"),
+        engagement_level: personaRangeToEnum("engagement_level"),
+        question_frequency: personaRangeToEnum("question_frequency"),
+        ioc_priority: personaRangeToEnum("ioc_priority"),
+        response_length: document.getElementById("persona-edit-response_length").value,
+        boundary_strictness: personaRangeToEnum("boundary_strictness"),
+        escalation_behaviour: document.getElementById("persona-edit-escalation_behaviour").value,
+        ioc_types: document.getElementById("persona-edit-ioc_types").value,
+        scam_focus: document.getElementById("persona-edit-scam_focus").value,
+        scam_stage_focus: document.getElementById("persona-edit-scam_stage_focus").value,
+        localisation: document.getElementById("persona-edit-localisation").value,
+        local_context: document.getElementById("persona-edit-local_context").value,
+        reference_conversation: document.getElementById("persona-edit-reference_conversation").value,
+      };
+      document.querySelector('button[form="persona-editor-form"]').disabled = true;
+      personaEditorStatus.textContent = "Saving persona…";
+      try {
+        const updated = await PhishLabApi.requestJson(`/api/personas/${encodeURIComponent(personaId)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        personaProfiles.set(personaId, updated);
+        updatePersonaProfile(activePersonaId);
+        personaEditorStatus.textContent = `${updated.name} saved for this application session.`;
+      } catch (error) {
+        personaEditorStatus.textContent = error.message || "Could not save persona.";
+      } finally {
+        document.querySelector('button[form="persona-editor-form"]').disabled = false;
+      }
+    });
 
     thread.addEventListener("click", (event) => {
       const target = event.target;
@@ -2337,9 +3386,7 @@
 
     async function loadAnalytics() {
       try {
-        const response = await fetch("/api/analytics");
-        if (!response.ok) throw new Error("Could not load research analytics.");
-        const data = await response.json();
+        const data = await PhishLabApi.requestJson("/api/analytics");
         document.getElementById("metric-active-chats").textContent = data.active_chats;
         document.getElementById("metric-pressure").textContent =
           data.average_pressure_level == null ? "—" : Number(data.average_pressure_level).toFixed(1);
@@ -2472,6 +3519,7 @@
       autoReplyToggle.disabled = true;
       manualTakeoverToggle.disabled = true;
       personaSelect.disabled = true;
+      personaPickerTrigger.disabled = true;
       try {
         const response = await fetch(`/conversation/${encodeURIComponent(senderId)}`);
         if (!response.ok) throw new Error("Could not load this conversation.");
@@ -2486,6 +3534,7 @@
         )?.content || "";
         activePersonaId = data.persona_id || "lynn";
         personaSelect.value = activePersonaId;
+        syncPersonaPicker();
         updatePersonaProfile(activePersonaId);
         activeManualMode = data.manual_mode === true;
         updateManualTakeoverUi();
@@ -2494,6 +3543,7 @@
         autoReplyToggle.checked = activeAutoReply;
         autoReplyToggle.disabled = activeManualMode;
         personaSelect.disabled = false;
+        personaPickerTrigger.disabled = false;
         replyModeStatus.textContent = activeManualMode
           ? "Manual takeover active · no automated replies are generated."
           : activeAutoReply
@@ -2595,6 +3645,7 @@
         autoReplyToggle.disabled = false;
         manualTakeoverToggle.disabled = false;
         personaSelect.disabled = false;
+        personaPickerTrigger.disabled = false;
         showError(error.message || "Could not load this conversation.");
       }
     }
@@ -2686,6 +3737,7 @@
       }
 
       personaSelect.disabled = true;
+      personaPickerTrigger.disabled = true;
       personaStatus.textContent = "Saving persona…";
       try {
         const response = await fetch("/api/persona/assign", {
@@ -2697,6 +3749,7 @@
         if (!response.ok) throw new Error(data.detail || "Could not assign this persona.");
         if (senderInput.value.trim() === chatId) {
           activePersonaId = data.persona_id;
+          syncPersonaPicker();
           updatePersonaProfile(activePersonaId);
           personaStatus.textContent =
             `Current thread: ${personaSelect.selectedOptions[0]?.textContent || activePersonaId}`;
@@ -2706,11 +3759,13 @@
       } catch (error) {
         if (senderInput.value.trim() === chatId) {
           personaSelect.value = activePersonaId;
+          syncPersonaPicker();
           updatePersonaProfile(activePersonaId);
           personaStatus.textContent = error.message || "Could not assign this persona.";
         }
       } finally {
         personaSelect.disabled = false;
+        personaPickerTrigger.disabled = false;
       }
     });
 

@@ -31,7 +31,16 @@ from backend.classifier import (
 from backend import database as backend_database
 from backend import link_checker
 from backend import scam_feed
-from backend.personas import PERSONAS
+from backend.personas import (
+    PERSONAS,
+    TEMPLATE_PERSONA_IDS,
+    all_personas,
+    create_persona,
+    delete_persona,
+    duplicate_persona,
+    hydrate_custom_personas,
+    update_persona,
+)
 from backend.whatsapp_client import WhatsAppClientError, send_whatsapp_message
 import database
 
@@ -143,6 +152,42 @@ class PersonaCompareResponse(BaseModel):
     saved_to_history: bool = False
 
 
+class PersonaUpdateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    profile_description: str = Field(min_length=1, max_length=2000)
+    response_style: str = Field(min_length=1, max_length=2000)
+    scammer_adjustment_cues: str = Field(min_length=1, max_length=2000)
+    research_mission: str = Field(min_length=1, max_length=2000)
+    collection_priorities: str = Field(min_length=1, max_length=2000)
+    system_prompt: str = Field(min_length=1, max_length=6000)
+    stall_strategy: str = Field(default="balanced", max_length=40)
+    engagement_level: str = Field(default="moderate", max_length=40)
+    question_frequency: str = Field(default="occasional", max_length=40)
+    ioc_priority: str = Field(default="high", max_length=40)
+    ioc_types: str = Field(default="domains, URLs, phone numbers, payment references, organisation names", max_length=500)
+    boundary_strictness: str = Field(default="high", max_length=40)
+    response_length: str = Field(default="short", max_length=40)
+    escalation_behaviour: str = Field(default="slow down and verify", max_length=80)
+    familiarity_level: str = Field(default="ordinary", max_length=40)
+    scam_focus: str = Field(default="mixed", max_length=40)
+    scam_stage_focus: str = Field(default="request", max_length=40)
+    localisation: str = Field(default="Singapore", max_length=80)
+    local_context: str = Field(default="", max_length=500)
+    reference_conversation: str = Field(default="", max_length=12000)
+
+
+class PersonaCreateRequest(PersonaUpdateRequest):
+    pass
+
+
+class PersonaDuplicateRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=100)
+
+
+class PersonaTestRequest(BaseModel):
+    message_text: str = Field(min_length=1, max_length=3000)
+
+
 class TelemetryResponse(BaseModel):
     scam_stage: str | None
     pressure_level: int | None
@@ -229,6 +274,8 @@ class PendingReplyApprovalResponse(BaseModel):
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     await asyncio.to_thread(database.initialize_database)
     await asyncio.to_thread(backend_database.init_db)
+    stored_personas = await asyncio.to_thread(backend_database.load_custom_personas)
+    hydrate_custom_personas(stored_personas)
     try:
         await asyncio.to_thread(scam_feed.fetch_latest_sg_scam_keywords)
     except scam_feed.ScamFeedError as exc:
@@ -255,6 +302,36 @@ async def _refresh_scam_keywords_periodically() -> None:
 
 
 app = FastAPI(title="Honeypot Research API", lifespan=lifespan)
+
+
+def _persona_payload(persona) -> dict[str, object]:
+    return {
+        "persona_id": persona.persona_id,
+        "name": persona.name,
+        "location": persona.location,
+        "occupation": persona.occupation,
+        "profile_description": persona.profile_description,
+        "response_style": persona.response_style,
+        "scammer_adjustment_cues": persona.scammer_adjustment_cues,
+        "research_mission": persona.research_mission,
+        "collection_priorities": persona.collection_priorities,
+        "system_prompt": persona.system_prompt,
+        "is_template": persona.persona_id in TEMPLATE_PERSONA_IDS,
+        "stall_strategy": persona.stall_strategy,
+        "engagement_level": persona.engagement_level,
+        "question_frequency": persona.question_frequency,
+        "ioc_priority": persona.ioc_priority,
+        "ioc_types": persona.ioc_types,
+        "boundary_strictness": persona.boundary_strictness,
+        "response_length": persona.response_length,
+        "escalation_behaviour": persona.escalation_behaviour,
+        "familiarity_level": persona.familiarity_level,
+        "scam_focus": persona.scam_focus,
+        "scam_stage_focus": persona.scam_stage_focus,
+        "localisation": persona.localisation,
+        "local_context": persona.local_context,
+        "reference_conversation": persona.reference_conversation,
+    }
 
 
 @app.get("/api/analytics")
@@ -287,21 +364,82 @@ async def get_model_status() -> dict[str, str | bool]:
 
 
 @app.get("/api/personas")
-async def get_personas() -> list[dict[str, str]]:
-    return [
-        {
-            "persona_id": persona.persona_id,
-            "name": persona.name,
-            "location": persona.location,
-            "occupation": persona.occupation,
-            "profile_description": persona.profile_description,
-            "response_style": persona.response_style,
-            "scammer_adjustment_cues": persona.scammer_adjustment_cues,
-            "research_mission": persona.research_mission,
-            "collection_priorities": persona.collection_priorities,
-        }
-        for persona in PERSONAS.values()
-    ]
+async def get_personas() -> list[dict[str, object]]:
+    return [_persona_payload(persona) for persona in all_personas()]
+
+
+@app.put("/api/personas/{persona_id}")
+async def edit_persona(persona_id: str, request: PersonaUpdateRequest) -> dict[str, object]:
+    try:
+        persona = update_persona(persona_id, **request.model_dump(exclude={"name"}))
+        await asyncio.to_thread(backend_database.save_persona, persona)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return _persona_payload(persona)
+
+
+@app.delete("/api/personas/{persona_id}")
+async def remove_persona(persona_id: str) -> dict[str, object]:
+    try:
+        persona = delete_persona(persona_id)
+        reassigned_chat_count = await asyncio.to_thread(
+            backend_database.clear_persona_assignments,
+            persona_id,
+        )
+        await asyncio.to_thread(backend_database.delete_persona_record, persona_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {
+        "persona_id": persona.persona_id,
+        "deleted": True,
+        "cleared_chat_assignments": reassigned_chat_count,
+    }
+
+
+@app.get("/api/personas/{persona_id}/overview")
+async def persona_overview(persona_id: str) -> dict[str, object]:
+    if persona_id not in {persona.persona_id for persona in all_personas()}:
+        raise HTTPException(status_code=404, detail="Persona not found")
+    return await asyncio.to_thread(backend_database.get_persona_overview, persona_id)
+
+
+@app.post("/api/personas", status_code=201)
+async def add_persona(request: PersonaCreateRequest) -> dict[str, str | bool]:
+    try:
+        persona = create_persona(**request.model_dump())
+        await asyncio.to_thread(backend_database.save_persona, persona)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return _persona_payload(persona)
+
+
+@app.post("/api/personas/{persona_id}/duplicate", status_code=201)
+async def copy_persona(persona_id: str, request: PersonaDuplicateRequest) -> dict[str, str | bool]:
+    try:
+        persona = duplicate_persona(persona_id, request.name)
+        await asyncio.to_thread(backend_database.save_persona, persona)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return _persona_payload(persona)
+
+
+@app.post("/api/personas/{persona_id}/test")
+async def test_persona(persona_id: str, request: PersonaTestRequest) -> dict[str, object]:
+    if persona_id not in {persona.persona_id for persona in all_personas()}:
+        raise HTTPException(status_code=404, detail="Persona not found")
+    try:
+        reply, telemetry = await backend_ai_handler.generate_persona_response(
+            persona_id,
+            [{"role": "user", "content": request.message_text}],
+        )
+    except backend_ai_handler.AIHandlerError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return {
+        "persona_id": persona_id,
+        "message_text": request.message_text,
+        "reply": reply,
+        "telemetry": telemetry,
+    }
 
 
 @app.post("/api/personas/compare", response_model=PersonaCompareResponse)

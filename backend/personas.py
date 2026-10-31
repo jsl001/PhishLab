@@ -1,4 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from collections.abc import Mapping, Sequence
+import re
 
 
 @dataclass(frozen=True)
@@ -14,6 +16,20 @@ class Persona:
     research_mission: str
     collection_priorities: str
     system_prompt: str
+    stall_strategy: str = "balanced"
+    engagement_level: str = "moderate"
+    question_frequency: str = "occasional"
+    ioc_priority: str = "high"
+    ioc_types: str = "domains, URLs, phone numbers, payment references, organisation names"
+    boundary_strictness: str = "high"
+    response_length: str = "short"
+    escalation_behaviour: str = "slow down and verify"
+    familiarity_level: str = "ordinary"
+    scam_focus: str = "mixed"
+    scam_stage_focus: str = "request"
+    localisation: str = "Singapore"
+    local_context: str = ""
+    reference_conversation: str = ""
 
 
 PERSONAS: dict[str, Persona] = {
@@ -70,6 +86,18 @@ PERSONAS: dict[str, Persona] = {
             "pressure with a brief pause or a simple clarifying question. Do "
             "not portray her as romantically interested or as trusting the sender."
         ),
+        scam_focus="investment",
+        scam_stage_focus="shift",
+        localisation="Singapore",
+        local_context="Singapore English; PayNow, MAS, local bank, and investment-group references when supported by the message.",
+        stall_strategy="balanced",
+        engagement_level="moderate",
+        question_frequency="regular",
+        ioc_priority="high",
+        boundary_strictness="high",
+        response_length="short",
+        escalation_behaviour="slow down and verify",
+        familiarity_level="ordinary",
     ),
     "wei_ming": Persona(
         persona_id="wei_ming",
@@ -118,6 +146,18 @@ PERSONAS: dict[str, Persona] = {
             "access, or to move money. Do not make him reckless or imply that "
             "his age or occupation predicts gullibility."
         ),
+        scam_focus="job",
+        scam_stage_focus="request",
+        localisation="Singapore",
+        local_context="Singapore English; PayNow, task platforms, upfront deposits, and local payment references when supported by the message.",
+        stall_strategy="curious",
+        engagement_level="high",
+        question_frequency="frequent",
+        ioc_priority="maximum",
+        boundary_strictness="moderate",
+        response_length="medium",
+        escalation_behaviour="slow down and verify",
+        familiarity_level="ordinary",
     ),
     "siti": Persona(
         persona_id="siti",
@@ -166,14 +206,210 @@ PERSONAS: dict[str, Persona] = {
             "Urgency or an institution's name alone does not convince her. Do "
             "not infer her caution or beliefs from her nationality."
         ),
+        scam_focus="authority",
+        scam_stage_focus="request",
+        localisation="Malaysia · Johor Bahru",
+        local_context="Malaysian English; courier, bank, agency, fee, and account-verification cues when supported by the message.",
+        stall_strategy="conservative",
+        engagement_level="low",
+        question_frequency="rare",
+        ioc_priority="selective",
+        boundary_strictness="absolute",
+        response_length="short",
+        escalation_behaviour="end conversation",
+        familiarity_level="aware",
     ),
 }
+
+TEMPLATE_PERSONA_IDS = frozenset(PERSONAS)
+CUSTOM_PERSONAS: dict[str, Persona] = {}
 
 DEFAULT_PERSONA_ID = "lynn"
 
 
+def hydrate_custom_personas(records: Sequence[Mapping[str, object]]) -> None:
+    """Load custom persona records from the configured database."""
+    CUSTOM_PERSONAS.clear()
+    for record in records:
+        persona_id = str(record.get("persona_id") or "").strip()
+        if not persona_id or persona_id in TEMPLATE_PERSONA_IDS:
+            continue
+        try:
+            persona = Persona(
+                persona_id=persona_id,
+                name=str(record["name"]),
+                age=int(record["age"]),
+                location=str(record["location"]),
+                occupation=str(record["occupation"]),
+                profile_description=str(record["profile_description"]),
+                response_style=str(record["response_style"]),
+                scammer_adjustment_cues=str(record["scammer_adjustment_cues"]),
+                research_mission=str(record["research_mission"]),
+                collection_priorities=str(record["collection_priorities"]),
+                system_prompt=str(record["system_prompt"]),
+                stall_strategy=str(record["stall_strategy"]),
+                engagement_level=str(record["engagement_level"]),
+                question_frequency=str(record["question_frequency"]),
+                ioc_priority=str(record["ioc_priority"]),
+                ioc_types=str(record["ioc_types"]),
+                boundary_strictness=str(record["boundary_strictness"]),
+                response_length=str(record["response_length"]),
+                escalation_behaviour=str(record["escalation_behaviour"]),
+                familiarity_level=str(record["familiarity_level"]),
+                scam_focus=str(record["scam_focus"]),
+                scam_stage_focus=str(record["scam_stage_focus"]),
+                localisation=str(record["localisation"]),
+                local_context=str(record["local_context"]),
+                reference_conversation=str(record["reference_conversation"]),
+            )
+        except (KeyError, TypeError, ValueError):
+            continue
+        CUSTOM_PERSONAS[persona_id] = persona
+
+
 def get_persona(persona_id: str) -> Persona:
     try:
-        return PERSONAS[persona_id]
+        return CUSTOM_PERSONAS.get(persona_id) or PERSONAS[persona_id]
     except KeyError as exc:
         raise ValueError(f"Unknown persona_id: {persona_id}") from exc
+
+
+def update_persona(persona_id: str, **changes: str) -> Persona:
+    """Update editable research fields for the running application session."""
+    if persona_id in TEMPLATE_PERSONA_IDS:
+        raise ValueError("Template personas are read-only; duplicate one to edit it")
+    current = get_persona(persona_id)
+    editable = {
+        "profile_description",
+        "response_style",
+        "scammer_adjustment_cues",
+        "research_mission",
+        "collection_priorities",
+        "system_prompt",
+        "stall_strategy",
+        "engagement_level",
+        "question_frequency",
+        "ioc_priority",
+        "ioc_types",
+        "boundary_strictness",
+        "response_length",
+        "escalation_behaviour",
+        "familiarity_level",
+        "scam_focus",
+        "scam_stage_focus",
+        "localisation",
+        "local_context",
+        "reference_conversation",
+    }
+    unknown = set(changes) - editable
+    if unknown:
+        raise ValueError(f"Unsupported persona fields: {', '.join(sorted(unknown))}")
+    cleaned = {key: value.strip() for key, value in changes.items()}
+    required_fields = set(editable) - {"local_context", "reference_conversation"}
+    if any(not cleaned.get(field) for field in required_fields if field in cleaned):
+        raise ValueError("Persona fields cannot be empty")
+    updated = replace(current, **cleaned)
+    CUSTOM_PERSONAS[persona_id] = updated
+    return updated
+
+
+def delete_persona(persona_id: str) -> Persona:
+    """Delete a custom persona from the running application session."""
+    if persona_id in TEMPLATE_PERSONA_IDS:
+        raise ValueError("Template personas are protected and cannot be deleted")
+    try:
+        return CUSTOM_PERSONAS.pop(persona_id)
+    except KeyError as exc:
+        raise ValueError("Persona not found") from exc
+
+
+def all_personas() -> list[Persona]:
+    return [*PERSONAS.values(), *CUSTOM_PERSONAS.values()]
+
+
+def create_persona(
+    name: str,
+    profile_description: str,
+    response_style: str,
+    scammer_adjustment_cues: str,
+    research_mission: str,
+    collection_priorities: str,
+    system_prompt: str,
+    *,
+    persona_id: str | None = None,
+    scam_focus: str = "mixed",
+    scam_stage_focus: str = "request",
+    localisation: str = "Singapore",
+    local_context: str = "",
+    reference_conversation: str = "",
+    stall_strategy: str = "balanced",
+    engagement_level: str = "moderate",
+    question_frequency: str = "occasional",
+    ioc_priority: str = "high",
+    ioc_types: str = "domains, URLs, phone numbers, payment references, organisation names",
+    boundary_strictness: str = "high",
+    response_length: str = "short",
+    escalation_behaviour: str = "slow down and verify",
+    familiarity_level: str = "ordinary",
+) -> Persona:
+    slug = persona_id or re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+    if not slug:
+        raise ValueError("Enter a persona name")
+    base_slug = slug
+    suffix = 2
+    while slug in PERSONAS or slug in CUSTOM_PERSONAS:
+        slug = f"{base_slug}_{suffix}"
+        suffix += 1
+    persona = Persona(
+        persona_id=slug,
+        name=name.strip(),
+        age=0,
+        location="Custom",
+        occupation="Research persona",
+        profile_description=profile_description.strip(),
+        response_style=response_style.strip(),
+        scammer_adjustment_cues=scammer_adjustment_cues.strip(),
+        research_mission=research_mission.strip(),
+        collection_priorities=collection_priorities.strip(),
+        system_prompt=system_prompt.strip(),
+        stall_strategy=stall_strategy.strip(),
+        engagement_level=engagement_level.strip(),
+        question_frequency=question_frequency.strip(),
+        ioc_priority=ioc_priority.strip(),
+        ioc_types=ioc_types.strip(),
+        boundary_strictness=boundary_strictness.strip(),
+        response_length=response_length.strip(),
+        escalation_behaviour=escalation_behaviour.strip(),
+        familiarity_level=familiarity_level.strip(),
+        scam_focus=scam_focus.strip(),
+        scam_stage_focus=scam_stage_focus.strip(),
+        localisation=localisation.strip(),
+        local_context=local_context.strip(),
+        reference_conversation=reference_conversation.strip(),
+    )
+    if not persona.name or any(not value for value in (
+        persona.profile_description, persona.response_style,
+        persona.scammer_adjustment_cues, persona.research_mission,
+        persona.collection_priorities, persona.system_prompt,
+    )):
+        raise ValueError("Persona fields cannot be empty")
+    CUSTOM_PERSONAS[slug] = persona
+    return persona
+
+
+def duplicate_persona(source_id: str, name: str | None = None) -> Persona:
+    source = get_persona(source_id)
+    return create_persona(
+        name=name or f"{source.name} (Custom)",
+        profile_description=source.profile_description,
+        response_style=source.response_style,
+        scammer_adjustment_cues=source.scammer_adjustment_cues,
+        research_mission=source.research_mission,
+        collection_priorities=source.collection_priorities,
+        system_prompt=source.system_prompt,
+        scam_focus=source.scam_focus,
+        scam_stage_focus=source.scam_stage_focus,
+        localisation=source.localisation,
+        local_context=source.local_context,
+        reference_conversation=source.reference_conversation,
+    )
